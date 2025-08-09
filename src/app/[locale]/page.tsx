@@ -1,24 +1,25 @@
-import { getTranslations, Locale } from '@/i18n/lib'
+import { getDictionary, Locale } from '@/i18n/lib'
 
 export async function generateMetadata({params}: {params:Promise<{locale:Locale}>}) {
   const { locale } = await params
-  const t = await getTranslations(locale)
+  const dict = await getDictionary(locale)
   
   return {
-    title: t('key1'),
-    description: t('key2'),
+    title: dict.key1,
+    description: dict.key2
   }
 }
 
 export default async function HomePage({ params }: {params:Promise<{locale:Locale}>}) {
   const { locale } = await params
-  const t = await getTranslations(locale)
+  const dict = await getDictionary(locale)
 
   return (
     <div className="container">
-      <h1>{t('key1')}</h1>
-      <p>{t('key2')}</p>
+      <h1>{dict.key1}</h1>
+      <p>{dict.key2}</p>
       <p>Current locale: {locale}</p>
+      <p>Key3, {dict.key3.a}, {dict.key3.b}</p>
     </div>
   )
 }

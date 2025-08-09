@@ -1,0 +1,1 @@
+export type Dictionary = {key1: string, key2: string, key3: {a:string, b:string}}
