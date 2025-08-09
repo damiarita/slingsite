@@ -1,7 +1,7 @@
 import { getTranslations, Locale } from '@/i18n/lib'
 
-export async function generateMetadata({params}: {params:{locale:Locale}}) {
-  const { locale } = params
+export async function generateMetadata({params}: {params:Promise<{locale:Locale}>}) {
+  const { locale } = await params
   const t = await getTranslations(locale)
   
   return {
@@ -10,8 +10,8 @@ export async function generateMetadata({params}: {params:{locale:Locale}}) {
   }
 }
 
-export default async function HomePage({ params }: {params:{locale:Locale}}) {
-  const { locale } = params
+export default async function HomePage({ params }: {params:Promise<{locale:Locale}>}) {
+  const { locale } = await params
   const t = await getTranslations(locale)
 
   return (

@@ -8,8 +8,8 @@ export async function generateStaticParams() {
   }))
 }
 
-export default function LocaleLayout({ children, params}:React.PropsWithChildren<{params:{locale: Locale}}>) {
-  const { locale } = params
+export default async function LocaleLayout({ children, params}:{children:React.ReactNode, params: Promise<{locale:Locale}>}) {
+  const { locale } = await params;
   
   // Verificar que el locale es válido
   if (!localeIsValid(locale)) {
