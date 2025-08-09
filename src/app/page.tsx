@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     // Detectar idioma del navegador o usar español por defecto
     const browserLang = navigator.language || navigator.languages[0] || defaultLocale;
-    router.replace(`/${browserLang}`)
+    router.replace(`/${browserLang}/image`)
   }, [router])
   
   return <div>Redirecting...</div>

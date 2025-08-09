@@ -1,0 +1,38 @@
+{
+  "navigation": {
+    "imageCompressor": "图像压缩器",
+    "videoCompressor": "视频压缩器 (即将推出)"
+  },
+  "imageCompressor": {
+    "title": "专业图像压缩器",
+    "uploadArea": {
+      "title": "点击上传或拖放文件",
+      "subtitle": "支持 JPG, PNG, WEBP, AVIF"
+    },
+    "settingsTitle": "压缩设置",
+    "viewport": {
+      "mobile": "手机",
+      "tablet": "平板电脑",
+      "desktop": "桌面"
+    },
+    "deviceWidth": "设备宽度 (像素)",
+    "sizingMethod": "尺寸调整方法",
+    "methods": {
+      "percentage": "宽度 (%)",
+      "columns": "列数",
+      "fixedWidth": "固定宽度 (像素)",
+      "fixedHeight": "固定高度 (像素)"
+    },
+    "value": "值",
+    "compressButton": "压缩图像",
+    "resultsTitle": "压缩后的图像",
+    "downloadAll": "全部下载 (.zip)",
+    "original": "原始",
+    "compressed": "已压缩",
+    "format": "格式",
+    "dimensions": "尺寸",
+    "size": "大小",
+    "reduction": "减少",
+    "download": "下载"
+  }
+}

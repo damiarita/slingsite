@@ -1,1 +1,40 @@
-{"key1":"valor1", "key2":"valor2", "key3":{"a":"A", "b":"B"}}
+{
+  "redirecting":"Redirigiendo",
+  "processing": "Procesando",
+  "navigation": {
+    "imageCompressor": "Compresor de Imágenes",
+    "videoCompressor": "Compresor de Vídeo (pronto)"
+  },
+  "imageCompressor": {
+    "title": "Compresor de Imágenes Profesional",
+    "uploadArea": {
+      "title": "Haz clic para subir o arrastra y suelta",
+      "subtitle": "Soporta JPG, PNG, WEBP, AVIF"
+    },
+    "settingsTitle": "Ajustes de Compresión",
+    "viewport": {
+      "mobile": "Móvil",
+      "tablet": "Tablet",
+      "desktop": "Escritorio"
+    },
+    "deviceWidth": "Ancho del Dispositivo (px)",
+    "sizingMethod": "Método de Dimensionamiento",
+    "methods": {
+      "percentage": "Ancho (%)",
+      "columns": "Columnas",
+      "fixedWidth": "Ancho Fijo (px)",
+      "fixedHeight": "Alto Fijo (px)"
+    },
+    "value": "Valor",
+    "compressButton": "Comprimir Imágenes",
+    "resultsTitle": "Imágenes Comprimidas",
+    "downloadAll": "Descargar Todo (.zip)",
+    "original": "Original",
+    "compressed": "Comprimido",
+    "format": "Formato",
+    "dimensions": "Dimensiones",
+    "size": "Tamaño",
+    "reduction": "Reducción",
+    "download": "Descargar"
+  }
+}

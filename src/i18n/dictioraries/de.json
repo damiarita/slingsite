@@ -1,0 +1,38 @@
+{
+  "navigation": {
+    "imageCompressor": "Bildkompressor",
+    "videoCompressor": "Videokompressor (bald)"
+  },
+  "imageCompressor": {
+    "title": "Professioneller Bildkompressor",
+    "uploadArea": {
+      "title": "Klicken zum Hochladen oder per Drag & Drop",
+      "subtitle": "Unterstützt JPG, PNG, WEBP, AVIF"
+    },
+    "settingsTitle": "Komprimierungseinstellungen",
+    "viewport": {
+      "mobile": "Mobil",
+      "tablet": "Tablet",
+      "desktop": "Desktop"
+    },
+    "deviceWidth": "Gerätebreite (px)",
+    "sizingMethod": "Größenbestimmungsmethode",
+    "methods": {
+      "percentage": "Breite (%)",
+      "columns": "Spalten",
+      "fixedWidth": "Feste Breite (px)",
+      "fixedHeight": "Feste Höhe (px)"
+    },
+    "value": "Wert",
+    "compressButton": "Bilder komprimieren",
+    "resultsTitle": "Komprimierte Bilder",
+    "downloadAll": "Alle herunterladen (.zip)",
+    "original": "Original",
+    "compressed": "Komprimiert",
+    "format": "Format",
+    "dimensions": "Abmessungen",
+    "size": "Größe",
+    "reduction": "Reduzierung",
+    "download": "Herunterladen"
+  }
+}
