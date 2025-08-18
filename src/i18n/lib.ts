@@ -1,7 +1,7 @@
 import { Dictionary } from './dictioraries/type';
 
 export const defaultLocale = 'en';
-export const locales = ['en', 'es', 'ar'] as const;
+export const locales = ['en', 'es', 'ar', 'de', 'fr', 'it', 'zh'] as const;
 
 export type Locale = typeof locales[number];
 
