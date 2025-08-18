@@ -1,5 +1,6 @@
 import { locales, localeIsValid, Locale } from '@/i18n/lib';
-import { notFound } from 'next/navigation'
+import { notFound } from 'next/navigation';
+import "../globals.css";
 import React from 'react';
 
 export async function generateStaticParams() {
