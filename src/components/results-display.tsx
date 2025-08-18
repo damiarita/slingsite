@@ -125,7 +125,11 @@ export const ResultsDisplay = ({ results, originalFiles, dictionary, onDownloadA
                                         {dictionary.download}
                                       </button>
                                     </div>
-                                  ) : '...'}
+                                  ) : (
+                                    <div className="flex justify-center items-center">
+                                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+                                    </div>
+                                  )}
                                 </td>
                               );
                             })}
