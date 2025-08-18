@@ -22,6 +22,7 @@ export const FileUpload = ({ onFilesChange, dictionary }: {
       'image/webp': [],
       'image/avif': [],
     },
+    noClick: true, // This prevents the root div from triggering file dialog
   });
 
   return (
