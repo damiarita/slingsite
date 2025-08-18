@@ -16,6 +16,23 @@ export interface CompressionResult {
   height: number;
 }
 
+export function downloadResultFile(compressionResult:CompressionResult){
+    const file = compressionResult.file;
+    
+    const fileNamePieces = file.name.split(".");
+    fileNamePieces[fileNamePieces.length-2]=fileNamePieces[fileNamePieces.length-2]+'-compressed-'+compressionResult.viewport;
+    const downloadFileName = fileNamePieces.join(".");
+
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = downloadFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
 interface OriginalFile {
   id: string;
   file: File;
@@ -46,15 +63,8 @@ export const ResultsDisplay = ({ results, originalFiles, dictionary, onDownloadA
     }, {} as Record<string, CompressionResult[]>);
   }, [results]);
 
-  const handleDownload = (file: File) => {
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleDownload = (result: CompressionResult) => {
+    downloadResultFile(result)
   };
 
   return (
@@ -111,7 +121,7 @@ export const ResultsDisplay = ({ results, originalFiles, dictionary, onDownloadA
                                           {` ${((1 - result.file.size / result.originalSize) * 100).toFixed(1)}%`}
                                         </span>
                                       </p>
-                                      <button onClick={() => handleDownload(result.file)} className="mt-2 text-sm font-semibold text-blue-600 hover:text-blue-500">
+                                      <button onClick={() => handleDownload(result)} className="mt-2 text-sm font-semibold text-blue-600 hover:text-blue-500">
                                         {dictionary.download}
                                       </button>
                                     </div>

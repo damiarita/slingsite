@@ -7,7 +7,7 @@ import type { Dictionary } from '@/i18n/dictioraries/type';
 import useCompressImage, { Format } from '@/hooks/use-compress-image';
 import { FileUpload } from './file-upload';
 import { DimensionSettings, ViewportSettings } from './dimension-settings';
-import { ResultsDisplay, CompressionResult } from './results-display';
+import { ResultsDisplay, CompressionResult, downloadResultFile } from './results-display';
 
 
 // Data structure to hold information about the original uploaded file.
@@ -120,24 +120,12 @@ export const ImageCompressor = ({ dictionary }: {dictionary: Dictionary}) => {
     }
     setIsProcessing(false);
   };
-
-
-  const downloadFile = (file: File) => {
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
   
   const handleDownloadAll = async () => {
     if (results.length === 0) return;
 
     results.forEach(result => {
-      downloadFile(result.file)
+      downloadResultFile(result)
     });
   };
 
