@@ -19,7 +19,6 @@ export default async function LocaleLayout({ children, params}:{children:React.R
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-
       <body>
         <main className="main">
           {children}
