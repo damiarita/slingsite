@@ -1,110 +1,94 @@
 // This component provides the UI for configuring the compression dimensions for each viewport.
 'use client';
-
-import { useState } from 'react';
+import {ReactElement} from 'react';
+import { Device } from '@/types/devices';
 import type {  CompressorPageDictionary } from '@/i18n/dictioraries/type';
+import { Smartphone, Tablet, Monitor, Settings} from 'lucide-react';
 
-export type SizingMethod = 'percentage' | 'columns' | 'fixedWidth' | 'fixedHeight';
-
-export interface DeviceSetting {
-  deviceWidth: number;
-  method: SizingMethod;
-  value: number;
+type ConfigMode = 'width' | 'height' | 'percentage';
+type DeviceConfig = {
+  enabled: boolean;
+  screenWidth: number;
+  sizingType: ConfigMode;
+  percentage: number;
+  width: number;
+  height: number;
 }
+export type DimensionsConfig = Record<Device, DeviceConfig>;
 
-export interface ViewportSettings {
-  mobile: DeviceSetting;
-  tablet: DeviceSetting;
-  desktop: DeviceSetting;
+const createPercentageFromColumns = (columns:number) => {
+  if (columns <= 0) return 100;
+  return 100/columns;
+};
+
+const lables: Record<ConfigMode, string> = {
+  width: 'Image Width',
+  height: 'Image Height',
+  percentage: 'Layout'  
 }
+export const DimensionsSettings = ({ config, setConfig }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>> }) => {
+  
+  const icons:Record<Device, ReactElement>= { mobile: <Smartphone className="w-5 h-5 mr-2" />, tablet: <Tablet className="w-5 h-5 mr-2" />, desktop: <Monitor className="w-5 h-5 mr-2" /> };
+  const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '4 Col', columns: 4 } ];
 
-interface DimensionSettingsProps {
-  settings: ViewportSettings;
-  onSettingsChange: (settings: ViewportSettings) => void;
-  dictionary: CompressorPageDictionary;
-}
-
-type Viewport = 'mobile' | 'tablet' | 'desktop';
-
-export const DimensionSettings = ({ settings, onSettingsChange, dictionary }: DimensionSettingsProps) => {
-  const [activeTab, setActiveTab] = useState<Viewport>('mobile');
-
-  const handleSettingChange = (viewport: Viewport, field: keyof DeviceSetting, value: number | SizingMethod) => {
-    onSettingsChange({
-      ...settings,
-      [viewport]: {
-        ...settings[viewport],
-        [field]: value,
-      },
+  const handleToggle = (device: Device) => {
+    setConfig( (prev:DimensionsConfig) => {
+      const newConfig = { ...prev };
+      newConfig[device] = { ...newConfig[device], enabled: !newConfig[device].enabled };
+      return newConfig;
+    });
+  };
+  const handleModeChange = (device:Device, mode:ConfigMode) => {
+    setConfig(prev => {
+      const newConfig = { ...prev };
+      const deviceConf = { ...newConfig[device], sizingType: mode };
+      newConfig[device] = deviceConf;
+      return newConfig;
+    });
+  };
+  const handleInputChange = (device:Device, field:'width'|'height'|'percentage'|'screenWidth', value:number) => {
+     setConfig(prev => {
+        const newConfig = { ...prev };
+        const deviceConf = { ...newConfig[device], [field]: value };
+        if (field === 'width') { deviceConf.width = value; deviceConf.percentage = 100*value/deviceConf.screenWidth; }
+        if (field === 'percentage') { deviceConf.percentage = value; deviceConf.width = deviceConf.screenWidth*value/100; }
+        if (field === 'screenWidth') { deviceConf.screenWidth = value; deviceConf.width = deviceConf.screenWidth*deviceConf.percentage/100; }
+        if (field === 'height') { deviceConf.height = value; }
+        newConfig[device] = deviceConf;
+        return newConfig;
     });
   };
 
-  const renderTab = (viewport: Viewport) => {
-    const config = settings[viewport];
-    return (
-      <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-        <div className="sm:col-span-2">
-          <label htmlFor={`${viewport}-device-width`} className="block text-sm font-medium leading-6 text-gray-900">{dictionary.deviceWidth}</label>
-          <input
-            type="number"
-            id={`${viewport}-device-width`}
-            value={config.deviceWidth}
-            onChange={(e) => handleSettingChange(viewport, 'deviceWidth', Number(e.target.value))}
-            className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor={`${viewport}-method`} className="block text-sm font-medium leading-6 text-gray-900">{dictionary.sizingMethod}</label>
-          <select
-            id={`${viewport}-method`}
-            value={config.method}
-            onChange={(e) => handleSettingChange(viewport, 'method', e.target.value as SizingMethod)}
-            className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-          >
-            <option value="percentage">{dictionary.methods.percentage}</option>
-            <option value="columns">{dictionary.methods.columns}</option>
-            <option value="fixedWidth">{dictionary.methods.fixedWidth}</option>
-            <option value="fixedHeight">{dictionary.methods.fixedHeight}</option>
-          </select>
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor={`${viewport}-value`} className="block text-sm font-medium leading-6 text-gray-900">{dictionary.value}</label>
-          <input
-            type="number"
-            id={`${viewport}-value`}
-            value={config.value}
-            onChange={(e) => handleSettingChange(viewport, 'value', Number(e.target.value))}
-            className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-          />
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="bg-white p-6 shadow sm:rounded-lg">
-      <h3 className="text-xl font-semibold leading-7 text-gray-900">{dictionary.settingsTitle}</h3>
-      <div className="mt-4">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            {(['mobile', 'tablet', 'desktop'] as Viewport[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
-              >
-                {dictionary.viewport[tab]}
-              </button>
-            ))}
-          </nav>
-        </div>
-        <div className="mt-6">
-          {renderTab(activeTab)}
-        </div>
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div className="flex items-center mb-4"> <Settings className="w-6 h-6 text-gray-600 mr-3" /> <h3 className="text-xl font-semibold text-gray-800">Compression Settings</h3> </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {(Object.keys(config) as Device[]).map((device) => (
+          <div key={device} className={`rounded-lg transition-all duration-300 ${config[device].enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}>
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center font-semibold text-gray-700 capitalize"> {icons[device]} {device} </div>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none"> <input type="checkbox" id={device} checked={config[device].enabled} onChange={() => handleToggle(device)} className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/> <label htmlFor={device} className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label> </div>
+            </div>
+            <div className={`transition-all duration-500 ease-in-out overflow-hidden ${config[device].enabled ? 'max-h-[500px]' : 'max-h-0'}`}>
+              <div className="px-4 pb-4 space-y-4">
+                {config[device].sizingType==='percentage' && (<div> <label className="text-sm font-medium text-gray-600">Screen Width</label> <div className="relative mt-1"> <input type="number" value={config[device].screenWidth} onChange={(e) => handleInputChange(device, 'screenWidth', parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div> </div>)}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">{lables[config[device].sizingType]}</label>
+                  {config[device].sizingType === 'percentage' ? (
+                    <><div className="grid grid-cols-4 gap-2 mt-1"> {columnOptions.map(opt => ( <button key={opt.columns} onClick={() => handleInputChange(device, 'percentage', createPercentageFromColumns(opt.columns))} className={`text-xs p-2 rounded-md transition-colors ${Math.round(createPercentageFromColumns(opt.columns))===Math.round(config[device].percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}> {opt.label} </button> ))} </div> <div className="mt-2"> <input type="range" min="1" max="100" value={config[device].percentage} onChange={(e) => handleInputChange(device, 'percentage', parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/> <div className="text-center text-sm text-gray-600 mt-1">{Math.round(config[device].percentage)}% width</div> </div> </>
+                  ) : (
+                    <div className="relative mt-1"> <input type="number" placeholder={`e.g., ${config[device].sizingType === 'width' ? 800 : 600}`} value={config[device][config[device].sizingType]} onChange={(e) => handleInputChange(device, config[device].sizingType, parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div>
+                  )}
+                  <div className="flex space-x-2 mt-3 text-xs">
+                    {config[device].sizingType==='percentage' || (<button onClick={() => handleModeChange(device, 'percentage')} className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100">Set Percentage</button>)}
+                    {config[device].sizingType==='width' || (<button onClick={() => handleModeChange(device, 'width')} className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100">Set Width</button>)}
+                    {config[device].sizingType==='height' || (<button onClick={() => handleModeChange(device, 'height')} className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100">Set Height</button>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

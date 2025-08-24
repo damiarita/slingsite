@@ -1,51 +1,45 @@
 // A reusable component for handling file uploads via drag-and-drop or file selection.
 'use client';
 
-import { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useState, useRef } from 'react';
 import type { UploadArea } from '@/i18n/dictioraries/type';
+import { UploadCloud} from 'lucide-react';
 
+interface FileUploadProps {
+  onFilesAdded: (files: File[]) => void;
+}
 
-export const FileUpload = ({ onFilesChange, dictionary }: {
-  onFilesChange: (files: File[]) => void;
-  dictionary: UploadArea;
-}) => {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    onFilesChange(acceptedFiles);
-  }, [onFilesChange]);
+export const FileUpload = ({ onFilesAdded }: FileUploadProps) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/jpeg': [],
-      'image/png': [],
-      'image/webp': [],
-      'image/avif': [],
-    },
-    noClick: true, // This prevents the root div from triggering file dialog
-  });
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(e.type === "dragenter" || e.type === "dragover");
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault(); e.stopPropagation(); setIsDragging(false);
+    if (e.dataTransfer.files?.length) {
+      onFilesAdded(Array.from(e.dataTransfer.files));
+      e.dataTransfer.clearData();
+    }
+  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files?.length) {
+      onFilesAdded(Array.from(e.target.files));
+    }
+  };
+  const onButtonClick = () => { if(fileInputRef.current) fileInputRef.current.click(); else throw new Error("fileInputRef.current is not defined") };
 
   return (
-    <div
-      {...getRootProps()}
-      className={`mt-2 flex justify-center rounded-lg border border-dashed px-6 py-10 transition-colors ${
-        isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-900/25'
-      }`}
-    >
-      <div className="text-center">
-        <svg className="mx-auto h-12 w-12 text-gray-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clipRule="evenodd" />
-        </svg>
-        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-          <label
-            htmlFor="file-upload"
-            className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
-          >
-            <span>{dictionary.title}</span>
-            <input {...getInputProps()} id="file-upload" name="file-upload" type="file" className="sr-only" multiple />
-          </label>
-        </div>
-        <p className="text-xs leading-5 text-gray-600">{dictionary.subtitle}</p>
+    <div onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop} className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white hover:border-blue-400'}`}>
+      <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleChange} />
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"> <UploadCloud className={`w-8 h-8 transition-colors duration-300 ${isDragging ? 'text-blue-600' : 'text-gray-500'}`} /> </div>
+        <p className="text-gray-600"> <span className="font-semibold text-blue-600 cursor-pointer" onClick={onButtonClick}>Click to upload</span> or drag and drop </p>
+        <p className="text-xs text-gray-500">Supports JPG, PNG, WEBP, GIF</p>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-
+import type { ImageFormat } from "@/types/formats";
+import { MediaSize } from "@/types/mediaSizes";
 type CompressorClass = typeof import("@yireen/squoosh-browser").default;
 type Settings = ConstructorParameters<CompressorClass>[1];
-export type Format = "jpg" | "webp" | "avif";
 
 export default function useCompressImage() {
   const [compressorClass, setCompressorClass] = useState<CompressorClass | null>(null);
@@ -17,16 +17,16 @@ export default function useCompressImage() {
     }
     loadWasm();
   }, []);
-  return compressorClass===null? null : function (file: File, format:Format, width:number, height:number): Promise<File> {
+  return compressorClass===null? null : function (file: File, format:ImageFormat, mediaSize:MediaSize): Promise<File> {
     if (!compressorClass){
       throw new Error("Compressor class not loaded. Ensure '@yireen/squoosh-browser' is imported correctly.");
     } 
-    const compressor = new compressorClass(file, getSettings(format, width, height));
+    const compressor = new compressorClass(file, getSettings(format, mediaSize.width, mediaSize.height));
     return compressor.process();
   };
 }
 
-function getSettings(format: Format, width:number, height:number): Settings {
+function getSettings(format: ImageFormat, width:number, height:number): Settings {
 
   if (format === "webp") {
     return {

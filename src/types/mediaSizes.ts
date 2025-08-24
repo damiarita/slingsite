@@ -1,0 +1,1 @@
+export type MediaSize = {width: number; height: number};
