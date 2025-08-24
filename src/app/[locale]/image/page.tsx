@@ -132,7 +132,7 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="grid grid-cols-1 gap-8 items-start">
             <div className="space-y-6"> <FileUpload onFilesAdded={handleFilesAdded} /> <DimensionsSettings config={deviceConfig} setConfig={setDeviceConfig} /> </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-[200px]">
               <div className="flex justify-between items-center mb-4">
