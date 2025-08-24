@@ -3,8 +3,8 @@
 import {ReactElement} from 'react';
 import { Device } from '@/types/devices';
 import type {  CompressorPageDictionary } from '@/i18n/dictioraries/type';
-import { Smartphone, Tablet, Monitor, Settings, Play} from 'lucide-react';
-import { PrimaryButton } from './buttons';
+import { Smartphone, Tablet, Monitor, Settings, Play, Files, X, FilePlus} from 'lucide-react';
+import { PrimaryButton, SecondaryButton } from './buttons';
 
 type ConfigMode = 'width' | 'height' | 'percentage';
 type DeviceConfig = {
@@ -27,7 +27,7 @@ const lables: Record<ConfigMode, string> = {
   height: 'Image Height',
   percentage: 'Layout'  
 }
-export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleCompressClick }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>>, readyToCompress:boolean, handleCompressClick:()=>void }) => {
+export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleCompressClick, files, handleRemoveFile, handleReturnToUpload }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>>, readyToCompress:boolean, handleCompressClick:()=>void, files:File[], handleRemoveFile:(index:number)=>void, handleReturnToUpload:()=>void}) => {
   
   const icons:Record<Device, ReactElement>= { mobile: <Smartphone className="w-5 h-5 mr-2" />, tablet: <Tablet className="w-5 h-5 mr-2" />, desktop: <Monitor className="w-5 h-5 mr-2" /> };
   const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '1/4', columns: 4 } ];
@@ -62,6 +62,27 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div className="flex items-center mb-4"> <Files className="w-6 h-6 text-gray-600 mr-3" /> <h3 className="text-xl font-semibold text-gray-800">Files to Compress</h3> </div>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+        {files.map((file, index) => (
+            <div key={file.name} className="relative group aspect-square">
+                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded-md shadow-sm"/>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md"></div>
+                <button 
+                    onClick={()=>handleRemoveFile(index)} 
+                    className="absolute top-1 right-1 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    aria-label="Remove image"
+                >
+                    <X className="w-4 h-4" />
+                </button>
+            </div>
+        ))}
+      </div>
+      <div className="flex justify-end items-center mb-4">
+        <SecondaryButton onClick={handleReturnToUpload}>
+          <FilePlus className="w-4 h-4 mr-2"/>Add More Files
+        </SecondaryButton>
+      </div>
       <div className="flex items-center mb-4"> <Settings className="w-6 h-6 text-gray-600 mr-3" /> <h3 className="text-xl font-semibold text-gray-800">Compression Settings</h3> </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
         {(Object.keys(config) as Device[]).map((device) => (
