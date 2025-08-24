@@ -29,7 +29,7 @@ const lables: Record<ConfigMode, string> = {
 export const DimensionsSettings = ({ config, setConfig }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>> }) => {
   
   const icons:Record<Device, ReactElement>= { mobile: <Smartphone className="w-5 h-5 mr-2" />, tablet: <Tablet className="w-5 h-5 mr-2" />, desktop: <Monitor className="w-5 h-5 mr-2" /> };
-  const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '4 Col', columns: 4 } ];
+  const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '1/4', columns: 4 } ];
 
   const handleToggle = (device: Device) => {
     setConfig( (prev:DimensionsConfig) => {
