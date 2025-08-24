@@ -1,5 +1,5 @@
 import { Job } from "@/types/job"
-import { isJobFinished, isJobPending } from "@/utils/jobs"
+import { isJobPending } from "@/utils/jobs"
 import { FileItem } from "./file-item"
 import { Device } from "@/types/devices"
 import { Format } from "@/types/formats"
