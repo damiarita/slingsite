@@ -1,6 +1,13 @@
 
 import {Locale, getDictionary} from '@/i18n/lib'
 import { Redirecter } from '@/components/redirecter'
+import { Metadata } from 'next'
+
+export function generateMetadata(): Metadata {
+  return {
+    title: "Redirecting...",
+  }
+}
 
 export default async function HomePage({ params }: {params:Promise<{locale:Locale}>}) {
   const { locale } = await params

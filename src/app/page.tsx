@@ -1,17 +1,17 @@
-'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import {defaultLocale} from '@/i18n/lib'
+import {Locale, getDictionary} from '@/i18n/lib'
+import { Redirecter } from '@/components/redirecter'
+import { Metadata } from 'next'
 
-export default function Home() {
-  const router = useRouter()
+export function generateMetadata(): Metadata {
+  return {
+    title: "Redirecting...",
+  }
+}
 
-  useEffect(() => {
-    // Detectar idioma del navegador o usar español por defecto
-    const browserLang = navigator.language || navigator.languages[0] || defaultLocale;
-    router.replace(`/${browserLang}/image`)
-  }, [router])
-  
-  return <div>Redirecting...</div>
+export default async function HomePage() {
+  const  locale = 'en' as Locale; 
+  const dict = await getDictionary(locale)
+
+  return <Redirecter path={`/${locale}/image`} redirecting={dict.redirecting} />
 }
