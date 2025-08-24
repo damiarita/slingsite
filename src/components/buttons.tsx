@@ -5,9 +5,9 @@ export const PrimaryButton = ({ children, onClick, disabled }: { children: React
     </button>
   );
 }
-export const SecondaryButton = ({ children, onClick, disabled }: { children: React.ReactNode; onClick: () => void; disabled?: boolean }) => {
+export const SecondaryButton = ({ children, onClick, disabled, small }: { children: React.ReactNode; onClick: () => void; disabled?: boolean, small?:boolean }) => {
   return (
-    <button onClick={onClick} disabled={disabled} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center text-sm"> 
+    <button onClick={onClick} disabled={disabled} className={`bg-gray-200 text-gray-700 px-${small?2:4} py-${small?1:2} rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center text-${small?'xs':'sm'}`}> 
         {children}
     </button>
   );

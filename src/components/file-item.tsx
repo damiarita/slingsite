@@ -4,6 +4,7 @@ import type { Format } from '@/types/formats';
 import type { Device } from '@/types/devices';
 import { Outputs, Job } from '@/types/job';
 import { isJobFinished, isJobOngoing, isJobPending } from '@/utils/jobs';
+import { SecondaryButton } from './buttons';
 
 
 type FileItemProps = {
@@ -57,7 +58,7 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
                         <div className="mb-4">
                             <div className="flex justify-between items-center mb-2">
                                 <h4 className="text-sm font-semibold text-gray-700">Compressed Files:</h4>
-                                {isJobFinished(job) && <button onClick={() => onDownloadAll()} className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 flex items-center"> <Package className="w-3 h-3 mr-1"/> Download All </button>}
+                                {isJobFinished(job) && <SecondaryButton onClick={() => onDownloadAll()} small={true}> <Package className="w-3 h-3 mr-1"/> Download All </SecondaryButton>}
                             </div>
                             {renderOutputs(outputs)}
                         </div>
