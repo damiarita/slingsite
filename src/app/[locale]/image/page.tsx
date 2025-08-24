@@ -1,52 +1,23 @@
 'use client';
 
 import {useState, useEffect} from "react"
-import { FileItem } from "@/components/file-item"
 import { FileUpload } from "@/components/file-upload"
+import { Results } from "@/components/results"
 import { DimensionsSettings, DimensionsConfig } from "@/components/dimension-settings"
-import { Package } from "lucide-react";
 import useCompressImage from "@/hooks/use-compress-image";
-import { ImageFormat, Format } from "@/types/formats";
+import { ImageFormat } from "@/types/formats";
 import { Device } from "@/types/devices";
 import {Job } from "@/types/job";
 import { createImageJob, isJobFinished, jobNextPendingOutput } from "@/utils/jobs";
 import { MediaSize } from "@/types/mediaSizes";
 
-const downloadResultFile=(job:Job, device:Device, format:Format)=>{
-  const file = job.outputs[device]?.[format];
-  if (file){
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = getDownloadName(file.name, device, format);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
 
-  function getDownloadName(orginalName:string, device:Device, format:Format){
-    const fileNamePieces = orginalName.split(".");
-    fileNamePieces[fileNamePieces.length-2]=fileNamePieces[fileNamePieces.length-2]+'-compressed-'+device;
-    fileNamePieces[fileNamePieces.length-1]=format;
-    return fileNamePieces.join(".");
-  }
-};
-
-const downloadAllFiles=(jobs:Job[])=>{
-  jobs.forEach(job => {
-    (Object.entries(job.outputs) as [Device, Partial<Record<Format, File>>][]).forEach(([device, formats]) => {
-      (Object.entries(formats) as [Format, File][]).forEach(([format,]) => {
-        downloadResultFile(job, device, format);
-      });
-    });
-  });
-};
 
 
 
 
 export default function App() {
+  const [mode, setMode] = useState<'upload'|'settings'|'results'>('upload');
   const [files, setFiles] = useState<File[]>([]);
   const [processorBusy, setProcessorBusy] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -60,6 +31,7 @@ export default function App() {
 
   const handleFilesAdded = (newFiles:File[]) => {
     setFiles(prev => [...prev, ...newFiles]);
+    setMode('settings');
   }
 
   const handleCompressClick = () => {
@@ -70,6 +42,7 @@ export default function App() {
         ...newJobs
       ]);
       setFiles([]);
+      setMode('results');
     });
   };
 
@@ -131,21 +104,11 @@ export default function App() {
       header goes here
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>
+          {mode==='upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}
           <div className="grid grid-cols-1 gap-8 items-start">
-            <div className="space-y-6"> <FileUpload onFilesAdded={handleFilesAdded} /> <DimensionsSettings config={deviceConfig} setConfig={setDeviceConfig} /> </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-[200px]">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">Your Files</h3>
-                {files.length>0 && <button disabled={!compressImage} onClick={handleCompressClick} className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center text-sm"> Compress All </button>}
-                {jobs.filter(isJobFinished).length > 0 && <button onClick={()=>downloadAllFiles(jobs)} className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center text-sm"> <Package className="w-4 h-4 mr-2"/> Download All Files </button>}
-              </div>
-              {jobs.length === 0 ? ( <div className="text-center py-10 text-gray-500"> <p>Upload some files to get started!</p> </div> ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {jobs.map((job,index) => ( <FileItem key={job.id} onRemove={() => handleRemoveJob(index)} onDownloadOne={(device:Device, format:Format)=>downloadResultFile(job, device, format)} onDownloadAll={()=>downloadAllFiles([job])}job={job} /> ))}
-                </div>
-              )}
-            </div>
+            {mode==='upload' && <FileUpload onFilesAdded={handleFilesAdded} />}
+            {mode==='settings' && <DimensionsSettings config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressImage} handleCompressClick={handleCompressClick}/> }
+            {mode==='results' && <Results jobs={jobs} handleRemoveJob={handleRemoveJob} handleGoToUpload={()=>setMode('upload')}/> }
           </div>
         </div>
       </main>

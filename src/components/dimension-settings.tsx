@@ -3,7 +3,8 @@
 import {ReactElement} from 'react';
 import { Device } from '@/types/devices';
 import type {  CompressorPageDictionary } from '@/i18n/dictioraries/type';
-import { Smartphone, Tablet, Monitor, Settings} from 'lucide-react';
+import { Smartphone, Tablet, Monitor, Settings, Play} from 'lucide-react';
+import { PrimaryButton } from './buttons';
 
 type ConfigMode = 'width' | 'height' | 'percentage';
 type DeviceConfig = {
@@ -26,7 +27,7 @@ const lables: Record<ConfigMode, string> = {
   height: 'Image Height',
   percentage: 'Layout'  
 }
-export const DimensionsSettings = ({ config, setConfig }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>> }) => {
+export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleCompressClick }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>>, readyToCompress:boolean, handleCompressClick:()=>void }) => {
   
   const icons:Record<Device, ReactElement>= { mobile: <Smartphone className="w-5 h-5 mr-2" />, tablet: <Tablet className="w-5 h-5 mr-2" />, desktop: <Monitor className="w-5 h-5 mr-2" /> };
   const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '1/4', columns: 4 } ];
@@ -62,7 +63,7 @@ export const DimensionsSettings = ({ config, setConfig }: {config:DimensionsConf
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center mb-4"> <Settings className="w-6 h-6 text-gray-600 mr-3" /> <h3 className="text-xl font-semibold text-gray-800">Compression Settings</h3> </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
         {(Object.keys(config) as Device[]).map((device) => (
           <div key={device} className={`rounded-lg transition-all duration-300 ${config[device].enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}>
             <div className="flex items-center justify-between p-4">
@@ -89,6 +90,11 @@ export const DimensionsSettings = ({ config, setConfig }: {config:DimensionsConf
             </div>
           </div>
         ))}
+      </div>
+      <div className="flex justify-end items-center mt-4">
+        <PrimaryButton disabled={!readyToCompress} onClick={handleCompressClick}>
+          <Play className="w-4 h-4 mr-2"/>Compress All
+        </PrimaryButton>
       </div>
     </div>
   );
