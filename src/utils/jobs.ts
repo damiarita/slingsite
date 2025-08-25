@@ -1,12 +1,12 @@
 import { DimensionsConfig } from "@/components/dimension-settings";
 import { Device } from "@/types/devices";
 import { Format } from "@/types/formats";
-import { Job, RequestedFormats, RequestedSizes } from "@/types/job";
+import { Job } from "@/types/job";
 import { MediaSize } from "@/types/mediaSizes";
 
 export const createImageJob = (file:File, requestedDevices:Device[], deviceConfig:DimensionsConfig):Promise<Job> => {
     return getImageSize(file).then(originalSize=>{
-        const requestedSizes:RequestedSizes = {};
+        const requestedSizes:Partial<Record<Device, MediaSize>> = {};
         requestedDevices.forEach(device => {
             const config = deviceConfig[device];
             let width = 0, height = 0;
@@ -15,7 +15,7 @@ export const createImageJob = (file:File, requestedDevices:Device[], deviceConfi
             else if (config.sizingType === 'height') { height = Math.round(config.height); width = Math.round(originalSize.width * height / originalSize.height); }
             requestedSizes[device] = { width, height };
         });
-        const requestedFormats:RequestedFormats = ['jpg', 'webp', 'avif'];
+        const requestedFormats:Format[] = ['jpg', 'webp', 'avif'];
         return {
             id: crypto.randomUUID(),
             original: file,

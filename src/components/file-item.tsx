@@ -2,7 +2,7 @@
 import { FileIcon, Download, ImageIcon, X, Clock, Package} from 'lucide-react';
 import type { Format } from '@/types/formats';
 import type { Device } from '@/types/devices';
-import { Outputs, Job } from '@/types/job';
+import { Job } from '@/types/job';
 import { isJobFinished, isJobOngoing, isJobPending } from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
 
@@ -21,7 +21,7 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
     const allOutputs = Object.values(outputs || {}).flatMap(deviceOutputs => Object.values(deviceOutputs));
 
 
-    const renderOutputs = (outputMap: Outputs) => (
+    const renderOutputs = (outputMap: Partial<Record<Device, Partial<Record<Format, File>>>>) => (
         <div className="space-y-2">
             {(Object.entries(outputMap) as [Device, Partial<Record<Format, File>>][]).map(([device, formats]) => (
                 <div key={device}>
