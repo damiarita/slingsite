@@ -19,6 +19,7 @@ export const createImageJob = (file:File, requestedDevices:Device[], deviceConfi
         return {
             id: crypto.randomUUID(),
             original: file,
+            originalSize,
             requestedSizes,
             requestedFormats,
             outputs: {}
