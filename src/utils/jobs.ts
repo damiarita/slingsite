@@ -1,64 +1,71 @@
 import { DimensionsConfig } from "@/components/dimension-settings";
 import { Device } from "@/types/devices";
 import { Format } from "@/types/formats";
-import { Job } from "@/types/job";
-import { MediaSize } from "@/types/mediaSizes";
+import { Job, Task } from "@/types/job";
+import { MediaDimensions } from "@/types/mediaDimensions";
 
 export const createImageJob = (file:File, requestedDevices:Device[], deviceConfig:DimensionsConfig):Promise<Job> => {
-    return getImageSize(file).then(originalSize=>{
-        const requestedSizes:Partial<Record<Device, MediaSize>> = {};
+    return getImageSize(file).then(originalDimensions=>{
+        const requestedDimensions:Partial<Record<Device, MediaDimensions>> = {};
         requestedDevices.forEach(device => {
             const config = deviceConfig[device];
             let width = 0, height = 0;
-            if (config.sizingType === 'percentage') { width = Math.round(config.screenWidth * (config.percentage / 100)); height = Math.round(originalSize.height * width / originalSize.width); }
-            else if (config.sizingType === 'width') { width = Math.round(config.width); height = Math.round(originalSize.height * width / originalSize.width); }
-            else if (config.sizingType === 'height') { height = Math.round(config.height); width = Math.round(originalSize.width * height / originalSize.height); }
-            requestedSizes[device] = { width, height };
+            if (config.sizingType === 'percentage') { width = Math.round(config.screenWidth * (config.percentage / 100)); height = Math.round(originalDimensions.height * width / originalDimensions.width); }
+            else if (config.sizingType === 'width') { width = Math.round(config.width); height = Math.round(originalDimensions.height * width / originalDimensions.width); }
+            else if (config.sizingType === 'height') { height = Math.round(config.height); width = Math.round(originalDimensions.width * height / originalDimensions.height); }
+            requestedDimensions[device] = { width, height };
         });
         const requestedFormats:Format[] = ['jpg', 'webp', 'avif'];
+        const tasks:Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
+        requestedDevices.forEach(device => { 
+            requestedFormats.forEach(format => {
+                if (!tasks[device]) tasks[device] = {};
+                tasks[device][format] = { status: 'waiting' };
+            });
+         });
+
         return {
             id: crypto.randomUUID(),
-            original: file,
-            originalSize,
-            requestedSizes,
+            originalFile: file,
+            originalDimensions,
+            requestedDimensions,
             requestedFormats,
-            outputs: {}
+            tasks,
         };
     });
 }
 
-export const jobNumberOfRequestedOutputs=(job:Job):number=>{
-    return job.requestedFormats.length * Object.keys(job.requestedSizes).length;
-}
 
-export const jobNumberOfDoneOutputs=(job:Job):number=>{
-    return Object.values(job.outputs).flatMap(deviceOutputs => Object.values(deviceOutputs || {})).length;
-}
-
-export const jobNextPendingOutput=(job:Job):{device:Device,format:Format}|null=>{
-    for (const device of Object.keys(job.requestedSizes) as Device[]) {
-        for (const format of job.requestedFormats) {
-            if (!job.outputs[device] || !job.outputs[device]![format]) {
-                return {device, format};
+export const jobNextPendingTask=(job:Job):[Device, Format]|undefined=>{
+    for (const [device, formats] of Object.entries(job.tasks) as [Device, Partial<Record<Format, Task>>][]) {
+        for (const [format, task] of Object.entries(formats) as [Format, Task][]) {
+            if (task.status === 'waiting') {
+                return [device, format];
             }
         }
     }
-    return null;
 }
 
-export const isJobFinished=(job:Job):boolean=>{
-    return jobNumberOfDoneOutputs(job)===jobNumberOfRequestedOutputs(job);
-}
-export const isJobPending=(job:Job):boolean=>{
-    return jobNumberOfDoneOutputs(job)===0;
+const jobTasksAsArray=(job:Job):Task[]=>{
+    return Object.values(job.tasks).flatMap(deviceTasks => Object.values(deviceTasks));
 }
 
-export const isJobOngoing=(job:Job):boolean=>{
-    return !isJobPending(job) && !isJobFinished(job);
+export const jobIsRunning=(job:Job):boolean=>{
+    return jobTasksAsArray(job).some(task=>task.status==='running');
+}
+
+export const jobProportionOfDoneTasks=(job:Job):number=>{
+    const tasksAsArray = jobTasksAsArray(job);
+    const total = tasksAsArray.length;
+    if (total===0) return 1;
+    const done = tasksAsArray.filter(task=>task.status==='completed' || task.status==='errored').length;
+    if (done>=total) return 1;
+    return done/total;
 }
 
 
-function getImageSize(file:File):Promise<MediaSize> {
+
+function getImageSize(file:File):Promise<MediaDimensions> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve({width: img.width, height: img.height});

@@ -1,13 +1,19 @@
 
 import { Format } from "./formats";
 import { Device } from "./devices";
-import { MediaSize } from "./mediaSizes";
+import { MediaDimensions } from "./mediaDimensions";
+
+export type Task =
+    { status: 'waiting' }
+  | { status: 'running' }
+  | { status: 'completed'; result: File }
+  | { status: 'errored'; error: Error };
 
 export type Job = {
     id: string;
-    original: File;
-    originalSize: MediaSize;
-    requestedSizes: Partial<Record<Device, MediaSize>>;
+    originalFile: File;
+    originalDimensions: MediaDimensions;
+    requestedDimensions: Partial<Record<Device, MediaDimensions>>;
     requestedFormats: Format[];
-    outputs: Partial<Record<Device, Partial<Record<Format, File>>>>;
+    tasks: Partial<Record<Device, Partial<Record<Format, Task>>>>;
 };

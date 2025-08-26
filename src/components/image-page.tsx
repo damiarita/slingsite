@@ -7,9 +7,25 @@ import { DimensionsSettings, DimensionsConfig } from "@/components/dimension-set
 import useCompressImage from "@/hooks/use-compress-image";
 import { ImageFormat } from "@/types/formats";
 import { Device } from "@/types/devices";
-import {Job } from "@/types/job";
-import { createImageJob, isJobFinished, jobNextPendingOutput } from "@/utils/jobs";
-import { MediaSize } from "@/types/mediaSizes";
+import {Job , Task} from "@/types/job";
+import { createImageJob, jobNextPendingTask } from "@/utils/jobs";
+import { MediaDimensions } from "@/types/mediaDimensions";
+
+function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageFormat, newTask:Task){
+  return jobs.map(currentJob => {
+    if (currentJob.id !== job.id) return currentJob;
+    return {
+      ...job,
+      tasks: {
+        ...job.tasks,
+        [device]: {
+          ...(job.tasks[device] || {}),
+          [format]: newTask
+        }
+      }
+    };
+  });
+}
 
 
 export default function App() {
@@ -62,39 +78,29 @@ export default function App() {
   useEffect(() => {
     if (processorBusy) return;
 
-    const nextJob = jobs.find((job)=>!isJobFinished(job));
-
+    const nextJob = jobs.find((job)=>jobNextPendingTask(job));
     if (!nextJob) return;
-    const definedNextJob = nextJob as Job; // TypeScript type assertion
+    
+    const nextPendingTask = jobNextPendingTask(nextJob);
+    if(!nextPendingTask) throw new Error("Inconsistent state: job is not finished but has no pending tasks");
+    const [device, format] = nextPendingTask;
 
-    const nextPendingOutput = jobNextPendingOutput(nextJob);
-
-    if(!nextPendingOutput) throw new Error("Inconsistent state: job is not finished but has no pending outputs");
     if(!compressImage) throw new Error("Compressor function not available");
-    
-    const {device, format} = nextPendingOutput;
-    
+      
     setProcessorBusy(true);
-    compressImage(nextJob.original, format as ImageFormat, definedNextJob.requestedSizes[device] as MediaSize)
+    setJobs(prevJobs => {
+      return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running' });
+    });
+    compressImage(nextJob.originalFile, format as ImageFormat, nextJob.requestedDimensions[device] as MediaDimensions)
       .then(compressedFile => {
         setJobs(prevJobs => {
-          return prevJobs.map(job => {
-            if (job.id !== nextJob.id) return job;
-            return {
-              ...job,
-              outputs: {
-                ...job.outputs,
-                [device]: {
-                  ...(job.outputs[device] || {}),
-                  [format]: compressedFile
-                }
-              }
-            };
-          }
-          );
+          return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'completed', result: compressedFile });
         });
       })
       .catch(err => {
+        setJobs(prevJobs => {
+          return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'errored', error: err });
+        });
         console.error("Compression error:", err);
       })
       .finally(() => {
