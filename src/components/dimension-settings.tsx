@@ -27,7 +27,7 @@ const lables: Record<ConfigMode, string> = {
   height: 'Image Height',
   percentage: 'Layout'  
 }
-export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleCompressClick, files, handleRemoveFile, handleReturnToUpload }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>>, readyToCompress:boolean, handleCompressClick:()=>void, files:File[], handleRemoveFile:(index:number)=>void, handleReturnToUpload:()=>void}) => {
+export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleCompressClick, files, handleRemoveFile, handleExitSettings }: {config:DimensionsConfig, setConfig:React.Dispatch<React.SetStateAction<DimensionsConfig>>, readyToCompress:boolean, handleCompressClick:()=>void, files:File[], handleRemoveFile:(index:number)=>void, handleExitSettings:()=>void}) => {
   
   const icons:Record<Device, ReactElement>= { mobile: <Smartphone className="w-5 h-5 mr-2" />, tablet: <Tablet className="w-5 h-5 mr-2" />, desktop: <Monitor className="w-5 h-5 mr-2" /> };
   const columnOptions = [ { label: '1', columns: 1 }, { label: '1/2', columns: 2 }, { label: '1/3', columns: 3 }, { label: '1/4', columns: 4 } ];
@@ -79,7 +79,7 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
         ))}
       </div>
       <div className="flex justify-end items-center mb-4">
-        <SecondaryButton onClick={handleReturnToUpload}>
+        <SecondaryButton onClick={handleExitSettings}>
           <FilePlus className="w-4 h-4 mr-2"/>Add More Files
         </SecondaryButton>
       </div>

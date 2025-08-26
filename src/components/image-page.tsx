@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from "react"
+import {useState, useEffect, useRef} from "react"
 import { FileUpload } from "@/components/file-upload"
 import { Results } from "@/components/results"
 import { DimensionsSettings, DimensionsConfig } from "@/components/dimension-settings"
@@ -29,10 +29,14 @@ function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageF
 
 
 export default function App() {
-  const [mode, setMode] = useState<'upload'|'settings'|'results'>('upload');
+  const [mode, setMode] = useState<'first-upload'|'settings'|'results+upload'>('first-upload');
   const [files, setFiles] = useState<File[]>([]);
   const [processorBusy, setProcessorBusy] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
+
+  const uploadRef=useRef<HTMLDivElement>(null);
+  const settingsRef=useRef<HTMLDivElement>(null);
+  const resultsRef=useRef<HTMLDivElement>(null);
 
   const [deviceConfig, setDeviceConfig] = useState<DimensionsConfig>({
     mobile: { enabled: true, screenWidth: 768, sizingType: 'percentage', percentage:100, width: 768, height: 100 },
@@ -44,10 +48,14 @@ export default function App() {
   const handleFilesAdded = (newFiles:File[]) => {
     setFiles(prev => [...prev, ...newFiles]);
     setMode('settings');
+    settingsRef.current?.scrollIntoView({ behavior: 'smooth', block:'start' });
   }
 
   const handleRemoveFile = (index:number) => {
-    if (files.length === 1) setMode('upload'); // If it was the last file, go back to upload mode
+    if (files.length === 1){
+      setMode('results+upload'); // If it was the last file we cannot stay in settings mode
+      uploadRef.current?.scrollIntoView({ behavior: 'smooth', block:'start' });
+    }
     setFiles(prev => {
       const newFiles = [...prev];
       newFiles.splice(index, 1);
@@ -63,7 +71,8 @@ export default function App() {
         ...newJobs
       ]);
       setFiles([]);
-      setMode('results');
+      setMode('results+upload');
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block:'start'});
     });
   };
 
@@ -115,11 +124,11 @@ export default function App() {
       SlingSite (Header goes here)
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          {mode==='upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}
+          {mode==='first-upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}
           <div className="grid grid-cols-1 gap-8 items-start">
-            {mode==='upload' && <FileUpload onFilesAdded={handleFilesAdded} />}
-            {mode==='settings' && <DimensionsSettings handleReturnToUpload={()=>setMode('upload')} handleRemoveFile={handleRemoveFile} files={files} config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressImage} handleCompressClick={handleCompressClick}/> }
-            {mode==='results' && <Results jobs={jobs} handleRemoveJob={handleRemoveJob} handleGoToUpload={()=>setMode('upload')}/> }
+            { (mode==='first-upload'||mode==='results+upload') && <div ref={uploadRef}><FileUpload onFilesAdded={handleFilesAdded} /></div>}
+            {mode==='settings' && <div ref={settingsRef}><DimensionsSettings handleExitSettings={()=>{setMode('results+upload'); uploadRef.current?.scrollIntoView({behavior:'smooth', block:'start'})}} handleRemoveFile={handleRemoveFile} files={files} config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressImage} handleCompressClick={handleCompressClick}/></div> }
+            {jobs.length>0 && <div ref={resultsRef}><Results jobs={jobs} handleRemoveJob={handleRemoveJob}/></div> }
           </div>
         </div>
       </main>
