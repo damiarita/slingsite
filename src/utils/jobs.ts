@@ -3,17 +3,26 @@ import { Device } from "@/types/devices";
 import { Format } from "@/types/formats";
 import { Job, Task } from "@/types/job";
 import { MediaDimensions } from "@/types/mediaDimensions";
+import { minDimension } from "./mediaDimensions";
 
 export const createImageJob = (file:File, requestedDevices:Device[], deviceConfig:DimensionsConfig):Promise<Job> => {
     return getImageSize(file).then(originalDimensions=>{
         const requestedDimensions:Partial<Record<Device, MediaDimensions>> = {};
         requestedDevices.forEach(device => {
             const config = deviceConfig[device];
-            let width = 0, height = 0;
-            if (config.sizingType === 'percentage') { width = Math.round(config.screenWidth * (config.percentage / 100)); height = Math.round(originalDimensions.height * width / originalDimensions.width); }
-            else if (config.sizingType === 'width') { width = Math.round(config.width); height = Math.round(originalDimensions.height * width / originalDimensions.width); }
-            else if (config.sizingType === 'height') { height = Math.round(config.height); width = Math.round(originalDimensions.width * height / originalDimensions.height); }
-            requestedDimensions[device] = { width, height };
+            let requestedDimension:MediaDimensions;
+            if(config.sizingType==='height'){
+                requestedDimension={height:config.height, width:originalDimensions.width * config.height / originalDimensions.height};
+            } else {
+                let width:number;
+                if (config.sizingType === 'percentage') width=config.screenWidth * (config.percentage / 100);
+                else if (config.sizingType === 'width') width=config.width;
+                else throw new Error("Invalid sizing type");
+                requestedDimension = { width: width, height:originalDimensions.height * width / originalDimensions.width};
+            }
+            requestedDimension.width = Math.round(requestedDimension.width);
+            requestedDimension.height = Math.round(requestedDimension.height);
+            requestedDimensions[device] = minDimension(originalDimensions, requestedDimension);
         });
         const requestedFormats:Format[] = ['jpg', 'webp', 'avif'];
         const tasks:Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
