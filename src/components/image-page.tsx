@@ -10,6 +10,7 @@ import { Device } from "@/types/devices";
 import {Job , Task} from "@/types/job";
 import { createImageJob, jobNextPendingTask } from "@/utils/jobs";
 import { MediaDimensions } from "@/types/mediaDimensions";
+import { Locale } from "@/i18n/lib";
 
 function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageFormat, newTask:Task){
   return jobs.map(currentJob => {
@@ -28,7 +29,7 @@ function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageF
 }
 
 
-export default function App() {
+export default function App({locale}:{locale:Locale}) {
   const [mode, setMode] = useState<'first-upload'|'settings'|'results+upload'>('first-upload');
   const [files, setFiles] = useState<File[]>([]);
   const [processorBusy, setProcessorBusy] = useState(false);
@@ -121,7 +122,41 @@ export default function App() {
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
-      SlingSite (Header goes here)
+        <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-3">
+                <svg
+                  className="h-8 w-8 text-blue-600"
+                  viewBox="0 0 220 220"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M62,32 C76,110 122,80 135,198"
+                    stroke="currentColor"
+                    stroke-width="20"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <ellipse
+                    cx="153"
+                    cy="41"
+                    rx="22"
+                    ry="15"
+                    transform="rotate(135, 153, 41)"
+                    fill="currentColor"
+                  />
+                </svg>
+                <h1 className="text-2xl font-bold text-gray-800">SlingSite</h1>
+              </div>
+              <nav className="flex space-x-6 text-sm font-medium">
+                <a href={`/${locale}/image/`} className="text-blue-600 border-b-2 border-blue-600 pb-1">Image Compressor</a>
+                <a href="#" className="text-gray-500 hover:text-gray-800 transition-colors duration-200 opacity-50 cursor-not-allowed">Video Compressor <span className="text-xs bg-gray-200 text-gray-500 rounded-full px-2 py-0.5 ml-1">Soon</span></a>
+              </nav>
+            </div>
+          </div>
+        </header>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {mode==='first-upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}

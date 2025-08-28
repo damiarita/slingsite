@@ -1,4 +1,5 @@
 import ImagePage from '@/components/image-page';
+import { Locale } from '@/i18n/lib';
 import { Metadata } from 'next'
 
 export function generateMetadata(): Metadata {
@@ -8,6 +9,7 @@ export function generateMetadata(): Metadata {
   }
 }
 
-export default function App() {
-  return <ImagePage />
+export default async function App({params}:{params: Promise<{locale:Locale}>}) {
+  const { locale } = await params;
+  return <ImagePage locale={locale} />
 }
