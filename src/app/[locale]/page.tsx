@@ -13,5 +13,5 @@ export default async function HomePage({ params }: {params:Promise<{locale:Local
   const { locale } = await params
   const dict = await getDictionary(locale)
 
-  return <Redirecter path={`/${locale}/image`} redirecting={dict.redirecting} />
+  return <Redirecter locale={locale} path={`/image`} redirecting={dict.redirecting} />
 }
