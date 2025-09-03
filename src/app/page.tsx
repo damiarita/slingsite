@@ -1,17 +1,21 @@
-
-import {defaultLocale, getDictionary} from '@/i18n/lib'
 import { Redirecter } from '@/components/redirecter'
+import {getDictionary} from '@/i18n/lib'
 import { Metadata } from 'next'
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
+  const dict = await getDictionary('en');
   return {
-    title: "Redirecting...",
+    title: dict.redirecting,
   }
 }
 
 export default async function HomePage() {
-  
-  const dict = await getDictionary(defaultLocale)
-
-  return <Redirecter path={`/image`} redirecting={dict.redirecting} />
+  const dict = await getDictionary('en');
+  return (
+    <html>
+      <body>
+        <Redirecter pageType='image' redirecting={dict.redirecting} />
+      </body>
+    </html>
+  )
 }

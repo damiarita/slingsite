@@ -1,22 +1,26 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Locale, defaultLocale, locales } from '@/i18n/lib'
+import { defaultLocale, Locale, localeIsValid} from '@/i18n/lib'
+import { getUrl } from '@/utils/urls'
+import { PageType } from '@/types/urls'
 
-export const Redirecter = ({ redirecting, path, locale}: {redirecting: string, path: string, locale?: Locale}) => {
-  const router = useRouter()
+export const Redirecter = ({ redirecting, pageType, locale}: {redirecting: string, pageType: PageType, locale?: Locale}) => {
   useEffect(() => {
     const queryString = window.location.search;
-    router.replace(`/${getRedirectLocale(locale)}${path}${queryString}`);
-  }, [router, locale, path])
+    const destinationUrl = getUrl(locale?locale:getRedirectLocale(), pageType, queryString)
+    
+    const meta = document.createElement('meta')
+    meta.httpEquiv='refresh'
+    meta.content=`0; url=${destinationUrl}`
+
+    document.head.appendChild(meta)
+  }, [locale, pageType])
   
   return <div>{redirecting}...</div>
 }
 
-function getRedirectLocale(requestedLocale?:Locale) {
-  if(requestedLocale) return requestedLocale;
+function getRedirectLocale():Locale{
   const browserLocale = navigator.language.split('-')[0];
-  if(locales.includes(browserLocale as Locale)) return browserLocale as Locale
-  return defaultLocale;
+  return localeIsValid(browserLocale)? browserLocale as Locale: defaultLocale
 }
