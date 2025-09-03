@@ -1,4 +1,4 @@
-import { Locale } from "@/i18n/lib"
+import { Locale, locales } from "@/i18n/lib"
 
 export const pageTypes = ['image'] as const;
 export type PageType = typeof pageTypes[number]
@@ -12,3 +12,11 @@ export const getUrl = (locale:Locale, pageType:PageType, queryParams?:string):st
     return `/${locale}/${path}/${queryParams||''}`
 }
     
+export const getUrlsByLocale = (pageType:PageType): Record<Locale, string>=>
+    locales.reduce(
+    function(acc, locale){
+        acc[locale]=getUrl(locale, pageType)
+        return acc
+    },
+    {} as Record<Locale, string>
+)
