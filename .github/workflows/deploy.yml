@@ -1,0 +1,32 @@
+name: Build and Deploy to slingsite.github.io
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Deploy to slingmedia.github.io
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          external_repository: slingmedia/slingmedia.github.io
+          publish_branch: gh-pages
+          publish_dir: ./out
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
