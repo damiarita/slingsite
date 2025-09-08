@@ -1,4 +1,6 @@
+import { getTranslations } from "@/content/lib";
 import { Locale, locales } from "@/i18n/lib"
+import { Post } from "contentlayer/generated";
 
 export const pageTypes = ['image'] as const;
 export type PageType = typeof pageTypes[number]
@@ -20,3 +22,17 @@ export const getUrlsByLocale = (pageType:PageType): Record<Locale, string>=>
     },
     {} as Record<Locale, string>
 )
+
+export const getPostUrl = (post:Post, queryParams?:string):string=>{
+    return `/${post.locale}/${post.slug}/${queryParams||''}`
+}
+
+export const getPostUrlsByLocale = (post:Post): Record<Locale, string>=>{
+    return Object.entries(getTranslations(post)).reduce(
+        function(acc, [locale, post]){
+            acc[locale as Locale]=getPostUrl(post)
+            return acc
+        },
+        {} as Record<Locale, string>
+    )
+}
