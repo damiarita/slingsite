@@ -67,7 +67,7 @@ export default async function PostPage({ params }: { params: Promise<Props> }) {
       {JSON.stringify(schema)}      
     </script>
     <article className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div dangerouslySetInnerHTML={{ __html: post.body.html }} className="prose prose-lg max-w-4xl mx-auto prose-headings:text-gray-900 prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-blockquote:border-l-blue-500 prose-li:marker:text-blue-600 prose-hr:border-gray-200"/>
+        <div dangerouslySetInnerHTML={{ __html: post.body.html }} className="pt-6 pb-6 prose prose-lg max-w-4xl mx-auto prose-headings:text-gray-900 prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-blockquote:border-l-blue-500 prose-li:marker:text-blue-600 prose-hr:border-gray-200"/>
         <footer>
           <p>Published on <time dateTime={post.publicationDate}>{formatDateTime(new Date(post.publicationDate), locale)}</time></p>
           <p>Last Edited on <time dateTime={post.modificationDate}>{formatDateTime(new Date(post.modificationDate), locale)}</time></p>
