@@ -13,8 +13,7 @@ export const Post = defineDocumentType(() => ({
     publicationDate: { type: 'date', required: true },
     modificationDate: { type: 'date', required: true },
     locale: {type: 'enum', options:locales, required: true},
-    slug: { type: 'string', required: true },
-    id: { type: 'string', required: true }
+    slug: { type: 'string', required: true }
   },
   computedFields: {
     text: {
@@ -23,6 +22,10 @@ export const Post = defineDocumentType(() => ({
         const processed = await remark().use(strip).process(doc.body.raw);
         return processed.toString().trim();
       } ,
+    },
+    id: {
+      type: 'string',
+      resolve: async (doc) => doc._raw.sourceFileName
     }
   },
 }))
