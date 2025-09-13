@@ -12,12 +12,8 @@ export function getAllPosts(sorted: boolean=false): Post[] {
     return allPosts;
 }
 
-export function getPostsByLocale(locale: Locale, sorted: boolean=true): Post[] {
-    const posts = allPosts.filter((p) => p.locale === locale);
-    if (sorted) {
-        return sortPosts(posts);
-    }
-    return posts;
+export function getPostOfId(id:string, locale: Locale): Post | undefined {
+    return allPosts.find((p) => p.id === id && p.locale === locale);
 }
 
 export function getPost(slug: string, locale: Locale): Post | undefined {
