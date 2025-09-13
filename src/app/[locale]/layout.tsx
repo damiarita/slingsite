@@ -49,7 +49,7 @@ export default async function LocaleLayout({ children, params}:{children:React.R
                       fill="currentColor"
                     />
                   </svg>
-                  <h1 className="text-2xl font-bold text-gray-800">SlingSite</h1>
+                  <span className="text-2xl font-bold text-gray-800">SlingSite</span>
                 </a>
                 <nav className="flex space-x-6 text-sm font-medium">
                   <NavLink pageType='image' locale={locale} />
