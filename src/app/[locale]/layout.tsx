@@ -6,6 +6,8 @@ import NavLink from '@/components/nav-link';
 import { getPostUrl, getUrl } from '@/utils/urls';
 import { Logo } from '@/components/logo';
 import CookieConsent from '@/components/cookie-consent';
+import { GoogleTagManager } from '@next/third-parties/google'
+
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({
@@ -90,6 +92,7 @@ export default async function LocaleLayout({ children, params}:{children:React.R
             </div>
         </footer>
         <CookieConsent locale={locale} translations={cookieTranaslations}/>
+        <GoogleTagManager gtmId="GTM-THHRLH4N" />
           <style>{`.toggle-checkbox:checked { right: 0; border-color: #2563eb; } .toggle-checkbox:checked + .toggle-label { background-color: #2563eb; }`}</style>
         </div>
       </body>

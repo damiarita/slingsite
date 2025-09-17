@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/third-parties": "^15.5.3",
     "@tailwindcss/typography": "^0.5.16",
     "@yireen/squoosh-browser": "^1.0.7",
     "contentlayer2": "^0.5.8",
