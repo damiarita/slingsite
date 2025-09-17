@@ -1,10 +1,11 @@
-import { locales, localeIsValid, Locale } from '@/i18n/lib';
+import { locales, localeIsValid, Locale, rtlLocales, getCookieDictionary } from '@/i18n/lib';
 import { notFound } from 'next/navigation';
 import "../globals.css";
 import React from 'react';
 import NavLink from '@/components/nav-link';
 import { getPostUrl, getUrl } from '@/utils/urls';
 import { Logo } from '@/components/logo';
+import CookieConsent from '@/components/cookie-consent';
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({
@@ -20,8 +21,10 @@ export default async function LocaleLayout({ children, params}:{children:React.R
     notFound()
   }
 
+  const cookieTranaslations = await getCookieDictionary(locale);
+
   return (
-    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={rtlLocales.includes(locale) ? 'rtl' : 'ltr'}>
       <body>
         <div className="bg-gray-50 min-h-screen font-sans">
           <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
@@ -66,7 +69,7 @@ export default async function LocaleLayout({ children, params}:{children:React.R
                                     <li><a href={getPostUrl('privacy.mdx', locale)} className="text-base text-gray-500 hover:text-gray-900">Privacy</a></li>
                                     <li><a href={getPostUrl('short-t-and-c.mdx', locale)} className="text-base text-gray-500 hover:text-gray-900">Simplified Terms & Conditions</a></li>
                                     <li><a href={getPostUrl('t-and-c.mdx', locale)} className="text-base text-gray-500 hover:text-gray-900">Terms & Conditions</a></li>
-                                    <li><a href="#" className="text-base text-gray-500 hover:text-gray-900">Cookies</a></li>
+                                    <li><button data-cc="show-preferencesModal" className="text-base text-gray-500 hover:text-gray-900">Cookies</button></li>
                                 </ul>
                             </div>
                         </div>
@@ -86,6 +89,7 @@ export default async function LocaleLayout({ children, params}:{children:React.R
                 </div>
             </div>
         </footer>
+        <CookieConsent locale={locale} translations={cookieTranaslations}/>
           <style>{`.toggle-checkbox:checked { right: 0; border-color: #2563eb; } .toggle-checkbox:checked + .toggle-label { background-color: #2563eb; }`}</style>
         </div>
       </body>

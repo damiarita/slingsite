@@ -1,0 +1,34 @@
+{
+    "consentModal": {
+        "label": "Cookie Banner",
+        "title": "We use cookies!",
+        "description": "Hi, this website uses essential cookies to ensure its proper operation and tracking cookies to understand how you interact with it. The latter will be set only upon approval.",
+        "acceptAllBtn": "Accept All Cookies",
+        "acceptNecessaryBtn": "Accept Necessary",
+        "showPreferencesBtn": "Cookie settings",
+        "closeIconLabel": "Close"
+    },
+    "preferencesModal": {
+        "title": "Cookie preferences",
+        "acceptAllBtn": "Accept All Cookies",
+        "acceptNecessaryBtn": "Accept Necessary",
+        "savePreferencesBtn": "Save settings",
+        "closeIconLabel": "Close",
+        "sections": [
+            {
+                "title": "About Cookies",
+                "description": "A cookie is a small piece of text that our web server stores on your computer or mobile device when you visit our site. It helps us to improve your experience by remembering your preferences and repeat visits. Some cookies are essential for the website to function properly, while others help us to understand how you interact with our site and enhance your browsing experience."
+            },
+            {
+                "title": "Necessary Cookies",
+                "description": "These cookies are essential for the website to function properly. They ensure basic functionalities and security features of the website, anonymously.",
+                "linkedCategory": "necessary"
+            },
+            {
+                "title": "Analytics Cookies",
+                "description": "These cookies help us to understand how visitors interact with our website, by collecting and reporting information anonymously.",
+                "linkedCategory": "analytics"
+            }
+        ]
+    }
+}

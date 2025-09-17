@@ -1,0 +1,34 @@
+{
+    "consentModal": {
+        "label": "Bannière des cookies",
+        "title": "Nous utilisons des cookies !",
+        "description": "Bonjour, ce site utilise des cookies essentiels pour assurer son bon fonctionnement et des cookies de suivi pour comprendre comment vous interagissez avec lui. Ces derniers ne seront activés qu'après votre approbation.",
+        "acceptAllBtn": "Accepter tous les cookies",
+        "acceptNecessaryBtn": "Accepter uniquement les nécessaires",
+        "showPreferencesBtn": "Paramètres des cookies",
+        "closeIconLabel": "Fermer"
+    },
+    "preferencesModal": {
+        "title": "Préférences des cookies",
+        "acceptAllBtn": "Accepter tous les cookies",
+        "acceptNecessaryBtn": "Accepter uniquement les nécessaires",
+        "savePreferencesBtn": "Enregistrer les paramètres",
+        "closeIconLabel": "Fermer",
+        "sections": [
+            {
+                "title": "À propos des cookies",
+                "description": "Un cookie est un petit fichier texte que notre serveur web stocke sur votre ordinateur ou appareil mobile lorsque vous visitez notre site. Il nous aide à améliorer votre expérience en mémorisant vos préférences et vos visites répétées. Certains cookies sont essentiels au bon fonctionnement du site, tandis que d'autres nous aident à comprendre comment vous interagissez avec notre site et à améliorer votre expérience de navigation."
+            },
+            {
+                "title": "Cookies nécessaires",
+                "description": "Ces cookies sont essentiels au bon fonctionnement du site web. Ils assurent les fonctionnalités de base et la sécurité du site web, de manière anonyme.",
+                "linkedCategory": "necessary"
+            },
+            {
+                "title": "Cookies analytiques",
+                "description": "Ces cookies nous aident à comprendre comment les visiteurs interagissent avec notre site web, en collectant et en rapportant des informations de manière anonyme.",
+                "linkedCategory": "analytics"
+            }
+        ]
+    }
+}
