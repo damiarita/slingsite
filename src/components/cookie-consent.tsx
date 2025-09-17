@@ -16,12 +16,6 @@ const defaultConsentMode={
     wait_for_update: 500
 };
 
-declare global {
-    interface Window {
-        dataLayer: any[];// eslint-disable-line @typescript-eslint/no-explicit-any
-    }
-}
-
 function gtag(...args: any[]) {// eslint-disable-line @typescript-eslint/no-explicit-any
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(args);
