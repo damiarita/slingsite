@@ -37,8 +37,8 @@ export default async function LocaleLayout({ children, params}:{children:React.R
                   <span className="text-2xl font-bold text-gray-800">SlingSite</span>
                 </a>
                 <nav className="flex space-x-6 text-sm font-medium">
-                  <NavLink pageType='image' locale={locale} />
-                  <a href="#" className="text-gray-500 hover:text-gray-800 transition-colors duration-200 opacity-50 cursor-not-allowed">Video Compressor <span className="text-xs bg-gray-200 text-gray-500 rounded-full px-2 py-0.5 ml-1">Soon</span></a>
+                  <NavLink pageType='image' locale={locale}>Image Compressor</NavLink>
+                  <NavLink pageType='video' locale={locale}>Video Compressor</NavLink>
                 </nav>
               </div>
             </div>

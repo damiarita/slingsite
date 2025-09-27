@@ -2,12 +2,13 @@ import { getPostOfId, getTranslations } from "@/content/lib";
 import { Locale, locales } from "@/i18n/lib"
 import { Post } from "contentlayer/generated";
 
-export const pageTypes = ['image', 'suscribe'] as const;
+export const pageTypes = ['image', 'suscribe', 'video'] as const;
 export type PageType = typeof pageTypes[number]
 
 const pagePaths:Record<PageType, string> = {
     image: "image",
-    suscribe: "suscribe"
+    suscribe: "suscribe",
+    video: "video",
 }
 
 export const getUrl = (locale:Locale, pageType:PageType, queryParams?:string):string=>{
