@@ -42,3 +42,5 @@ next-env.d.ts
 
 #contetnlayer generated files
 /.contentlayer
+#ffmpwg generated files
+public/ffmpeg
