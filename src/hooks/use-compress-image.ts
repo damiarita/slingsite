@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { ImageFormat } from "@/types/formats";
+import { isImageFormat, type Format, type ImageFormat } from "@/utils/formats";
 import { MediaDimensions } from "@/types/mediaDimensions";
 type CompressorClass = typeof import("@yireen/squoosh-browser").default;
 type Settings = ConstructorParameters<CompressorClass>[1];
@@ -17,11 +17,15 @@ export default function useCompressImage() {
     }
     loadWasm();
   }, []);
-  return compressorClass===null? null : function (file: File, format:ImageFormat, mediaSize:MediaDimensions): Promise<File> {
+  return compressorClass===null? null : function (file: File, format:Format, mediaSize:MediaDimensions): Promise<File> {
     if (!compressorClass){
       throw new Error("Compressor class not loaded. Ensure '@yireen/squoosh-browser' is imported correctly.");
     } 
-    const compressor = new compressorClass(file, getSettings(format, mediaSize.width, mediaSize.height));
+    if(!isImageFormat(format)){
+      throw new Error("Images can only be converted to image formats")
+    }
+    const imageFormat = format as ImageFormat;
+    const compressor = new compressorClass(file, getSettings(imageFormat, mediaSize.width, mediaSize.height));
     return compressor.process();
   };
 }

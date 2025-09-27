@@ -5,12 +5,14 @@ import { FileUpload } from "@/components/file-upload"
 import { Results } from "@/components/results"
 import { DimensionsSettings, DimensionsConfig } from "@/components/dimension-settings"
 import useCompressImage from "@/hooks/use-compress-image";
-import { ImageFormat } from "@/types/formats";
+import useCompressVideo from "@/hooks/use-compress-video";
+import { Format, ImageFormat, VideoFormat } from "@/utils/formats";
 import { Device } from "@/types/devices";
 import {Job , Task} from "@/types/job";
-import { createImageJob, jobNextPendingTask } from "@/utils/jobs";
+import { createJob, jobNextPendingTask } from "@/utils/jobs";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { Locale } from "@/i18n/lib";
+import { CompressionInput } from "@/types/compressor";
 
 function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageFormat, newTask:Task){
   return jobs.map(currentJob => {
@@ -29,7 +31,7 @@ function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageF
 }
 
 
-export default function App({locale}:{locale:Locale}) {
+export default function App({locale, compressorType}:{locale:Locale, compressorType:CompressionInput}) {
   const [mode, setMode] = useState<'first-upload'|'settings'|'results+upload'>('first-upload');
   const [files, setFiles] = useState<File[]>([]);
   const [processorBusy, setProcessorBusy] = useState(false);
@@ -45,6 +47,8 @@ export default function App({locale}:{locale:Locale}) {
     desktop: { enabled: true, screenWidth: 2000, sizingType: 'percentage', percentage: 33.33, width: 666.66, height: 100 },
   });
   const compressImage = useCompressImage();
+  const compressVideo = useCompressVideo();
+  const compressFunction = compressorType==='image'?compressImage:compressVideo;
 
   const handleFilesAdded = (newFiles:File[]) => {
     setFiles(prev => [...prev, ...newFiles]);
@@ -66,7 +70,7 @@ export default function App({locale}:{locale:Locale}) {
 
   const handleCompressClick = () => {
     const requestedDevices = Object.entries(deviceConfig).filter(([, config]) => config.enabled).map(([device]) => device) as Device[];
-    Promise.all(files.map(file=>createImageJob(file, requestedDevices, deviceConfig))).then(newJobs=>{
+    Promise.all(files.map(file=>createJob(file, requestedDevices, deviceConfig))).then(newJobs=>{
       setJobs(prev => [
         ...prev,
         ...newJobs
@@ -95,13 +99,13 @@ export default function App({locale}:{locale:Locale}) {
     if(!nextPendingTask) throw new Error("Inconsistent state: job is not finished but has no pending tasks");
     const [device, format] = nextPendingTask;
 
-    if(!compressImage) throw new Error("Compressor function not available");
+    if(!compressFunction) throw new Error("Compressor function not available");
       
     setProcessorBusy(true);
     setJobs(prevJobs => {
       return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running' });
     });
-    compressImage(nextJob.originalFile, format as ImageFormat, nextJob.requestedDimensions[device] as MediaDimensions)
+    compressFunction(nextJob.originalFile, format, nextJob.requestedDimensions[device] as MediaDimensions)
       .then(compressedFile => {
         setJobs(prevJobs => {
           return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'completed', result: compressedFile });
@@ -117,15 +121,15 @@ export default function App({locale}:{locale:Locale}) {
         setProcessorBusy(false);
       });
     
-  }, [jobs, processorBusy, compressImage]);
+  }, [jobs, processorBusy, compressFunction]);
 
 
   return (
     <div className="space-y-8">
       {mode==='first-upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}
       <div className="grid grid-cols-1 gap-8 items-start">
-        { (mode==='first-upload'||mode==='results+upload') && <div ref={uploadRef}><FileUpload onFilesAdded={handleFilesAdded} /></div>}
-        {mode==='settings' && <div ref={settingsRef}><DimensionsSettings handleExitSettings={()=>{setMode('results+upload'); uploadRef.current?.scrollIntoView({behavior:'smooth', block:'start'})}} handleRemoveFile={handleRemoveFile} files={files} config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressImage} handleCompressClick={handleCompressClick}/></div> }
+        { (mode==='first-upload'||mode==='results+upload') && <div ref={uploadRef}><FileUpload onFilesAdded={handleFilesAdded} type={compressorType}/></div>}
+        {mode==='settings' && <div ref={settingsRef}><DimensionsSettings handleExitSettings={()=>{setMode('results+upload'); uploadRef.current?.scrollIntoView({behavior:'smooth', block:'start'})}} handleRemoveFile={handleRemoveFile} files={files} config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressFunction} handleCompressClick={handleCompressClick}/></div> }
         {jobs.length>0 && <div ref={resultsRef}><Results jobs={jobs} handleRemoveJob={handleRemoveJob}/></div> }
       </div>
     </div>

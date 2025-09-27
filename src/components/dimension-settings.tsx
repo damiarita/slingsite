@@ -66,7 +66,11 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
         {files.map((file, index) => (
             <div key={file.name} className="relative group aspect-square">
+              {file.type.startsWith('video/')?
+                <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded-md shadow-sm" disablePictureInPicture/>
+              :
                 <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded-md shadow-sm"/>
+              }
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md"></div>
                 <button 
                     onClick={()=>handleRemoveFile(index)} 

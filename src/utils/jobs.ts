@@ -1,12 +1,12 @@
 import { DimensionsConfig } from "@/components/dimension-settings";
 import { Device } from "@/types/devices";
-import { Format } from "@/types/formats";
+import { Format } from "@/utils/formats";
 import { Job, Task } from "@/types/job";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { minDimension } from "./mediaDimensions";
 
-export const createImageJob = (file:File, requestedDevices:Device[], deviceConfig:DimensionsConfig):Promise<Job> => {
-    return getImageSize(file).then(originalDimensions=>{
+export const createJob = (file:File, requestedDevices:Device[], deviceConfig:DimensionsConfig):Promise<Job> => {
+    return getMediumSize(file).then(originalDimensions=>{
         const requestedDimensions:Partial<Record<Device, MediaDimensions>> = {};
         requestedDevices.forEach(device => {
             const config = deviceConfig[device];
@@ -24,7 +24,7 @@ export const createImageJob = (file:File, requestedDevices:Device[], deviceConfi
             requestedDimension.height = Math.round(requestedDimension.height);
             requestedDimensions[device] = minDimension(originalDimensions, requestedDimension);
         });
-        const requestedFormats:Format[] = ['jpg', 'webp', 'avif'];
+        const requestedFormats:Format[] = file.type.startsWith("image/")?['jpg', 'webp', 'avif']:["webm", "mp4"];
         const tasks:Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
         requestedDevices.forEach(device => { 
             requestedFormats.forEach(format => {
@@ -74,12 +74,32 @@ export const jobProportionOfDoneTasks=(job:Job):number=>{
 
 
 
-function getImageSize(file:File):Promise<MediaDimensions> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve({width: img.width, height: img.height});
-    img.onerror = reject;
-    const url = URL.createObjectURL(file);
-    img.src = url;
-  });
+function getMediumSize(file:File):Promise<MediaDimensions> {
+    if(file.type.startsWith("image/")){
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const result = {width: img.width, height: img.height};
+                URL.revokeObjectURL(img.src)
+                resolve(result);
+            };
+            img.onerror = reject;
+            const url = URL.createObjectURL(file);
+            img.src = url;
+        });
+    }
+    if(file.type.startsWith("video/")){
+        return new Promise((resolve, reject)=>{
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.onloadedmetadata = function() {
+                const res = {width: video.videoWidth, height: video.videoHeight}
+                URL.revokeObjectURL(video.src);
+                resolve(res)
+            };
+            video.onerror = reject;
+            video.src = URL.createObjectURL(file);
+        });
+    }
+    throw new Error("unsupported mime type: "+file.type)
 }
