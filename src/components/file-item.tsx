@@ -1,6 +1,6 @@
 
 import { FileIcon, Download, X, Clock, Package} from 'lucide-react';
-import type { Format } from '@/types/formats';
+import type { Format } from '@/utils/formats';
 import type { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
 import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';

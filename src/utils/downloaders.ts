@@ -1,5 +1,5 @@
 import { Device } from "@/types/devices";
-import { Format } from "@/types/formats";
+import { Format } from "@/utils/formats";
 import { Job, Task } from "@/types/job";
 
 export const downloadResultFile=(job:Job, device:Device, format:Format)=>{

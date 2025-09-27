@@ -1,5 +1,5 @@
 
-import { Format } from "./formats";
+import { Format } from "../utils/formats";
 import { Device } from "./devices";
 import { MediaDimensions } from "./mediaDimensions";
 
