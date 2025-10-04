@@ -1,4 +1,4 @@
-import {getDictionary, Locale} from '@/i18n/lib'
+import {getRedirectionDictionary, Locale} from '@/i18n/lib'
 import { Redirecter } from '@/components/redirecter'
 import { Metadata } from 'next'
 
@@ -6,7 +6,7 @@ type Props = {params: Promise<{locale:Locale}>}
 
 export async function generateMetadata({params}:Props): Promise<Metadata> {
   const { locale } = await params
-  const dict = await getDictionary(locale)
+  const dict = await getRedirectionDictionary(locale)
   return {
     title: dict.redirecting,
   }
@@ -14,7 +14,7 @@ export async function generateMetadata({params}:Props): Promise<Metadata> {
 
 export default async function HomePage({params}:Props) {
   const { locale } = await params
-  const dict = await getDictionary(locale)
+  const dict = await getRedirectionDictionary(locale)
 
   return <Redirecter locale={locale} pageType='image' redirecting={dict.redirecting} />
 }

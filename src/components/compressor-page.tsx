@@ -13,6 +13,7 @@ import { createJob, jobNextPendingTask } from "@/utils/jobs";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { Locale } from "@/i18n/lib";
 import { CompressionInput } from "@/types/compressor";
+import { CompressionPageSeoTranslations } from "@/i18n/type";
 
 function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageFormat, newTask:Task){
   return jobs.map(currentJob => {
@@ -31,7 +32,7 @@ function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageF
 }
 
 
-export default function App({locale, compressorType}:{locale:Locale, compressorType:CompressionInput}) {
+export default function App({compressorType, translation}:{locale:Locale, compressorType:CompressionInput, translation:CompressionPageSeoTranslations}) {
   const [mode, setMode] = useState<'first-upload'|'settings'|'results+upload'>('first-upload');
   const [files, setFiles] = useState<File[]>([]);
   const [processorBusy, setProcessorBusy] = useState(false);
@@ -126,7 +127,7 @@ export default function App({locale, compressorType}:{locale:Locale, compressorT
 
   return (
     <div className="space-y-8">
-      {mode==='first-upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Optimize Your Web Images</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"> Upload your images and get perfectly sized, next-gen formats for every device. Improve your site&apos;s speed and SEO. </p> </div>}
+      {mode==='first-upload' && <div className="text-center"> <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">{translation.title}</h2> <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">{translation.subtitle}</p> </div>}
       <div className="grid grid-cols-1 gap-8 items-start">
         { (mode==='first-upload'||mode==='results+upload') && <div ref={uploadRef}><FileUpload onFilesAdded={handleFilesAdded} type={compressorType}/></div>}
         {mode==='settings' && <div ref={settingsRef}><DimensionsSettings handleExitSettings={()=>{setMode('results+upload'); uploadRef.current?.scrollIntoView({behavior:'smooth', block:'start'})}} handleRemoveFile={handleRemoveFile} files={files} config={deviceConfig} setConfig={setDeviceConfig} readyToCompress={!!compressFunction} handleCompressClick={handleCompressClick}/></div> }

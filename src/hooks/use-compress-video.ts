@@ -1,4 +1,4 @@
-import { Format, ImageFormat, isVideoFormat, VideoFormat } from "@/utils/formats";
+import { Format, isVideoFormat, VideoFormat } from "@/utils/formats";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { useEffect, useRef, useState } from "react";

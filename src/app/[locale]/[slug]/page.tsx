@@ -1,5 +1,5 @@
-import { Locale } from "@/i18n/lib";
-import { getAllPosts, getPost, getTranslations } from "@/content/lib";
+import { getBlogDictionary, Locale } from "@/i18n/lib";
+import { getAllPosts, getPost } from "@/content/lib";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getPostUrl, getPostUrlsByLocale } from "@/utils/urls";
@@ -16,11 +16,10 @@ export async function generateMetadata({params}:{params:Promise<Props>}): Promis
   const post = getPost(slug, locale);
   if (!post) {
     return {
-      title: "Post Not Found",
-      description: "The post you are looking for does not exist.",
+      title: "", //The generic 404 takes care of this
+      description: ""//The generic 404 takes care of this,
     };
   }
-  const translations = getTranslations(post);
   return {
     title: post.title,
     description: post.description,
@@ -61,6 +60,7 @@ export default async function PostPage({ params }: { params: Promise<Props> }) {
     "datePublished": post.publicationDate,
     "dateModified": post.modificationDate,
   };
+  const translations = await getBlogDictionary(locale);
   return (
     <>
     <script type="application/ld+json">
@@ -69,8 +69,8 @@ export default async function PostPage({ params }: { params: Promise<Props> }) {
     <article className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <div dangerouslySetInnerHTML={{ __html: post.body.html }} className="pt-6 pb-6 prose prose-lg max-w-4xl mx-auto prose-headings:text-gray-900 prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-blockquote:border-l-blue-500 prose-li:marker:text-blue-600 prose-hr:border-gray-200"/>
         <footer>
-          <p>Published on <time dateTime={post.publicationDate}>{formatDateTime(new Date(post.publicationDate), locale)}</time></p>
-          <p>Last Edited on <time dateTime={post.modificationDate}>{formatDateTime(new Date(post.modificationDate), locale)}</time></p>
+          <p>{translations.publidhed_on} <time dateTime={post.publicationDate}>{formatDateTime(new Date(post.publicationDate), locale)}</time></p>
+          <p>{translations.last_edited_on} <time dateTime={post.modificationDate}>{formatDateTime(new Date(post.modificationDate), locale)}</time></p>
         </footer>
     </article>
     </>

@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
-import { ConsentModalOptions, PreferencesModalOptions, acceptedCategory, run, show } from "vanilla-cookieconsent";
+import { acceptedCategory, run} from "vanilla-cookieconsent";
 import { Locale, rtlLocales } from "@/i18n/lib";
+import { CookieConsentTranslations } from "@/i18n/type";
 
 const defaultConsentMode={
     ad_personalization: "denied",
@@ -30,7 +31,7 @@ const updateGtagConsent=()=>{
     );
 }
 
-export default function CookieConsent( {locale, translations}:{locale: Locale, translations:{consentModal: ConsentModalOptions, preferencesModal: PreferencesModalOptions}} ) {
+export default function CookieConsent( {locale, translations}:{locale: Locale, translations:CookieConsentTranslations} ) {
     useEffect(() => {
         gtag('consent', 'default', defaultConsentMode)
         run({
@@ -54,6 +55,6 @@ export default function CookieConsent( {locale, translations}:{locale: Locale, t
             onConsent: updateGtagConsent,
             onChange: updateGtagConsent
         });
-    }, []);
+    }, [translations, locale]);
     return null;
 }

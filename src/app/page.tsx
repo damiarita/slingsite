@@ -1,16 +1,16 @@
 import { Redirecter } from '@/components/redirecter'
-import {getDictionary} from '@/i18n/lib'
+import {getRedirectionDictionary} from '@/i18n/lib'
 import { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const dict = await getDictionary('en');
+  const dict = await getRedirectionDictionary('en');
   return {
     title: dict.redirecting,
   }
 }
 
 export default async function HomePage() {
-  const dict = await getDictionary('en');
+  const dict = await getRedirectionDictionary('en');
   return (
     <html>
       <body>

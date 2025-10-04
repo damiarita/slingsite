@@ -2,7 +2,6 @@
 'use client';
 import {ReactElement} from 'react';
 import { Device } from '@/types/devices';
-import type {  CompressorPageDictionary } from '@/i18n/dictioraries/type';
 import { Smartphone, Tablet, Monitor, Settings, Play, Files, X, FilePlus} from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
 
