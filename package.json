@@ -16,6 +16,7 @@
     "@yireen/squoosh-browser": "^1.0.7",
     "contentlayer2": "^0.5.8",
     "lucide-react": "^0.541.0",
+    "mediabunny": "^1.23.0",
     "next": "15.4.6",
     "next-contentlayer2": "^0.5.8",
     "react": "19.1.0",
