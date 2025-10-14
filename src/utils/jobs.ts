@@ -1,6 +1,6 @@
 import { DimensionsConfig } from "@/components/dimension-settings";
 import { Device } from "@/types/devices";
-import { Format } from "@/utils/formats";
+import { Format, imageFormats, videoFormats } from "@/utils/formats";
 import { Job, Task } from "@/types/job";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { minDimension } from "./mediaDimensions";
@@ -24,7 +24,7 @@ export const createJob = (file:File, requestedDevices:Device[], deviceConfig:Dim
             requestedDimension.height = Math.round(requestedDimension.height);
             requestedDimensions[device] = minDimension(originalDimensions, requestedDimension);
         });
-        const requestedFormats:Format[] = file.type.startsWith("image/")?['jpg', 'webp', 'avif']:["webm", "mp4"];
+        const requestedFormats: Format[] = file.type.startsWith("image/") ? [...imageFormats] : [...videoFormats];
         const tasks:Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
         requestedDevices.forEach(device => { 
             requestedFormats.forEach(format => {
