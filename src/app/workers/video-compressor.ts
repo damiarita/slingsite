@@ -13,6 +13,18 @@ import {
 } from 'mediabunny';
 
 
+const outputFormats: Record<VideoFormat, WebMOutputFormat | Mp4OutputFormat> = {
+    'vp9.webm': new WebMOutputFormat(),
+    'av1.webm': new WebMOutputFormat(),
+    'mp4': new Mp4OutputFormat({fastStart: 'in-memory'}),
+};
+
+const outputCodecs: Record<VideoFormat, VideoCodec> = {
+    'vp9.webm': 'vp9',
+    'av1.webm': 'av1',
+    'mp4': 'avc',
+};
+
 self.addEventListener('message', async (ev) => {
 
     const { file, format, mediaSize } = ev.data as {
@@ -21,8 +33,8 @@ self.addEventListener('message', async (ev) => {
         mediaSize: MediaDimensions;
     };
     
-    const outputFormat = format === 'webm' ? new WebMOutputFormat() : new Mp4OutputFormat({fastStart: 'in-memory'});
-    const outputCodec: VideoCodec = format === 'webm' ? 'vp9' : 'avc';
+    const outputFormat = outputFormats[format];
+    const outputCodec = outputCodecs[format];
 
     const input = new Input({
 	formats: ALL_FORMATS,
