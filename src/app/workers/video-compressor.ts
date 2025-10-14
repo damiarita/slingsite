@@ -63,6 +63,6 @@ self.addEventListener('message', async (ev) => {
         throw new Error("No output generated");
     }
     
-    self.postMessage({ type: 'result', data: new File([output.target.buffer], `output.${format}`, {type:await output.getMimeType()}) });
+    self.postMessage({ type: 'result', data: new File([output.target.buffer], file.name, {type:await output.getMimeType()}) });
     
 });
