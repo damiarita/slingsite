@@ -104,7 +104,11 @@ export default function App({compressorType, translation}:{locale:Locale, compre
       
     setProcessorBusy(true);
     setJobs(prevJobs => {
-      return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running' });
+      const initialTaskStatus:Task = { status: 'running' };
+      if (compressorType==='video'){
+        initialTaskStatus.percentage = 0;
+      }
+      return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, initialTaskStatus);
     });
     compressFunction(nextJob.originalFile, format, nextJob.requestedDimensions[device] as MediaDimensions, function(progress:number){
       setJobs(prevJobs => {
