@@ -55,7 +55,11 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col">
             <div className="flex items-start justify-between">
                 <div className="flex items-center min-w-0"> 
-                    <img src={URL.createObjectURL(originalFile)}className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0" />
+                    {originalFile.type.startsWith('video/')?
+                        <video src={URL.createObjectURL(originalFile)} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0" disablePictureInPicture/>
+                    :
+                        <img src={URL.createObjectURL(originalFile)} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0"/>
+                    }
                     <div className="flex-grow min-w-0"> 
                         <p className="text-sm font-medium text-gray-800 truncate" title={originalFile.name}>{originalFile.name}</p> 
                         <p className="text-xs text-gray-500 flex items-center flex-wrap">
