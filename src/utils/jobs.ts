@@ -36,6 +36,7 @@ export const createJob = (file:File, requestedDevices:Device[], deviceConfig:Dim
         return {
             id: crypto.randomUUID(),
             originalFile: file,
+            originalFileObjectURL: URL.createObjectURL(file),
             originalDimensions,
             requestedDimensions,
             requestedFormats,

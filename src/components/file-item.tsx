@@ -15,7 +15,7 @@ type FileItemProps = {
 };
 
 export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileItemProps) => {
-    const { originalFile, tasks } = job;
+    const { originalFile, originalFileObjectURL, tasks } = job;
     const progress = jobProportionOfDoneTasks(job);
     const progressPercentage = `${Math.round(progress*100)}%`;
     const formatBytes = (bytes:number, decimals = 2) => { if (bytes === 0) return '0 Bytes'; const k = 1024; const dm = decimals < 0 ? 0 : decimals; const sizes = ['Bytes', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]; };
@@ -57,9 +57,9 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
             <div className="flex items-start justify-between">
                 <div className="flex items-center min-w-0"> 
                     {originalFile.type.startsWith('video/')?
-                        <video src={URL.createObjectURL(originalFile)} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0" disablePictureInPicture/>
+                        <video src={originalFileObjectURL} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0" disablePictureInPicture/>
                     :
-                        <img src={URL.createObjectURL(originalFile)} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0"/>
+                        <img src={originalFileObjectURL} className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0"/>
                     }
                     <div className="flex-grow min-w-0"> 
                         <p className="text-sm font-medium text-gray-800 truncate" title={originalFile.name}>{originalFile.name}</p> 

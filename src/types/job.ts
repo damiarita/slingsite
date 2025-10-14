@@ -12,6 +12,7 @@ export type Task =
 export type Job = {
     id: string;
     originalFile: File;
+    originalFileObjectURL: string;
     originalDimensions: MediaDimensions;
     requestedDimensions: Partial<Record<Device, MediaDimensions>>;
     requestedFormats: Format[];
