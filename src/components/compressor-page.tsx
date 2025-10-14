@@ -106,7 +106,11 @@ export default function App({compressorType, translation}:{locale:Locale, compre
     setJobs(prevJobs => {
       return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running' });
     });
-    compressFunction(nextJob.originalFile, format, nextJob.requestedDimensions[device] as MediaDimensions)
+    compressFunction(nextJob.originalFile, format, nextJob.requestedDimensions[device] as MediaDimensions, function(progress:number){
+      setJobs(prevJobs => {
+        return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running', percentage: Math.floor(progress*100) });
+      })
+    })
       .then(compressedFile => {
         setJobs(prevJobs => {
           return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'completed', result: compressedFile });

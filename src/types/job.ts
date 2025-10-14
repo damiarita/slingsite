@@ -5,7 +5,7 @@ import { MediaDimensions } from "./mediaDimensions";
 
 export type Task =
     { status: 'waiting' }
-  | { status: 'running' }
+  | { status: 'running', percentage?: number }
   | { status: 'completed'; result: File }
   | { status: 'errored'; error: Error };
 

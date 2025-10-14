@@ -17,7 +17,7 @@ export default function useCompressVideo() {
         }
       };
     }, []); // Empty dependency array ensures this runs once on mount and cleanup on unmount
-    return workerRef.current===null? null : function (file: File, format:Format, mediaSize:MediaDimensions): Promise<File> {
+    return workerRef.current===null? null : function (file: File, format:Format, mediaSize:MediaDimensions, onProgressUpdate:(progress:number)=>void): Promise<File> {
       if (!workerRef.current){
         throw new Error("Worker not loaded. Ensure the worker is imported correctly.");
       } 
@@ -34,7 +34,7 @@ export default function useCompressVideo() {
           const {type, data} = ev.data;
           if(type==='progress'){
             const progress = data as number;
-            console.log("Video processing progress:", progress);
+            onProgressUpdate(progress);
             return;
           }
           if(type=='result'){

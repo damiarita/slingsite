@@ -17,7 +17,7 @@ export default function useCompressImage() {
     }
     loadWasm();
   }, []);
-  return compressorClass===null? null : function (file: File, format:Format, mediaSize:MediaDimensions): Promise<File> {
+  return compressorClass===null? null : function (file: File, format:Format, mediaSize:MediaDimensions, onProgressUpdate:(progress:number)=>void): Promise<File> {
     if (!compressorClass){
       throw new Error("Compressor class not loaded. Ensure '@yireen/squoosh-browser' is imported correctly.");
     } 

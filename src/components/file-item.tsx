@@ -38,7 +38,8 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
                                     <FileIcon className="w-3 h-3 mr-1.5 text-gray-500"/>
                                     <span className="font-mono uppercase">{format}</span>
                                     {task.status==='waiting' && <span className="text-gray-500 ml-2">Waiting</span>}
-                                    {task.status==='running' && <span className="text-gray-500 ml-2">Running</span>}
+                                    {task.status==='running' && !!task.percentage && <span className="text-gray-500 ml-2">{task.percentage}%</span>}
+                                    {task.status==='running' && !task.percentage && <span className="text-gray-500 ml-2">Running</span>}
                                     {task.status==='errored' && <span className="text-red-200 ml-2">Error</span>}
                                     {task.status==='completed' && <span className="text-gray-500 ml-2">{formatBytes(task.result.size)}</span>}
                                 </div>
