@@ -43,9 +43,9 @@ export default function App({compressorType, translation}:{locale:Locale, compre
   const resultsRef=useRef<HTMLDivElement>(null);
 
   const [deviceConfig, setDeviceConfig] = useState<DimensionsConfig>({
-    mobile: { enabled: true, screenWidth: 768, sizingType: 'percentage', percentage:100, width: 768, height: 100 },
-    tablet: { enabled: true, screenWidth: 1200, sizingType: 'percentage', percentage: 50,  width: 600, height: 100 },
-    desktop: { enabled: true, screenWidth: 2000, sizingType: 'percentage', percentage: 33.33, width: 666.66, height: 100 },
+    mobile: { enabled: true, screenWidth: 450, sizingType: 'percentage', percentage:100, width: 450, height: 100 },
+    tablet: { enabled: true, screenWidth: 1050, sizingType: 'percentage', percentage: 50,  width: 525, height: 100 },
+    desktop: { enabled: true, screenWidth: 1950, sizingType: 'percentage', percentage: 33.33, width: 650, height: 100 },
   });
   const compressImage = useCompressImage();
   const compressVideo = useCompressVideo();

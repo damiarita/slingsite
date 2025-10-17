@@ -96,7 +96,7 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
             </div>
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${config[device].enabled ? 'max-h-[500px]' : 'max-h-0'}`}>
               <div className="px-4 pb-4 space-y-4">
-                {config[device].sizingType==='percentage' && (<div> <label className="text-sm font-medium text-gray-600">Screen Width</label> <div className="relative mt-1"> <input type="number" value={config[device].screenWidth} onChange={(e) => handleInputChange(device, 'screenWidth', parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div> </div>)}
+                {config[device].sizingType==='percentage' && (<div> <label className="text-sm font-medium text-gray-600">Support Screens Up to:</label> <div className="relative mt-1"> <input type="number" value={config[device].screenWidth} onChange={(e) => handleInputChange(device, 'screenWidth', parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div> </div>)}
                 <div>
                   <label className="text-sm font-medium text-gray-600">{lables[config[device].sizingType]}</label>
                   {config[device].sizingType === 'percentage' ? (
