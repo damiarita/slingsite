@@ -70,7 +70,7 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
               :
                 <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded-md shadow-sm"/>
               }
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md"></div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md" />
                 <button 
                     onClick={()=>handleRemoveFile(index)} 
                     className="absolute top-1 right-1 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -91,12 +91,12 @@ export const DimensionsSettings = ({ config, setConfig, readyToCompress, handleC
         {(Object.keys(config) as Device[]).map((device) => (
           <div key={device} className={`rounded-lg transition-all duration-300 ${config[device].enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}>
             <div className="flex items-center justify-between p-4">
-              <div className="flex items-center font-semibold text-gray-700 capitalize"> {icons[device]} {device} </div>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none"> <input type="checkbox" id={device} checked={config[device].enabled} onChange={() => handleToggle(device)} className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/> <label htmlFor={device} className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label> </div>
+              <div className="flex items-center font-semibold text-gray-700 capitalize"> {icons[device]} <label htmlFor={device}>{device}</label> </div>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none"> <input type="checkbox" id={device} checked={config[device].enabled} onChange={() => handleToggle(device)} className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/></div>
             </div>
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${config[device].enabled ? 'max-h-[500px]' : 'max-h-0'}`}>
               <div className="px-4 pb-4 space-y-4">
-                {config[device].sizingType==='percentage' && (<div> <label className="text-sm font-medium text-gray-600">Support Screens Up to:</label> <div className="relative mt-1"> <input type="number" value={config[device].screenWidth} onChange={(e) => handleInputChange(device, 'screenWidth', parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div> </div>)}
+                {config[device].sizingType==='percentage' && (<div> <label className="text-sm font-medium text-gray-600" htmlFor={`screen-width${device}`}>Support Screens Up to:</label> <div className="relative mt-1"> <input id={`screen-width${device}`} type="number" value={config[device].screenWidth} onChange={(e) => handleInputChange(device, 'screenWidth', parseFloat(e.target.value))} className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"/> <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">px</span> </div> </div>)}
                 <div>
                   <label className="text-sm font-medium text-gray-600">{lables[config[device].sizingType]}</label>
                   {config[device].sizingType === 'percentage' ? (

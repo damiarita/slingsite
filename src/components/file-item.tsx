@@ -82,7 +82,7 @@ export const FileItem = ({ onRemove, onDownloadAll, onDownloadOne, job }: FileIt
                 </div>
                 {jobIsRunning(job) ? (
                     <div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5"> <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: progressPercentage }}></div> </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5"> <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: progressPercentage }} /> </div>
                         <p className="text-xs text-center text-gray-600 mt-1">Compressing... {progressPercentage}</p>
                     </div>
                 ) : progress===0 && (

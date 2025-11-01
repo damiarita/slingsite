@@ -39,7 +39,7 @@ export const FileUpload = ({ onFilesAdded, type }: FileUploadProps) => {
       <input ref={fileInputRef} type="file" multiple accept={type+"/*"} className="hidden" onChange={handleChange} />
       <div className="flex flex-col items-center justify-center space-y-4">
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"> <ImagePlus className={`w-8 h-8 transition-colors duration-300 ${isDragging ? 'text-blue-600' : 'text-gray-500'}`} /> </div>
-        <p className="text-gray-600"> <span className="font-semibold text-blue-600 cursor-pointer" onClick={onButtonClick}>Click to upload</span> or drag and drop </p>
+        <p className="text-gray-600"> <button className="font-semibold text-blue-600 cursor-pointer" onClick={onButtonClick}>Click to upload</button> or drag and drop </p>
         <p className="text-xs text-gray-500">Supports {(type==='image'?['JPG', 'PNG', 'WEBP', 'GIF']:['MP4', 'WEBM', 'QTFF', 'MATROSKA']).join(", ")}</p>
       </div>
     </div>

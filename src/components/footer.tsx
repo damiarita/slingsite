@@ -22,7 +22,7 @@ export default function Footer({translations, locale}:{translations:FooterTransl
                             <h3 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">{translations.headings.connect}</h3>
                             <ul className="mt-4 space-y-4">
                                 <li><a href={getUrl(locale, 'suscribe')} className="text-base text-gray-500 hover:text-gray-900">{translations.suscribe}</a></li>
-                                <li><a href="https://github.com/damiarita/slingsite/issues" className="text-base text-gray-500 hover:text-gray-900" title='Issues · damiarita/slingsite' target="_blank">{translations.contactUs}</a></li>
+                                <li><a href="https://github.com/damiarita/slingsite/issues" className="text-base text-gray-500 hover:text-gray-900" title='Issues · damiarita/slingsite' target="_blank" rel="noopener noreferrer">{translations.contactUs}</a></li>
                             </ul>
                         </div>
                         <div className="mt-12 md:mt-0">

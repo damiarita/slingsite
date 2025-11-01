@@ -33,7 +33,7 @@ export default function useCompressImage() {
       return new Promise<File>((resolve, reject)=>{
         worker.onmessage = (ev:MessageEvent<{type:string, data:number|File}>) => {
           const {type, data} = ev.data;
-          if(type=='result'){
+          if(type==='result'){
             const output = data as File;
             setProcessorBusy(false);
             resolve(output);

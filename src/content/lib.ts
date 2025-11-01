@@ -5,7 +5,7 @@ const sortPosts = (posts: Post[]) => {
     return posts.toSorted((a, b) => (a.publicationDate > b.publicationDate ? -1 : 1));
 }
 
-export function getAllPosts(sorted: boolean=false): Post[] {
+export function getAllPosts(sorted=false): Post[] {
     if (sorted) {
         return sortPosts(allPosts);
     }

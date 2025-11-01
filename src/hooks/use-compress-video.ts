@@ -1,4 +1,4 @@
-import { Format, isVideoFormat, VideoFormat } from "@/utils/formats";
+import { Format, isVideoFormat } from "@/utils/formats";
 import { MediaDimensions } from "@/types/mediaDimensions";
 import { useEffect, useRef, useState } from "react";
 
@@ -37,7 +37,7 @@ export default function useCompressVideo() {
             onProgressUpdate(progress);
             return;
           }
-          if(type=='result'){
+          if(type==='result'){
             const output = data as File;
             setProcessorBusy(false);
             resolve(output);
