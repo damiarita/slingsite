@@ -32,7 +32,7 @@ export const FileUpload = ({ onFilesAdded, type }: FileUploadProps) => {
       onFilesAdded(Array.from(e.target.files));
     }
   };
-  const onButtonClick = () => { if(fileInputRef.current) fileInputRef.current.click(); else throw new Error("fileInputRef.current is not defined") };
+  const onButtonClick = function(){ if(fileInputRef.current) fileInputRef.current.click(); else throw new Error("fileInputRef.current is not defined") };
 
   return (
     <div onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop} className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white hover:border-blue-400'}`}>
