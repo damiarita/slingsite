@@ -1,11 +1,13 @@
 // This file defines the strict type for our translation dictionaries,
 // ensuring type safety across the application.
-import { ConsentModalOptions, PreferencesModalOptions } from 'vanilla-cookieconsent';
-
+import {
+  ConsentModalOptions,
+  PreferencesModalOptions,
+} from 'vanilla-cookieconsent';
 
 export interface CookieConsentTranslations {
-  consentModal: ConsentModalOptions,
-  preferencesModal: PreferencesModalOptions
+  consentModal: ConsentModalOptions;
+  preferencesModal: PreferencesModalOptions;
 }
 export interface RedirectingTranslations {
   redirecting: string;
@@ -23,8 +25,8 @@ export interface CompressionPageSeoTranslations {
   subtitle: string;
 }
 export interface NavBarTranslations {
-  imageCompressor:string,
-  videoCompressor:string
+  imageCompressor: string;
+  videoCompressor: string;
 }
 
 export interface FooterTranslations {
@@ -48,9 +50,9 @@ export interface Navigation {
 }
 
 export interface UploadArea {
-    title: string;
-    subtitle: string;
-  }
+  title: string;
+  subtitle: string;
+}
 
 export interface CompressorPageDictionary {
   title: string;
@@ -84,7 +86,7 @@ export interface CompressorPageDictionary {
 
 export interface Dictionary {
   redirecting: string;
-  processing: string,
+  processing: string;
   navigation: Navigation;
   imageCompressor: CompressorPageDictionary;
 }

@@ -1,1 +1,1 @@
-export type CompressionInput = 'image'|'video';
+export type CompressionInput = 'image' | 'video';

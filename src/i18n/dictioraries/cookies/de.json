@@ -1,34 +1,34 @@
 {
-    "consentModal": {
-        "label": "Cookie-Banner",
-        "title": "Wir verwenden Cookies!",
-        "description": "Hallo, diese Website verwendet erforderliche Cookies für den ordnungsgemäßen Betrieb und Tracking-Cookies, um zu verstehen, wie Sie mit ihr interagieren. Letztere werden nur nach Ihrer Zustimmung gesetzt.",
-        "acceptAllBtn": "Alle Cookies akzeptieren",
-        "acceptNecessaryBtn": "Nur Notwendige",
-        "showPreferencesBtn": "Cookie-Einstellungen",
-        "closeIconLabel": "Schließen"
-    },
-    "preferencesModal": {
-        "title": "Cookie-Einstellungen",
-        "acceptAllBtn": "Alle Cookies akzeptieren",
-        "acceptNecessaryBtn": "Nur Notwendige",
-        "savePreferencesBtn": "Einstellungen speichern",
-        "closeIconLabel": "Schließen",
-        "sections": [
-            {
-                "title": "Über Cookies",
-                "description": "Ein Cookie ist ein kleines Textstück, das unser Webserver auf Ihrem Computer oder mobilen Gerät speichert, wenn Sie unsere Website besuchen. Es hilft uns, Ihre Erfahrung zu verbessern, indem es Ihre Präferenzen und wiederholten Besuche speichert. Einige Cookies sind für das ordnungsgemäße Funktionieren der Website unerlässlich, während andere uns helfen zu verstehen, wie Sie mit unserer Website interagieren und Ihr Browsing-Erlebnis verbessern."
-            },
-            {
-                "title": "Notwendige Cookies",
-                "description": "Diese Cookies sind für das ordnungsgemäße Funktionieren der Website unerlässlich. Sie gewährleisten grundlegende Funktionalitäten und Sicherheitsmerkmale der Website, anonym.",
-                "linkedCategory": "necessary"
-            },
-            {
-                "title": "Analyse-Cookies",
-                "description": "Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren, indem sie Informationen anonym sammeln und melden.",
-                "linkedCategory": "analytics"
-            }
-        ]
-    }
+  "consentModal": {
+    "label": "Cookie-Banner",
+    "title": "Wir verwenden Cookies!",
+    "description": "Hallo, diese Website verwendet erforderliche Cookies für den ordnungsgemäßen Betrieb und Tracking-Cookies, um zu verstehen, wie Sie mit ihr interagieren. Letztere werden nur nach Ihrer Zustimmung gesetzt.",
+    "acceptAllBtn": "Alle Cookies akzeptieren",
+    "acceptNecessaryBtn": "Nur Notwendige",
+    "showPreferencesBtn": "Cookie-Einstellungen",
+    "closeIconLabel": "Schließen"
+  },
+  "preferencesModal": {
+    "title": "Cookie-Einstellungen",
+    "acceptAllBtn": "Alle Cookies akzeptieren",
+    "acceptNecessaryBtn": "Nur Notwendige",
+    "savePreferencesBtn": "Einstellungen speichern",
+    "closeIconLabel": "Schließen",
+    "sections": [
+      {
+        "title": "Über Cookies",
+        "description": "Ein Cookie ist ein kleines Textstück, das unser Webserver auf Ihrem Computer oder mobilen Gerät speichert, wenn Sie unsere Website besuchen. Es hilft uns, Ihre Erfahrung zu verbessern, indem es Ihre Präferenzen und wiederholten Besuche speichert. Einige Cookies sind für das ordnungsgemäße Funktionieren der Website unerlässlich, während andere uns helfen zu verstehen, wie Sie mit unserer Website interagieren und Ihr Browsing-Erlebnis verbessern."
+      },
+      {
+        "title": "Notwendige Cookies",
+        "description": "Diese Cookies sind für das ordnungsgemäße Funktionieren der Website unerlässlich. Sie gewährleisten grundlegende Funktionalitäten und Sicherheitsmerkmale der Website, anonym.",
+        "linkedCategory": "necessary"
+      },
+      {
+        "title": "Analyse-Cookies",
+        "description": "Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren, indem sie Informationen anonym sammeln und melden.",
+        "linkedCategory": "analytics"
+      }
+    ]
+  }
 }

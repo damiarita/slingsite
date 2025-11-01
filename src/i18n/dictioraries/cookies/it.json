@@ -1,34 +1,34 @@
 {
-    "consentModal": {
-        "label": "Banner dei cookie",
-        "title": "Utilizziamo i cookie!",
-        "description": "Ciao, questo sito web utilizza cookie essenziali per garantire il suo corretto funzionamento e cookie di tracciamento per capire come interagisci con esso. Questi ultimi saranno attivati solo dopo la tua approvazione.",
-        "acceptAllBtn": "Accetta tutti i cookie",
-        "acceptNecessaryBtn": "Accetta solo i necessari",
-        "showPreferencesBtn": "Impostazioni cookie",
-        "closeIconLabel": "Chiudi"
-    },
-    "preferencesModal": {
-        "title": "Preferenze cookie",
-        "acceptAllBtn": "Accetta tutti i cookie",
-        "acceptNecessaryBtn": "Accetta solo i necessari",
-        "savePreferencesBtn": "Salva impostazioni",
-        "closeIconLabel": "Chiudi",
-        "sections": [
-            {
-                "title": "Informazioni sui cookie",
-                "description": "Un cookie è un piccolo file di testo che il nostro server web memorizza sul tuo computer o dispositivo mobile quando visiti il nostro sito. Ci aiuta a migliorare la tua esperienza ricordando le tue preferenze e le visite ripetute. Alcuni cookie sono essenziali per il corretto funzionamento del sito, mentre altri ci aiutano a capire come interagisci con il nostro sito e a migliorare la tua esperienza di navigazione."
-            },
-            {
-                "title": "Cookie necessari",
-                "description": "Questi cookie sono essenziali per il corretto funzionamento del sito web. Garantiscono le funzionalità di base e le caratteristiche di sicurezza del sito web, in modo anonimo.",
-                "linkedCategory": "necessary"
-            },
-            {
-                "title": "Cookie analitici",
-                "description": "Questi cookie ci aiutano a capire come i visitatori interagiscono con il nostro sito web, raccogliendo e riportando informazioni in modo anonimo.",
-                "linkedCategory": "analytics"
-            }
-        ]
-    }
+  "consentModal": {
+    "label": "Banner dei cookie",
+    "title": "Utilizziamo i cookie!",
+    "description": "Ciao, questo sito web utilizza cookie essenziali per garantire il suo corretto funzionamento e cookie di tracciamento per capire come interagisci con esso. Questi ultimi saranno attivati solo dopo la tua approvazione.",
+    "acceptAllBtn": "Accetta tutti i cookie",
+    "acceptNecessaryBtn": "Accetta solo i necessari",
+    "showPreferencesBtn": "Impostazioni cookie",
+    "closeIconLabel": "Chiudi"
+  },
+  "preferencesModal": {
+    "title": "Preferenze cookie",
+    "acceptAllBtn": "Accetta tutti i cookie",
+    "acceptNecessaryBtn": "Accetta solo i necessari",
+    "savePreferencesBtn": "Salva impostazioni",
+    "closeIconLabel": "Chiudi",
+    "sections": [
+      {
+        "title": "Informazioni sui cookie",
+        "description": "Un cookie è un piccolo file di testo che il nostro server web memorizza sul tuo computer o dispositivo mobile quando visiti il nostro sito. Ci aiuta a migliorare la tua esperienza ricordando le tue preferenze e le visite ripetute. Alcuni cookie sono essenziali per il corretto funzionamento del sito, mentre altri ci aiutano a capire come interagisci con il nostro sito e a migliorare la tua esperienza di navigazione."
+      },
+      {
+        "title": "Cookie necessari",
+        "description": "Questi cookie sono essenziali per il corretto funzionamento del sito web. Garantiscono le funzionalità di base e le caratteristiche di sicurezza del sito web, in modo anonimo.",
+        "linkedCategory": "necessary"
+      },
+      {
+        "title": "Cookie analitici",
+        "description": "Questi cookie ci aiutano a capire come i visitatori interagiscono con il nostro sito web, raccogliendo e riportando informazioni in modo anonimo.",
+        "linkedCategory": "analytics"
+      }
+    ]
+  }
 }

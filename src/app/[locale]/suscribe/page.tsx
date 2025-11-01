@@ -1,24 +1,28 @@
 import { Locale } from '@/i18n/lib';
 import { getUrl, getUrlsByLocale } from '@/utils/urls';
-import { Metadata } from 'next'
+import { Metadata } from 'next';
 
-type Props = {params: Promise<{locale:Locale}>}
+type Props = { params: Promise<{ locale: Locale }> };
 
-export async function generateMetadata({params}:Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   return {
-    title: "Suscribe to the SlingSite Newsletter",
-    description: "Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.",
+    title: 'Suscribe to the SlingSite Newsletter',
+    description:
+      'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
     alternates: {
       canonical: getUrl(locale, 'suscribe'),
       languages: getUrlsByLocale('suscribe'),
     },
-  }
+  };
 }
 
-export default async function App({params}:Props) {
+export default async function App({ params }: Props) {
   const { locale } = await params;
-  return <div dangerouslySetInnerHTML={{__html:`
+  return (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: `
     <!-- Begin Brevo Form -->
     <!-- START - We recommend to place the below code in head tag of your website html  -->
     <style>
@@ -977,6 +981,8 @@ export default async function App({params}:Props) {
 
     <!-- END - We recommend to place the above code in footer or bottom of your website html  -->
     <!-- End Brevo Form --></div>    
-    `}} />
+    `,
+      }}
+    />
+  );
 }
-

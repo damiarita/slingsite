@@ -1,1 +1,1 @@
-export type MediaDimensions = {width: number; height: number};
+export type MediaDimensions = { width: number; height: number };

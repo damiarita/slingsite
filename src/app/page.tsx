@@ -1,12 +1,12 @@
-import { Redirecter } from '@/components/redirecter'
-import {getRedirectionDictionary} from '@/i18n/lib'
-import { Metadata } from 'next'
+import { Redirecter } from '@/components/redirecter';
+import { getRedirectionDictionary } from '@/i18n/lib';
+import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getRedirectionDictionary('en');
   return {
     title: dict.redirecting,
-  }
+  };
 }
 
 export default async function HomePage() {
@@ -14,8 +14,8 @@ export default async function HomePage() {
   return (
     <html>
       <body>
-        <Redirecter pageType='image' redirecting={dict.redirecting} />
+        <Redirecter pageType="image" redirecting={dict.redirecting} />
       </body>
     </html>
-  )
+  );
 }

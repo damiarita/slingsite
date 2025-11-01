@@ -1,6 +1,7 @@
 This is the source code of [SlingSite](https://slingsite.github.io)
 
 ## The site
+
 SlingSite is a website designed to resize and compress you image and video assets before uploading them to you own website. You can upload as many files as you want and the site will generate 3 formats (jpg, webp and avif) for each type of device (mobile, tablet and desktop). You will be able to download the 9 resulting files (3 formats x 3 device sizes) to use them.
 
 ## Privacy and Security
