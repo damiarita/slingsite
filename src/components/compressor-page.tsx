@@ -6,7 +6,7 @@ import { Results } from "@/components/results"
 import { DimensionsSettings, DimensionsConfig } from "@/components/dimension-settings"
 import useCompressImage from "@/hooks/use-compress-image";
 import useCompressVideo from "@/hooks/use-compress-video";
-import { Format, ImageFormat, VideoFormat } from "@/utils/formats";
+import { Format } from "@/utils/formats";
 import { Device } from "@/types/devices";
 import {Job , Task} from "@/types/job";
 import { createJob, jobNextPendingTask } from "@/utils/jobs";
@@ -15,7 +15,7 @@ import { Locale } from "@/i18n/lib";
 import { CompressionInput } from "@/types/compressor";
 import { CompressionPageSeoTranslations } from "@/i18n/type";
 
-function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:ImageFormat, newTask:Task){
+function getJobWithUpdatedTask(jobs:Job[], job:Job, device:Device, format:Format, newTask:Task){
   return jobs.map(currentJob => {
     if (currentJob.id !== job.id) return currentJob;
     return {
@@ -108,21 +108,21 @@ export default function App({compressorType, translation}:{locale:Locale, compre
       if (compressorType==='video'){
         initialTaskStatus.percentage = 0;
       }
-      return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, initialTaskStatus);
+      return getJobWithUpdatedTask(prevJobs, nextJob, device, format, initialTaskStatus);
     });
     compressFunction(nextJob.originalFile, format, nextJob.requestedDimensions[device] as MediaDimensions, function(progress:number){
       setJobs(prevJobs => {
-        return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'running', percentage: Math.floor(progress*100) });
+        return getJobWithUpdatedTask(prevJobs, nextJob, device, format, { status: 'running', percentage: Math.floor(progress*100) });
       })
     })
       .then(compressedFile => {
         setJobs(prevJobs => {
-          return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'completed', result: compressedFile });
+          return getJobWithUpdatedTask(prevJobs, nextJob, device, format, { status: 'completed', result: compressedFile });
         });
       })
       .catch(err => {
         setJobs(prevJobs => {
-          return getJobWithUpdatedTask(prevJobs, nextJob, device, format as ImageFormat, { status: 'errored', error: err });
+          return getJobWithUpdatedTask(prevJobs, nextJob, device, format, { status: 'errored', error: err });
         });
         console.error("Compression error:", err);
       })
