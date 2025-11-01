@@ -8,9 +8,9 @@ export const Logo = () => (
         <path
         d="M62,32 C76,110 122,80 135,198"
         stroke="currentColor"
-        stroke-width="20"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="20"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         />
         <ellipse
         cx="153"
