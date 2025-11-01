@@ -5,6 +5,7 @@ import {
   rtlLocales,
   getNavBarDictionary,
   getFooterDictionary,
+  getCookieDictionary,
 } from '@/i18n/lib';
 import { notFound } from 'next/navigation';
 import '../globals.css';
@@ -13,7 +14,6 @@ import CookieConsent from '@/components/cookie-consent';
 import { GoogleTagManager } from '@next/third-parties/google';
 import NavBar from '@/components/nav-bar';
 import Footer from '@/components/footer';
-import { getCookieDictionary } from '@/i18n/lib';
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({
