@@ -15,8 +15,7 @@ export default function NavLink({
   mobile?: boolean;
 }) {
   const href = getUrl(locale, pageType);
-  const currentUrl = usePathname() || '';
-  const currentPath = currentUrl.split('?')[0];
+  const currentPath = usePathname() || '';
   const isActive = currentPath === href;
   const baseClass = mobile
     ? 'block w-full text-left px-4 py-2'

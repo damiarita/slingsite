@@ -3,6 +3,7 @@ import BlogLink from './blog-link';
 import { FooterTranslations } from '@/i18n/type';
 import { getUrl } from '@/utils/urls';
 import { Locale } from '@/i18n/lib';
+import LanguageSelector from './language-selector';
 
 export default function Footer({
   translations,
@@ -20,6 +21,9 @@ export default function Footer({
             <span className="text-2xl font-bold text-gray-800">SlingSite</span>
           </div>
           <p className="text-gray-500 text-base">{translations.claim}</p>
+          <div className="mt-3">
+            <LanguageSelector currentLocale={locale} />
+          </div>
         </div>
         <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">
