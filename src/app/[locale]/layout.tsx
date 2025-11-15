@@ -14,6 +14,7 @@ import CookieConsent from '@/components/cookie-consent';
 import { GoogleTagManager } from '@next/third-parties/google';
 import NavBar from '@/components/nav-bar';
 import Footer from '@/components/footer';
+import { NavBarItem } from '@/types/nav-bar';
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({
@@ -33,6 +34,11 @@ export default async function LocaleLayout({
   const navBarTranslations = await getNavBarDictionary(locale);
   const footerTranslations = await getFooterDictionary(locale);
 
+  const navBarItems: NavBarItem[] = [
+    { pageType: 'image', label: navBarTranslations.imageCompressor },
+    { pageType: 'video', label: navBarTranslations.videoCompressor },
+  ];
+
   // Verificar que el locale es válido
   if (!localeIsValid(locale)) {
     notFound();
@@ -43,7 +49,7 @@ export default async function LocaleLayout({
       <body>
         <div className="bg-gray-50 min-h-screen font-sans">
           <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-            <NavBar translations={navBarTranslations} locale={locale} />
+            <NavBar locale={locale} items={navBarItems} />
           </header>
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}

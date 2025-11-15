@@ -5,14 +5,15 @@ import { NavBarTranslations } from '@/i18n/type';
 import { Logo } from './logo';
 import NavLink from './nav-link';
 import { Locale } from '@/i18n/lib';
-import { getUrl } from '@/utils/urls';
+import { getUrl, PageType } from '@/utils/urls';
+import { NavBarItem } from '@/types/nav-bar';
 
 export default function NavBar({
-  translations,
   locale,
+  items,
 }: {
-  translations: NavBarTranslations;
   locale: Locale;
+  items: NavBarItem[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -29,12 +30,15 @@ export default function NavBar({
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex space-x-6 text-sm font-medium">
-          <NavLink pageType="image" locale={locale}>
-            {translations.imageCompressor}
-          </NavLink>
-          <NavLink pageType="video" locale={locale}>
-            {translations.videoCompressor}
-          </NavLink>
+          {items.map((item) => (
+            <NavLink
+              key={item.pageType}
+              pageType={item.pageType}
+              locale={locale}
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
         {/* Mobile hamburger */}
@@ -79,12 +83,16 @@ export default function NavBar({
       {open && (
         <div className="absolute left-0 right-0 top-full sm:hidden z-50">
           <div className="bg-white rounded-b-md shadow-md py-2">
-            <NavLink pageType="image" locale={locale} mobile>
-              <div className="px-4 py-2">{translations.imageCompressor}</div>
-            </NavLink>
-            <NavLink pageType="video" locale={locale} mobile>
-              <div className="px-4 py-2">{translations.videoCompressor}</div>
-            </NavLink>
+            {items.map((item) => (
+              <NavLink
+                key={item.pageType}
+                pageType={item.pageType}
+                locale={locale}
+                mobile
+              >
+                <div className="px-4 py-2">{item.label}</div>
+              </NavLink>
+            ))}
           </div>
         </div>
       )}
