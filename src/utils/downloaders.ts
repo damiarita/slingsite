@@ -12,23 +12,11 @@ export const downloadResultFile = (
     const url = URL.createObjectURL(task.result);
     const a = document.createElement('a');
     a.href = url;
-    a.download = getDownloadName(task.result.name, device, format);
+    a.download = task.result.name;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  function getDownloadName(
-    orginalName: string,
-    device: Device,
-    format: Format,
-  ) {
-    const fileNamePieces = orginalName.split('.');
-    fileNamePieces[fileNamePieces.length - 2] =
-      fileNamePieces[fileNamePieces.length - 2] + '-compressed-' + device;
-    fileNamePieces[fileNamePieces.length - 1] = format;
-    return fileNamePieces.join('.');
   }
 };
 

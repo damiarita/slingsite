@@ -2,6 +2,7 @@ import { Device } from '@/types/devices';
 import { MediaDimensions } from '@/types/mediaDimensions';
 import { VideoFormat } from '@/utils/formats';
 import {
+  getCompressedFileName,
   sendProgressMessage,
   sendReadyMessage,
   sendResultMessage,
@@ -94,9 +95,13 @@ self.addEventListener('message', async (ev) => {
       sendResultMessage(
         device,
         format,
-        new File([output.target.buffer], file.name, {
-          type: await output.getMimeType(),
-        }),
+        new File(
+          [output.target.buffer],
+          getCompressedFileName(file.name, device, format),
+          {
+            type: await output.getMimeType(),
+          },
+        ),
       );
     }
   }

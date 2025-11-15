@@ -5,7 +5,11 @@ import { ImageFormat, imageFormats } from '@/utils/formats';
 import { encode as avif_encode } from '@jsquash/avif';
 import { encode as webp_encode } from '@jsquash/webp';
 import { encode as jpeg_encode } from '@jsquash/jpeg';
-import { sendReadyMessage, sendResultMessage } from '@/utils/workers';
+import {
+  sendReadyMessage,
+  sendResultMessage,
+  getCompressedFileName,
+} from '@/utils/workers';
 
 const wasmEncoders: Record<
   ImageFormat,
@@ -58,7 +62,11 @@ self.onmessage = async (ev) => {
           type: outputMimeType,
           quality: 0.8,
         });
-        compressedFile = new File([blob], file.name, { type: outputMimeType });
+        compressedFile = new File(
+          [blob],
+          getCompressedFileName(file.name, device, format),
+          { type: outputMimeType },
+        );
       } else {
         // Use WASM encoder
         const imageData = ctx.getImageData(
@@ -68,9 +76,13 @@ self.onmessage = async (ev) => {
           mediaSize.height,
         );
         const arrayBuffer = await wasmEncoders[format](imageData);
-        compressedFile = new File([arrayBuffer], file.name, {
-          type: outputMimeType,
-        });
+        compressedFile = new File(
+          [arrayBuffer],
+          getCompressedFileName(file.name, device, format),
+          {
+            type: outputMimeType,
+          },
+        );
       }
       sendResultMessage(device, format, compressedFile);
     }
