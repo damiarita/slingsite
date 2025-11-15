@@ -7,12 +7,11 @@ import {
   DimensionsSettings,
   DimensionsConfig,
 } from '@/components/dimension-settings';
-import useCompressImage from '@/hooks/use-compress-image';
-import useCompressVideo from '@/hooks/use-compress-video';
+import useCompressor from '@/hooks/use-compressor';
 import { Format } from '@/utils/formats';
 import { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
-import { createJob, jobNextPendingTask } from '@/utils/jobs';
+import { createJob, jobIsWaiting } from '@/utils/jobs';
 import { MediaDimensions } from '@/types/mediaDimensions';
 import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
@@ -20,19 +19,19 @@ import { CompressionPageSeoTranslations } from '@/i18n/type';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
-  job: Job,
+  jobIndex: number,
   device: Device,
   format: Format,
   newTask: Task,
 ) {
-  return jobs.map((currentJob) => {
-    if (currentJob.id !== job.id) return currentJob;
+  return jobs.map((currentJob, index) => {
+    if (index !== jobIndex) return currentJob;
     return {
-      ...job,
+      ...currentJob,
       tasks: {
-        ...job.tasks,
+        ...currentJob.tasks,
         [device]: {
-          ...(job.tasks[device] || {}),
+          ...(currentJob.tasks[device] || {}),
           [format]: newTask,
         },
       },
@@ -52,7 +51,6 @@ export default function App({
     'first-upload' | 'settings' | 'results+upload'
   >('first-upload');
   const [files, setFiles] = useState<File[]>([]);
-  const [processorBusy, setProcessorBusy] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
 
   const uploadRef = useRef<HTMLDivElement>(null);
@@ -85,10 +83,7 @@ export default function App({
       height: 100,
     },
   });
-  const compressImage = useCompressImage();
-  const compressVideo = useCompressVideo();
-  const compressFunction =
-    compressorType === 'image' ? compressImage : compressVideo;
+  const compressFunction = useCompressor(compressorType);
 
   const handleFilesAdded = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
@@ -112,10 +107,13 @@ export default function App({
     const requestedDevices = Object.entries(deviceConfig)
       .filter(([, config]) => config.enabled)
       .map(([device]) => device) as Device[];
-    Promise.all(
+    Promise.allSettled(
       files.map((file) => createJob(file, requestedDevices, deviceConfig)),
-    ).then((newJobs) => {
-      setJobs((prev) => [...prev, ...newJobs]);
+    ).then((jobCreationResults) => {
+      const fulfilledJobs = jobCreationResults
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => result.value);
+      setJobs((prev) => [...prev, ...fulfilledJobs]);
       setFiles([]);
       setMode('results+upload');
       resultsRef.current?.scrollIntoView({
@@ -134,68 +132,47 @@ export default function App({
   };
 
   useEffect(() => {
-    if (processorBusy) return;
+    if (!compressFunction) return; //compressor is not ready
 
-    const nextJob = jobs.find((job) => jobNextPendingTask(job));
-    if (!nextJob) return;
+    const runningJobIndex = jobs.findIndex((job) => jobIsWaiting(job));
+    if (runningJobIndex === -1) return;
 
-    const nextPendingTask = jobNextPendingTask(nextJob);
-    if (!nextPendingTask)
-      throw new Error(
-        'Inconsistent state: job is not finished but has no pending tasks',
-      );
-    const [device, format] = nextPendingTask;
+    const runningJob = jobs[runningJobIndex];
 
-    if (!compressFunction) throw new Error('Compressor function not available');
-
-    setProcessorBusy(true);
-    setJobs((prevJobs) => {
-      const initialTaskStatus: Task = { status: 'running' };
-      if (compressorType === 'video') {
-        initialTaskStatus.percentage = 0;
-      }
-      return getJobWithUpdatedTask(
-        prevJobs,
-        nextJob,
-        device,
-        format,
-        initialTaskStatus,
-      );
-    });
     compressFunction(
-      nextJob.originalFile,
-      format,
-      nextJob.requestedDimensions[device] as MediaDimensions,
-      function (progress: number) {
+      runningJob.originalFile,
+      runningJob.requestedFormats,
+      runningJob.requestedDimensions,
+      (format: Format, device: Device, progress: number) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, nextJob, device, format, {
-            status: 'running',
-            percentage: Math.floor(progress * 100),
-          });
+          return getJobWithUpdatedTask(
+            prevJobs,
+            runningJobIndex,
+            device,
+            format,
+            {
+              status: 'running',
+              percentage: Math.floor(progress * 100),
+            },
+          );
         });
       },
-    )
-      .then((compressedFile) => {
+      (format: Format, device: Device, output: File) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, nextJob, device, format, {
-            status: 'completed',
-            result: compressedFile,
-          });
+          return getJobWithUpdatedTask(
+            prevJobs,
+            runningJobIndex,
+            device,
+            format,
+            {
+              status: 'completed',
+              result: output,
+            },
+          );
         });
-      })
-      .catch((err) => {
-        setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, nextJob, device, format, {
-            status: 'errored',
-            error: err,
-          });
-        });
-        console.error('Compression error:', err);
-      })
-      .finally(() => {
-        setProcessorBusy(false);
-      });
-  }, [jobs, processorBusy, compressFunction]);
+      },
+    );
+  }, [jobs, compressFunction]);
 
   return (
     <div className="space-y-8">

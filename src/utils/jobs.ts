@@ -10,71 +10,79 @@ export const createJob = (
   requestedDevices: Device[],
   deviceConfig: DimensionsConfig,
 ): Promise<Job> => {
-  return getMediumSize(file).then((originalDimensions) => {
-    const requestedDimensions: Partial<Record<Device, MediaDimensions>> = {};
-    requestedDevices.forEach((device) => {
-      const config = deviceConfig[device];
-      let requestedDimension: MediaDimensions;
-      if (config.sizingType === 'height') {
-        requestedDimension = {
-          height: config.height,
-          width:
-            (originalDimensions.width * config.height) /
-            originalDimensions.height,
-        };
-      } else {
-        let width: number;
-        if (config.sizingType === 'percentage')
-          width = config.screenWidth * (config.percentage / 100);
-        else if (config.sizingType === 'width') width = config.width;
-        else throw new Error('Invalid sizing type');
-        requestedDimension = {
-          width: width,
-          height:
-            (originalDimensions.height * width) / originalDimensions.width,
-        };
-      }
-      requestedDimension.width = Math.round(requestedDimension.width);
-      requestedDimension.height = Math.round(requestedDimension.height);
-      requestedDimensions[device] = minDimension(
-        originalDimensions,
-        requestedDimension,
-      );
-    });
-    const requestedFormats: Format[] = file.type.startsWith('image/')
-      ? [...imageFormats]
-      : [...videoFormats];
-    const tasks: Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
-    requestedDevices.forEach((device) => {
-      requestedFormats.forEach((format) => {
-        if (!tasks[device]) tasks[device] = {};
-        tasks[device][format] = { status: 'waiting' };
+  return getMediumSize(file)
+    .then((originalDimensions) => {
+      const requestedDimensions: Partial<Record<Device, MediaDimensions>> = {};
+      requestedDevices.forEach((device) => {
+        const config = deviceConfig[device];
+        let requestedDimension: MediaDimensions;
+        if (config.sizingType === 'height') {
+          requestedDimension = {
+            height: config.height,
+            width:
+              (originalDimensions.width * config.height) /
+              originalDimensions.height,
+          };
+        } else {
+          let width: number;
+          if (config.sizingType === 'percentage')
+            width = config.screenWidth * (config.percentage / 100);
+          else if (config.sizingType === 'width') width = config.width;
+          else throw new Error('Invalid sizing type');
+          requestedDimension = {
+            width: width,
+            height:
+              (originalDimensions.height * width) / originalDimensions.width,
+          };
+        }
+        requestedDimension.width = Math.round(requestedDimension.width);
+        requestedDimension.height = Math.round(requestedDimension.height);
+        requestedDimensions[device] = minDimension(
+          originalDimensions,
+          requestedDimension,
+        );
       });
-    });
+      const requestedFormats: Format[] = file.type.startsWith('image/')
+        ? [...imageFormats]
+        : [...videoFormats];
+      const tasks: Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
+      requestedDevices.forEach((device) => {
+        requestedFormats.forEach((format) => {
+          if (!tasks[device]) tasks[device] = {};
+          tasks[device][format] = { status: 'waiting' };
+        });
+      });
 
-    return {
-      id: crypto.randomUUID(),
-      originalFile: file,
-      originalFileObjectURL: URL.createObjectURL(file),
-      originalDimensions,
-      requestedDimensions,
-      requestedFormats,
-      tasks,
-    };
-  });
+      return {
+        id: crypto.randomUUID(),
+        originalFile: file,
+        originalFileObjectURL: URL.createObjectURL(file),
+        originalDimensions,
+        requestedDimensions,
+        requestedFormats,
+        tasks,
+      };
+    })
+    .catch((error) => {
+      const errorMessage =
+        'Failed to create job for file ' + file.name + ': ' + error.message;
+      console.error(errorMessage);
+      return Promise.reject(errorMessage);
+    });
 };
 
-export const jobNextPendingTask = (job: Job): [Device, Format] | undefined => {
+export const jobIsWaiting = (job: Job): boolean => {
   for (const [device, formats] of Object.entries(job.tasks) as [
     Device,
     Partial<Record<Format, Task>>,
   ][]) {
     for (const [format, task] of Object.entries(formats) as [Format, Task][]) {
-      if (task.status === 'waiting') {
-        return [device, format];
+      if (task.status !== 'waiting') {
+        return false;
       }
     }
   }
+  return true;
 };
 
 const jobTasksAsArray = (job: Job): Task[] => {
@@ -121,7 +129,9 @@ function getMediumSize(file: File): Promise<MediaDimensions> {
         URL.revokeObjectURL(video.src);
         resolve(res);
       };
-      video.onerror = reject;
+      video.onerror = function (e) {
+        reject(e);
+      };
       video.src = URL.createObjectURL(file);
     });
   }
