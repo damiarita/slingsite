@@ -143,7 +143,7 @@ export default function App({
       runningJob.originalFile,
       runningJob.requestedFormats,
       runningJob.requestedDimensions,
-      (format: Format, device: Device, progress: number) => {
+      (format: Format, device: Device, progress?: number) => {
         setJobs((prevJobs) => {
           return getJobWithUpdatedTask(
             prevJobs,
@@ -152,7 +152,7 @@ export default function App({
             format,
             {
               status: 'running',
-              percentage: Math.floor(progress * 100),
+              percentage: progress && Math.floor(progress * 100),
             },
           );
         });

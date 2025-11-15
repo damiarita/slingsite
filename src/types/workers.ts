@@ -16,5 +16,5 @@ export type Message =
       type: 'progress';
       device: Device;
       format: Format;
-      content: number;
+      content?: number;
     };

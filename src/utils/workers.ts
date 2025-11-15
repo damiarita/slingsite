@@ -13,7 +13,7 @@ export function sendReadyMessage() {
 export function sendProgressMessage(
   device: Device,
   format: Format,
-  progress: number,
+  progress?: number,
 ) {
   sendMessage({ type: 'progress', device, format, content: progress });
 }

@@ -9,6 +9,7 @@ import {
   sendReadyMessage,
   sendResultMessage,
   getCompressedFileName,
+  sendProgressMessage,
 } from '@/utils/workers';
 
 const wasmEncoders: Record<
@@ -55,6 +56,7 @@ self.onmessage = async (ev) => {
     // Draw resized image
     ctx.drawImage(imageBitmap, 0, 0, mediaSize.width, mediaSize.height);
     for (const format of formats) {
+      sendProgressMessage(device, format);
       let compressedFile: File;
       const outputMimeType = getMimeType(format);
       if (nativelySupportedEncoders[format]) {

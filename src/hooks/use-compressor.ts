@@ -38,7 +38,7 @@ export default function useCompressor(type: CompressionInput) {
         file: File,
         formats: Format[],
         mediaSizes: Partial<Record<Device, MediaDimensions>>,
-        onProgress: (format: Format, device: Device, progress: number) => void,
+        onProgress: (format: Format, device: Device, progress?: number) => void,
         onResult: (format: Format, device: Device, output: File) => void,
       ): void {
         if (!workerRef.current) {
