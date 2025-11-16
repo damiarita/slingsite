@@ -21,9 +21,6 @@ export default function Footer({
             <span className="text-2xl font-bold text-gray-800">SlingSite</span>
           </div>
           <p className="text-gray-500 text-base">{translations.claim}</p>
-          <div className="mt-3">
-            <LanguageSelector currentLocale={locale} />
-          </div>
         </div>
         <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">
@@ -90,7 +87,7 @@ export default function Footer({
               </ul>
             </div>
           </div>
-          <div className="md:grid md:grid-cols-1">
+          <div className="md:grid md:grid-cols-2 md:gap-8">
             <div>
               <h3 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
                 {translations.headings.development}
@@ -115,6 +112,16 @@ export default function Footer({
                   >
                     {translations.issues}
                   </a>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-12 md:mt-0">
+              <h3 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
+                {translations.headings.languages}
+              </h3>
+              <ul className="mt-4 space-y-4">
+                <li>
+                  <LanguageSelector currentLocale={locale} />
                 </li>
               </ul>
             </div>

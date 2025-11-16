@@ -35,6 +35,7 @@ export interface FooterTranslations {
     connect: string;
     legal: string;
     development: string;
+    languages: string;
   };
   suscribe: string;
   contactUs: string;
