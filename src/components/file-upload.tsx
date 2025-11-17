@@ -67,11 +67,11 @@ export const FileUpload = ({ onFilesAdded, type }: FileUploadProps) => {
             onClick={onButtonClick}
           >
             Click to upload
-          </button>
+          </button>{' '}
           or drag and drop
         </p>
         <p className="text-xs text-gray-500">
-          Supports
+          Supports:{' '}
           {(type === 'image'
             ? ['JPG', 'PNG', 'WEBP', 'GIF']
             : ['MP4', 'WEBM', 'QTFF', 'MATROSKA']
