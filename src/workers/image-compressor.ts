@@ -26,8 +26,12 @@ const wasmEncoders: Record<
     return jpeg_encode(imageData);
   },
 };
-const nativelySupportedEncoders = await calculateSupportedEncoders();
-sendReadyMessage();
+
+let nativelySupportedEncoders: Record<ImageFormat, boolean>;
+calculateSupportedEncoders().then((result) => {
+  nativelySupportedEncoders = result;
+  sendReadyMessage();
+});
 
 self.onmessage = async (ev) => {
   const { file, formats, mediaSizes } = ev.data as {

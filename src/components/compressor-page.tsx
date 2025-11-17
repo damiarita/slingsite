@@ -12,7 +12,6 @@ import { Format } from '@/utils/formats';
 import { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
 import { createJob, jobIsWaiting } from '@/utils/jobs';
-import { MediaDimensions } from '@/types/mediaDimensions';
 import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
 import { CompressionPageSeoTranslations } from '@/i18n/type';

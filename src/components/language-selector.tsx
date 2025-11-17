@@ -8,7 +8,6 @@ import {
   getPostUrlsByLocale,
   getUrl,
   getUrlsByLocale,
-  PageType,
   pageTypes,
 } from '@/utils/urls';
 import { getAllPosts } from '@/content/lib';

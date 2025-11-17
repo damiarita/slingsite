@@ -17,8 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function App({ params }: Props) {
-  const { locale } = await params;
+export default async function App() {
   return (
     <div
       dangerouslySetInnerHTML={{

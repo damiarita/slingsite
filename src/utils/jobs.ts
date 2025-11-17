@@ -72,11 +72,11 @@ export const createJob = (
 };
 
 export const jobIsWaiting = (job: Job): boolean => {
-  for (const [device, formats] of Object.entries(job.tasks) as [
+  for (const [, formats] of Object.entries(job.tasks) as [
     Device,
     Partial<Record<Format, Task>>,
   ][]) {
-    for (const [format, task] of Object.entries(formats) as [Format, Task][]) {
+    for (const [, task] of Object.entries(formats) as [Format, Task][]) {
       if (task.status !== 'waiting') {
         return false;
       }

@@ -31,7 +31,7 @@ export default function useCompressor(type: CompressionInput) {
         workerRef.current.terminate();
       }
     };
-  }, []); // Empty dependency array ensures this runs once on mount and cleanup on unmount
+  }, [type]); // Empty dependency array ensures this runs once on mount and cleanup on unmount
   return processorStatus !== 'ready'
     ? null
     : function (

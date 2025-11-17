@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { NavBarTranslations } from '@/i18n/type';
 import { Logo } from './logo';
 import NavLink from './nav-link';
 import { Locale } from '@/i18n/lib';
-import { getUrl, PageType } from '@/utils/urls';
+import { getUrl } from '@/utils/urls';
 import { NavBarItem } from '@/types/nav-bar';
 
 export default function NavBar({
