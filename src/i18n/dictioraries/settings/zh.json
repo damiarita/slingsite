@@ -2,7 +2,7 @@
   "filesToCompress": "待压缩文件",
   "addMoreFiles": "添加更多文件",
   "compressionSettings": "压缩设置",
-  "supportScreensUpTo": "支持屏幕最大尺寸：",
+  "supportScreensUpTo": "支持屏幕最大尺寸",
   "removeFile": "移除文件",
   "mobile": "移动设备",
   "tablet": "平板电脑",
