@@ -84,10 +84,3 @@ export interface CompressorPageDictionary {
   reduction: string;
   download: string;
 }
-
-export interface Dictionary {
-  redirecting: string;
-  processing: string;
-  navigation: Navigation;
-  imageCompressor: CompressorPageDictionary;
-}
