@@ -2,6 +2,7 @@ import CompressorPage from '@/components/compressor-page';
 import {
   getVideoPageMetadataDictionary,
   getVideoPageSeoDictionary,
+  getUploadDictionary,
   Locale,
 } from '@/i18n/lib';
 import { getUrl, getUrlsByLocale } from '@/utils/urls';
@@ -24,12 +25,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function App({ params }: Props) {
   const { locale } = await params;
-  const translation = await getVideoPageSeoDictionary(locale);
+  const seoTranslation = await getVideoPageSeoDictionary(locale);
+  const uploadTranslation = await getUploadDictionary(locale);
   return (
     <CompressorPage
       locale={locale}
       compressorType="video"
-      translation={translation}
+      seoTranslation={seoTranslation}
+      uploadTranslation={uploadTranslation}
     />
   );
 }

@@ -84,3 +84,9 @@ export interface CompressorPageDictionary {
   reduction: string;
   download: string;
 }
+
+export interface UploadDictionary {
+  clickToUpload: string;
+  orDragAndDrop: string;
+  supports: string;
+}

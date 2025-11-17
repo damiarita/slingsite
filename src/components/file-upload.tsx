@@ -4,13 +4,19 @@
 import { useState, useRef } from 'react';
 import { ImagePlus } from 'lucide-react';
 import { CompressionInput } from '@/types/compressor';
+import { UploadDictionary } from '@/i18n/type';
 
 interface FileUploadProps {
   onFilesAdded: (files: File[]) => void;
   type: CompressionInput;
+  translations: UploadDictionary;
 }
 
-export const FileUpload = ({ onFilesAdded, type }: FileUploadProps) => {
+export const FileUpload = ({
+  onFilesAdded,
+  type,
+  translations,
+}: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,12 +72,13 @@ export const FileUpload = ({ onFilesAdded, type }: FileUploadProps) => {
             className="font-semibold text-blue-600 cursor-pointer"
             onClick={onButtonClick}
           >
-            Click to upload
+            {translations.clickToUpload}
           </button>{' '}
-          or drag and drop
+          {translations.orDragAndDrop}
         </p>
         <p className="text-xs text-gray-500">
-          Supports:{' '}
+          {translations.supports}
+          {': '}
           {(type === 'image'
             ? ['JPG', 'PNG', 'WEBP', 'GIF']
             : ['MP4', 'WEBM', 'QTFF', 'MATROSKA']

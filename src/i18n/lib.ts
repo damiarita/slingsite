@@ -6,6 +6,7 @@ import {
   NavBarTranslations,
   PageMetadata,
   RedirectingTranslations,
+  UploadDictionary,
 } from './type';
 
 export const defaultLocale = 'en';
@@ -115,4 +116,14 @@ export const getFooterDictionary = createDictionaryGetter<FooterTranslations>({
   it: () => import('./dictioraries/footer/it.json'),
   zh: () => import('./dictioraries/footer/zh.json'),
   en: () => import('./dictioraries/footer/en.json'),
+});
+
+export const getUploadDictionary = createDictionaryGetter<UploadDictionary>({
+  ar: () => import('./dictioraries/upload/ar.json'),
+  de: () => import('./dictioraries/upload/de.json'),
+  es: () => import('./dictioraries/upload/es.json'),
+  fr: () => import('./dictioraries/upload/fr.json'),
+  it: () => import('./dictioraries/upload/it.json'),
+  zh: () => import('./dictioraries/upload/zh.json'),
+  en: () => import('./dictioraries/upload/en.json'),
 });

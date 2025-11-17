@@ -14,7 +14,7 @@ import { Job, Task } from '@/types/job';
 import { createJob, jobIsWaiting } from '@/utils/jobs';
 import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
-import { CompressionPageSeoTranslations } from '@/i18n/type';
+import { CompressionPageSeoTranslations, UploadDictionary } from '@/i18n/type';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -42,11 +42,13 @@ type Focus = 'initial' | 'upload' | 'settings' | 'results';
 
 export default function App({
   compressorType,
-  translation,
+  seoTranslation,
+  uploadTranslation,
 }: {
   locale: Locale;
   compressorType: CompressionInput;
-  translation: CompressionPageSeoTranslations;
+  seoTranslation: CompressionPageSeoTranslations;
+  uploadTranslation: UploadDictionary;
 }) {
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
@@ -188,17 +190,21 @@ export default function App({
       {focus === 'initial' && (
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            {translation.title}
+            {seoTranslation.title}
           </h2>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            {translation.subtitle}
+            {seoTranslation.subtitle}
           </p>
         </div>
       )}
       <div className="grid grid-cols-1 gap-8 items-start">
         {focus !== 'settings' && (
           <div ref={uploadRef} className="scroll-mt-20">
-            <FileUpload onFilesAdded={handleFilesAdded} type={compressorType} />
+            <FileUpload
+              onFilesAdded={handleFilesAdded}
+              type={compressorType}
+              translations={uploadTranslation}
+            />
           </div>
         )}
         {focus === 'settings' && (
