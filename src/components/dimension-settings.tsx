@@ -38,7 +38,6 @@ const lables: Record<ConfigMode, string> = {
 export const DimensionsSettings = ({
   config,
   setConfig,
-  readyToCompress,
   handleCompressClick,
   files,
   handleRemoveFile,
@@ -46,7 +45,6 @@ export const DimensionsSettings = ({
 }: {
   config: DimensionsConfig;
   setConfig: React.Dispatch<React.SetStateAction<DimensionsConfig>>;
-  readyToCompress: boolean;
   handleCompressClick: () => void;
   files: File[];
   handleRemoveFile: (index: number) => void;
@@ -326,10 +324,7 @@ export const DimensionsSettings = ({
         ))}
       </div>
       <div className="flex justify-end items-center mt-4">
-        <PrimaryButton
-          disabled={!readyToCompress}
-          onClick={handleCompressClick}
-        >
+        <PrimaryButton onClick={handleCompressClick}>
           <Play className="w-4 h-4 mr-2" />
           Compress All
         </PrimaryButton>

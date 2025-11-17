@@ -213,7 +213,6 @@ export default function App({
               files={files}
               config={deviceConfig}
               setConfig={setDeviceConfig}
-              readyToCompress={!!compressFunction}
               handleCompressClick={handleCompressClick}
             />
           </div>
