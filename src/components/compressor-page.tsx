@@ -14,7 +14,11 @@ import { Job, Task } from '@/types/job';
 import { createJob, jobIsWaiting } from '@/utils/jobs';
 import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
-import { CompressionPageSeoTranslations, UploadDictionary } from '@/i18n/type';
+import {
+  CompressionPageSeoTranslations,
+  SettingsDictionary,
+  UploadDictionary,
+} from '@/i18n/type';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -44,11 +48,13 @@ export default function App({
   compressorType,
   seoTranslation,
   uploadTranslation,
+  settingTranslation,
 }: {
   locale: Locale;
   compressorType: CompressionInput;
   seoTranslation: CompressionPageSeoTranslations;
   uploadTranslation: UploadDictionary;
+  settingTranslation: SettingsDictionary;
 }) {
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
@@ -218,6 +224,7 @@ export default function App({
               config={deviceConfig}
               setConfig={setDeviceConfig}
               handleCompressClick={handleCompressClick}
+              translation={settingTranslation}
             />
           </div>
         )}

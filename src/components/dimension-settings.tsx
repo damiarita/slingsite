@@ -13,6 +13,8 @@ import {
   FilePlus,
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
+import { SettingsDictionary } from '@/i18n/type';
+import { getTranslations } from '@/content/lib';
 
 type ConfigMode = 'width' | 'height' | 'percentage';
 type DeviceConfig = {
@@ -30,11 +32,6 @@ const createPercentageFromColumns = (columns: number) => {
   return 100 / columns;
 };
 
-const lables: Record<ConfigMode, string> = {
-  width: 'Image Width',
-  height: 'Image Height',
-  percentage: 'Layout',
-};
 export const DimensionsSettings = ({
   config,
   setConfig,
@@ -42,6 +39,7 @@ export const DimensionsSettings = ({
   files,
   handleRemoveFile,
   handleExitSettings,
+  translation,
 }: {
   config: DimensionsConfig;
   setConfig: React.Dispatch<React.SetStateAction<DimensionsConfig>>;
@@ -49,11 +47,18 @@ export const DimensionsSettings = ({
   files: File[];
   handleRemoveFile: (index: number) => void;
   handleExitSettings: () => void;
+  translation: SettingsDictionary;
 }) => {
   const icons: Record<Device, ReactElement> = {
     mobile: <Smartphone className="w-5 h-5 mr-2" />,
     tablet: <Tablet className="w-5 h-5 mr-2" />,
     desktop: <Monitor className="w-5 h-5 mr-2" />,
+  };
+
+  const lables: Record<ConfigMode, string> = {
+    width: translation.imageWidth,
+    height: translation.imageHeight,
+    percentage: translation.layout,
   };
   const columnOptions = [
     { label: '1', columns: 1 },
@@ -114,7 +119,7 @@ export const DimensionsSettings = ({
       <div className="flex items-center mb-4">
         <Files className="w-6 h-6 text-gray-600 mr-3" />
         <h3 className="text-xl font-semibold text-gray-800">
-          Files to Compress
+          {translation.filesToCompress}
         </h3>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
@@ -136,7 +141,7 @@ export const DimensionsSettings = ({
             <button
               onClick={() => handleRemoveFile(index)}
               className="absolute top-1 right-1 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              aria-label="Remove image"
+              aria-label={translation.removeFile}
             >
               <X className="w-4 h-4" />
             </button>
@@ -146,13 +151,13 @@ export const DimensionsSettings = ({
       <div className="flex justify-end items-center mb-4">
         <SecondaryButton onClick={handleExitSettings}>
           <FilePlus className="w-4 h-4 mr-2" />
-          Add More Files
+          {translation.addMoreFiles}
         </SecondaryButton>
       </div>
       <div className="flex items-center mb-4">
         <Settings className="w-6 h-6 text-gray-600 mr-3" />
         <h3 className="text-xl font-semibold text-gray-800">
-          Compression Settings
+          {translation.compressionSettings}
         </h3>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
@@ -163,7 +168,8 @@ export const DimensionsSettings = ({
           >
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center font-semibold text-gray-700 capitalize">
-                {icons[device]} <label htmlFor={device}>{device}</label>
+                {icons[device]}{' '}
+                <label htmlFor={device}>{translation[device]}</label>
               </div>
               <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
                 <input
@@ -197,7 +203,7 @@ export const DimensionsSettings = ({
                       className="text-sm font-medium text-gray-600"
                       htmlFor={`screen-width${device}`}
                     >
-                      Support Screens Up to:
+                      {translation.supportScreensUpTo}:
                     </label>
                     <div className="relative mt-1">
                       <input
@@ -258,7 +264,8 @@ export const DimensionsSettings = ({
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                         />
                         <div className="text-center text-sm text-gray-600 mt-1">
-                          {Math.round(config[device].percentage)}% width
+                          {Math.round(config[device].percentage)}
+                          {translation.percentWidth}
                         </div>
                       </div>
                     </>
@@ -288,7 +295,7 @@ export const DimensionsSettings = ({
                         onClick={() => handleModeChange(device, 'percentage')}
                         className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
                       >
-                        Set Percentage
+                        {translation.setPercentage}
                       </button>
                     )}
                     {config[device].sizingType === 'width' || (
@@ -296,7 +303,7 @@ export const DimensionsSettings = ({
                         onClick={() => handleModeChange(device, 'width')}
                         className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
                       >
-                        Set Width
+                        {translation.setWidth}
                       </button>
                     )}
                     {config[device].sizingType === 'height' || (
@@ -304,7 +311,7 @@ export const DimensionsSettings = ({
                         onClick={() => handleModeChange(device, 'height')}
                         className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
                       >
-                        Set Height
+                        {translation.setHeight}
                       </button>
                     )}
                   </div>
@@ -317,7 +324,7 @@ export const DimensionsSettings = ({
       <div className="flex justify-end items-center mt-4">
         <PrimaryButton onClick={handleCompressClick}>
           <Play className="w-4 h-4 mr-2" />
-          Compress All
+          {translation.startCompression}
         </PrimaryButton>
       </div>
     </div>

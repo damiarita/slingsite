@@ -1,0 +1,18 @@
+{
+  "filesToCompress": "ملفات للضغط",
+  "addMoreFiles": "إضافة المزيد من الملفات",
+  "compressionSettings": "إعدادات الضغط",
+  "supportScreensUpTo": "دعم الشاشات حتى:",
+  "removeFile": "إزالة الملف",
+  "mobile": "الجوال",
+  "tablet": "جهاز لوحي",
+  "desktop": "سطح المكتب",
+  "percentWidth": "العرض %",
+  "setPercentage": "تعيين النسبة المئوية",
+  "setWidth": "تعيين العرض",
+  "setHeight": "تعيين الارتفاع",
+  "layout": "الامتداد",
+  "imageWidth": "عرض الصورة",
+  "imageHeight": "ارتفاع الصورة",
+  "startCompression": "ضغط الكل"
+}

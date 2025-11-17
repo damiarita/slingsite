@@ -6,6 +6,7 @@ import {
   NavBarTranslations,
   PageMetadata,
   RedirectingTranslations,
+  SettingsDictionary,
   UploadDictionary,
 } from './type';
 
@@ -127,3 +128,15 @@ export const getUploadDictionary = createDictionaryGetter<UploadDictionary>({
   zh: () => import('./dictioraries/upload/zh.json'),
   en: () => import('./dictioraries/upload/en.json'),
 });
+
+export const getSettingsDictionary = createDictionaryGetter<SettingsDictionary>(
+  {
+    ar: () => import('./dictioraries/settings/ar.json'),
+    de: () => import('./dictioraries/settings/de.json'),
+    es: () => import('./dictioraries/settings/es.json'),
+    fr: () => import('./dictioraries/settings/fr.json'),
+    it: () => import('./dictioraries/settings/it.json'),
+    zh: () => import('./dictioraries/settings/zh.json'),
+    en: () => import('./dictioraries/settings/en.json'),
+  },
+);

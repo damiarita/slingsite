@@ -1,0 +1,18 @@
+{
+  "filesToCompress": "Files to Compress",
+  "addMoreFiles": "Add More Files",
+  "compressionSettings": "Compression Settings",
+  "supportScreensUpTo": "Support Screens Up To:",
+  "removeFile": "Remove File",
+  "mobile": "Mobile",
+  "tablet": "Tablet",
+  "desktop": "Desktop",
+  "percentWidth": "% width",
+  "setPercentage": "Set Percentage",
+  "setWidth": "Set Width",
+  "setHeight": "Set Height",
+  "layout": "Span",
+  "imageWidth": "Image Width",
+  "imageHeight": "Image Height",
+  "startCompression": "Comprimir Todo"
+}

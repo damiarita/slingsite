@@ -2,6 +2,7 @@ import CompressorPage from '@/components/compressor-page';
 import {
   getImagePageMetadataDictionary,
   getImagePageSeoDictionary,
+  getSettingsDictionary,
   getUploadDictionary,
   Locale,
 } from '@/i18n/lib';
@@ -27,12 +28,14 @@ export default async function App({ params }: Props) {
   const { locale } = await params;
   const seoTranslation = await getImagePageSeoDictionary(locale);
   const uploadTranslation = await getUploadDictionary(locale);
+  const settingTranslation = await getSettingsDictionary(locale);
   return (
     <CompressorPage
       locale={locale}
       compressorType="image"
       seoTranslation={seoTranslation}
       uploadTranslation={uploadTranslation}
+      settingTranslation={settingTranslation}
     />
   );
 }

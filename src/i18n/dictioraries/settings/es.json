@@ -1,0 +1,18 @@
+{
+  "filesToCompress": "Archivos a Comprimir",
+  "addMoreFiles": "Añadir Más Archivos",
+  "compressionSettings": "Ajustes de Compresión",
+  "supportScreensUpTo": "Soportar pantallas hasta:",
+  "removeFile": "Quitar Archivo",
+  "mobile": "Móvil",
+  "tablet": "Tablet",
+  "desktop": "Escritorio",
+  "percentWidth": "% de ancho",
+  "setPercentage": "Establecer Porcentaje",
+  "setWidth": "Establecer Ancho",
+  "setHeight": "Establecer Alto",
+  "layout": "Extensión",
+  "imageWidth": "Ancho de imagen",
+  "imageHeight": "Alto de imagen",
+  "startCompression": "Comprimir Todo"
+}

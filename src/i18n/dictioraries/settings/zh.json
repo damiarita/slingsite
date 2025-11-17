@@ -1,0 +1,18 @@
+{
+  "filesToCompress": "待压缩文件",
+  "addMoreFiles": "添加更多文件",
+  "compressionSettings": "压缩设置",
+  "supportScreensUpTo": "支持屏幕最大尺寸：",
+  "removeFile": "移除文件",
+  "mobile": "移动设备",
+  "tablet": "平板电脑",
+  "desktop": "桌面",
+  "percentWidth": "宽度百分比",
+  "setPercentage": "设置百分比",
+  "setWidth": "设置宽度",
+  "setHeight": "设置高度",
+  "layout": "跨度",
+  "imageWidth": "图片宽度",
+  "imageHeight": "图片高度",
+  "startCompression": "全部压缩"
+}

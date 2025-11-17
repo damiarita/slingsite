@@ -90,3 +90,22 @@ export interface UploadDictionary {
   orDragAndDrop: string;
   supports: string;
 }
+
+export interface SettingsDictionary {
+  filesToCompress: string;
+  addMoreFiles: string;
+  compressionSettings: string;
+  supportScreensUpTo: string;
+  removeFile: string;
+  mobile: string;
+  tablet: string;
+  desktop: string;
+  percentWidth: string;
+  setPercentage: string;
+  setWidth: string;
+  setHeight: string;
+  layout: string;
+  imageWidth: string;
+  imageHeight: string;
+  startCompression: string;
+}
