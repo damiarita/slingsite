@@ -39,6 +39,8 @@ function getJobWithUpdatedTask(
   });
 }
 
+type Focus = 'initial' | 'upload' | 'settings' | 'results';
+
 export default function App({
   compressorType,
   translation,
@@ -47,9 +49,7 @@ export default function App({
   compressorType: CompressionInput;
   translation: CompressionPageSeoTranslations;
 }) {
-  const [mode, setMode] = useState<
-    'first-upload' | 'settings' | 'results+upload'
-  >('first-upload');
+  const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
 
@@ -87,14 +87,12 @@ export default function App({
 
   const handleFilesAdded = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
-    setMode('settings');
-    settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setFocus('settings');
   };
 
   const handleRemoveFile = (index: number) => {
     if (files.length === 1) {
-      setMode('results+upload'); // If it was the last file we cannot stay in settings mode
-      uploadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setFocus('upload'); // If it was the last file we cannot stay in settings mode
     }
     setFiles((prev) => {
       const newFiles = [...prev];
@@ -115,11 +113,7 @@ export default function App({
         .map((result) => result.value);
       setJobs((prev) => [...prev, ...fulfilledJobs]);
       setFiles([]);
-      setMode('results+upload');
-      resultsRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
+      setFocus('results');
     });
   };
 
@@ -174,9 +168,25 @@ export default function App({
     );
   }, [jobs, compressFunction]);
 
+  useEffect(() => {
+    const refToScroll: Record<
+      Focus,
+      React.RefObject<HTMLElement | null> | null
+    > = {
+      initial: null,
+      settings: settingsRef,
+      upload: uploadRef,
+      results: resultsRef,
+    };
+    refToScroll[focus]?.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [focus]);
+
   return (
     <div className="space-y-8">
-      {mode === 'first-upload' && (
+      {focus === 'initial' && (
         <div className="text-center">
           {' '}
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
@@ -188,20 +198,16 @@ export default function App({
         </div>
       )}
       <div className="grid grid-cols-1 gap-8 items-start">
-        {(mode === 'first-upload' || mode === 'results+upload') && (
-          <div ref={uploadRef}>
+        {focus !== 'settings' && (
+          <div ref={uploadRef} className="scroll-mt-20">
             <FileUpload onFilesAdded={handleFilesAdded} type={compressorType} />
           </div>
         )}
-        {mode === 'settings' && (
-          <div ref={settingsRef}>
+        {focus === 'settings' && (
+          <div ref={settingsRef} className="scroll-mt-20">
             <DimensionsSettings
               handleExitSettings={() => {
-                setMode('results+upload');
-                uploadRef.current?.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'start',
-                });
+                setFocus('upload');
               }}
               handleRemoveFile={handleRemoveFile}
               files={files}
@@ -213,7 +219,7 @@ export default function App({
           </div>
         )}
         {jobs.length > 0 && (
-          <div ref={resultsRef}>
+          <div ref={resultsRef} className="scroll-mt-20">
             <Results jobs={jobs} handleRemoveJob={handleRemoveJob} />
           </div>
         )}
