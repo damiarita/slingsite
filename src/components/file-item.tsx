@@ -128,8 +128,7 @@ export const FileItem = ({
           onClick={onRemove}
           className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
         >
-          {' '}
-          <X className="w-4 h-4" />{' '}
+          <X className="w-4 h-4" />
         </button>
       </div>
       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -140,8 +139,7 @@ export const FileItem = ({
             </h4>
             {progress === 1 && (
               <SecondaryButton onClick={() => onDownloadAll()} small={true}>
-                {' '}
-                <Package className="w-3 h-3 mr-1" /> Download All{' '}
+                <Package className="w-3 h-3 mr-1" /> Download All
               </SecondaryButton>
             )}
           </div>
@@ -150,11 +148,10 @@ export const FileItem = ({
         {jobIsRunning(job) ? (
           <div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              {' '}
               <div
                 className="bg-blue-600 h-2.5 rounded-full"
                 style={{ width: progressPercentage }}
-              />{' '}
+              />
             </div>
             <p className="text-xs text-center text-gray-600 mt-1">
               Compressing... {progressPercentage}

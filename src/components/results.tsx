@@ -21,14 +21,12 @@ export const Results = ({ jobs, handleRemoveJob }: Props) => {
           onClick={() => downloadAllFiles(jobs)}
           disabled={!jobs.some((job) => jobProportionOfDoneTasks(job) > 0)}
         >
-          {' '}
-          <Package className="w-4 h-4 mr-2" /> Download All Files{' '}
+          <Package className="w-4 h-4 mr-2" /> Download All Files
         </PrimaryButton>
       </div>
       {jobs.length === 0 ? (
         <div className="text-center py-10 text-gray-500">
-          {' '}
-          <p>Upload some files to get started!</p>{' '}
+          <p>Upload some files to get started!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

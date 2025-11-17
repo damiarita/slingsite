@@ -112,11 +112,10 @@ export const DimensionsSettings = ({
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center mb-4">
-        {' '}
-        <Files className="w-6 h-6 text-gray-600 mr-3" />{' '}
+        <Files className="w-6 h-6 text-gray-600 mr-3" />
         <h3 className="text-xl font-semibold text-gray-800">
           Files to Compress
-        </h3>{' '}
+        </h3>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
         {files.map((file, index) => (
@@ -151,11 +150,10 @@ export const DimensionsSettings = ({
         </SecondaryButton>
       </div>
       <div className="flex items-center mb-4">
-        {' '}
-        <Settings className="w-6 h-6 text-gray-600 mr-3" />{' '}
+        <Settings className="w-6 h-6 text-gray-600 mr-3" />
         <h3 className="text-xl font-semibold text-gray-800">
           Compression Settings
-        </h3>{' '}
+        </h3>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
         {(Object.keys(config) as Device[]).map((device) => (
@@ -165,8 +163,7 @@ export const DimensionsSettings = ({
           >
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center font-semibold text-gray-700 capitalize">
-                {' '}
-                {icons[device]} <label htmlFor={device}>{device}</label>{' '}
+                {icons[device]} <label htmlFor={device}>{device}</label>
               </div>
               <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
                 <input
@@ -196,15 +193,13 @@ export const DimensionsSettings = ({
               <div className="px-4 pb-4 space-y-4">
                 {config[device].sizingType === 'percentage' && (
                   <div>
-                    {' '}
                     <label
                       className="text-sm font-medium text-gray-600"
                       htmlFor={`screen-width${device}`}
                     >
                       Support Screens Up to:
-                    </label>{' '}
+                    </label>
                     <div className="relative mt-1">
-                      {' '}
                       <input
                         id={`screen-width${device}`}
                         type="number"
@@ -217,11 +212,11 @@ export const DimensionsSettings = ({
                           );
                         }}
                         className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />{' '}
+                      />
                       <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
                         px
-                      </span>{' '}
-                    </div>{' '}
+                      </span>
+                    </div>
                   </div>
                 )}
                 <div>
@@ -231,7 +226,6 @@ export const DimensionsSettings = ({
                   {config[device].sizingType === 'percentage' ? (
                     <>
                       <div className="grid grid-cols-4 gap-2 mt-1">
-                        {' '}
                         {columnOptions.map((opt) => (
                           <button
                             key={opt.columns}
@@ -244,13 +238,11 @@ export const DimensionsSettings = ({
                             }
                             className={`text-xs p-2 rounded-md transition-colors ${Math.round(createPercentageFromColumns(opt.columns)) === Math.round(config[device].percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
                           >
-                            {' '}
-                            {opt.label}{' '}
+                            {opt.label}
                           </button>
-                        ))}{' '}
-                      </div>{' '}
+                        ))}
+                      </div>
                       <div className="mt-2">
-                        {' '}
                         <input
                           type="range"
                           min="1"
@@ -264,15 +256,14 @@ export const DimensionsSettings = ({
                             )
                           }
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                        />{' '}
+                        />
                         <div className="text-center text-sm text-gray-600 mt-1">
                           {Math.round(config[device].percentage)}% width
-                        </div>{' '}
-                      </div>{' '}
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <div className="relative mt-1">
-                      {' '}
                       <input
                         type="number"
                         placeholder={`e.g., ${config[device].sizingType === 'width' ? 800 : 600}`}
@@ -285,10 +276,10 @@ export const DimensionsSettings = ({
                           )
                         }
                         className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />{' '}
+                      />
                       <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
                         px
-                      </span>{' '}
+                      </span>
                     </div>
                   )}
                   <div className="flex space-x-2 mt-3 text-xs">

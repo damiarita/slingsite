@@ -188,13 +188,12 @@ export default function App({
     <div className="space-y-8">
       {focus === 'initial' && (
         <div className="text-center">
-          {' '}
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             {translation.title}
-          </h2>{' '}
+          </h2>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
             {translation.subtitle}
-          </p>{' '}
+          </p>
         </div>
       )}
       <div className="grid grid-cols-1 gap-8 items-start">

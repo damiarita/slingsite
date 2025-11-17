@@ -74,13 +74,13 @@ export default async function PostPage({ params }: { params: Promise<Props> }) {
         />
         <footer>
           <p>
-            {translations.publidhed_on}{' '}
+            {translations.publidhed_on}
             <time dateTime={post.publicationDate}>
               {formatDateTime(new Date(post.publicationDate), locale)}
             </time>
           </p>
           <p>
-            {translations.last_edited_on}{' '}
+            {translations.last_edited_on}
             <time dateTime={post.modificationDate}>
               {formatDateTime(new Date(post.modificationDate), locale)}
             </time>
