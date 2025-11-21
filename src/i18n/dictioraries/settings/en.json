@@ -11,8 +11,10 @@
   "setPercentage": "Set Percentage",
   "setWidth": "Set Width",
   "setHeight": "Set Height",
-  "layout": "Span",
-  "imageWidth": "Image Width",
-  "imageHeight": "Image Height",
+  "configMode": {
+    "percentage": "Span",
+    "width": "Image Width",
+    "height": "Image Height"
+  },
   "startCompression": "Comprimir Todo"
 }

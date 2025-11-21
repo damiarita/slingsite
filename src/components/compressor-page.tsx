@@ -16,6 +16,7 @@ import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
 import {
   CompressionPageSeoTranslations,
+  ResultsDictionary,
   SettingsDictionary,
   UploadDictionary,
 } from '@/i18n/type';
@@ -49,12 +50,16 @@ export default function App({
   seoTranslation,
   uploadTranslation,
   settingTranslation,
+  resultTranslation,
+  devicesTranslation,
 }: {
   locale: Locale;
   compressorType: CompressionInput;
   seoTranslation: CompressionPageSeoTranslations;
   uploadTranslation: UploadDictionary;
   settingTranslation: SettingsDictionary;
+  resultTranslation: ResultsDictionary;
+  devicesTranslation: Record<Device, string>;
 }) {
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
@@ -225,12 +230,18 @@ export default function App({
               setConfig={setDeviceConfig}
               handleCompressClick={handleCompressClick}
               translation={settingTranslation}
+              devicesTranslation={devicesTranslation}
             />
           </div>
         )}
         {jobs.length > 0 && (
           <div ref={resultsRef} className="scroll-mt-20">
-            <Results jobs={jobs} handleRemoveJob={handleRemoveJob} />
+            <Results
+              jobs={jobs}
+              handleRemoveJob={handleRemoveJob}
+              translation={resultTranslation}
+              devicesTranslation={devicesTranslation}
+            />
           </div>
         )}
       </div>

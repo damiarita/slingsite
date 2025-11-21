@@ -11,8 +11,10 @@
   "setPercentage": "Establecer Porcentaje",
   "setWidth": "Establecer Ancho",
   "setHeight": "Establecer Alto",
-  "layout": "Extensión",
-  "imageWidth": "Ancho de imagen",
-  "imageHeight": "Alto de imagen",
+  "configMode": {
+    "percentage": "Extensión",
+    "width": "Ancho de imagen",
+    "height": "Alto de imagen"
+  },
   "startCompression": "Comprimir Todo"
 }

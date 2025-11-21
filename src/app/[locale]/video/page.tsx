@@ -5,6 +5,8 @@ import {
   getUploadDictionary,
   Locale,
   getSettingsDictionary,
+  getResultDictionary,
+  getDevicesDictionary,
 } from '@/i18n/lib';
 import { getUrl, getUrlsByLocale } from '@/utils/urls';
 import { Metadata } from 'next';
@@ -29,6 +31,8 @@ export default async function App({ params }: Props) {
   const seoTranslation = await getVideoPageSeoDictionary(locale);
   const uploadTranslation = await getUploadDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
+  const resultTranslation = await getResultDictionary(locale);
+  const devicesTranslation = await getDevicesDictionary(locale);
   return (
     <CompressorPage
       locale={locale}
@@ -36,6 +40,8 @@ export default async function App({ params }: Props) {
       seoTranslation={seoTranslation}
       uploadTranslation={uploadTranslation}
       settingTranslation={settingTranslation}
+      resultTranslation={resultTranslation}
+      devicesTranslation={devicesTranslation}
     />
   );
 }

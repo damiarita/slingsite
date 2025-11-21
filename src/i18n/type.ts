@@ -1,5 +1,6 @@
 // This file defines the strict type for our translation dictionaries,
 // ensuring type safety across the application.
+import { ConfigMode } from '@/types/config';
 import {
   ConsentModalOptions,
   PreferencesModalOptions,
@@ -45,46 +46,6 @@ export interface FooterTranslations {
   copyright: string;
 }
 
-export interface Navigation {
-  imageCompressor: string;
-  videoCompressor: string;
-}
-
-export interface UploadArea {
-  title: string;
-  subtitle: string;
-}
-
-export interface CompressorPageDictionary {
-  title: string;
-  uploadArea: UploadArea;
-  settingsTitle: string;
-  viewport: {
-    mobile: string;
-    tablet: string;
-    desktop: string;
-  };
-  deviceWidth: string;
-  sizingMethod: string;
-  methods: {
-    percentage: string;
-    columns: string;
-    fixedWidth: string;
-    fixedHeight: string;
-  };
-  value: string;
-  compressButton: string;
-  resultsTitle: string;
-  downloadAll: string;
-  original: string;
-  compressed: string;
-  format: string;
-  dimensions: string;
-  size: string;
-  reduction: string;
-  download: string;
-}
-
 export interface UploadDictionary {
   clickToUpload: string;
   orDragAndDrop: string;
@@ -97,15 +58,22 @@ export interface SettingsDictionary {
   compressionSettings: string;
   supportScreensUpTo: string;
   removeFile: string;
-  mobile: string;
-  tablet: string;
-  desktop: string;
   percentWidth: string;
   setPercentage: string;
   setWidth: string;
   setHeight: string;
-  layout: string;
-  imageWidth: string;
-  imageHeight: string;
+  configMode: Record<ConfigMode, string>;
   startCompression: string;
+}
+
+export interface ResultsDictionary {
+  yourFiles: string;
+  downloadAllFiles: string;
+  uploadMoreFiles: string;
+  waiting: string;
+  running: string;
+  error: string;
+  compressing: string;
+  inQueue: string;
+  compressedFiles: string;
 }

@@ -14,9 +14,8 @@ import {
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
 import { SettingsDictionary } from '@/i18n/type';
-import { getTranslations } from '@/content/lib';
+import { ConfigMode } from '@/types/config';
 
-type ConfigMode = 'width' | 'height' | 'percentage';
 type DeviceConfig = {
   enabled: boolean;
   screenWidth: number;
@@ -40,6 +39,7 @@ export const DimensionsSettings = ({
   handleRemoveFile,
   handleExitSettings,
   translation,
+  devicesTranslation,
 }: {
   config: DimensionsConfig;
   setConfig: React.Dispatch<React.SetStateAction<DimensionsConfig>>;
@@ -48,6 +48,7 @@ export const DimensionsSettings = ({
   handleRemoveFile: (index: number) => void;
   handleExitSettings: () => void;
   translation: SettingsDictionary;
+  devicesTranslation: Record<Device, string>;
 }) => {
   const icons: Record<Device, ReactElement> = {
     mobile: <Smartphone className="w-5 h-5 mr-2" />,
@@ -55,11 +56,6 @@ export const DimensionsSettings = ({
     desktop: <Monitor className="w-5 h-5 mr-2" />,
   };
 
-  const lables: Record<ConfigMode, string> = {
-    width: translation.imageWidth,
-    height: translation.imageHeight,
-    percentage: translation.layout,
-  };
   const columnOptions = [
     { label: '1', columns: 1 },
     { label: '1/2', columns: 2 },
@@ -169,7 +165,7 @@ export const DimensionsSettings = ({
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center font-semibold text-gray-700 capitalize">
                 {icons[device]}{' '}
-                <label htmlFor={device}>{translation[device]}</label>
+                <label htmlFor={device}>{devicesTranslation[device]}</label>
               </div>
               <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
                 <input
@@ -227,7 +223,7 @@ export const DimensionsSettings = ({
                 )}
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    {lables[config[device].sizingType]}
+                    {translation.configMode[config[device].sizingType]}
                   </label>
                   {config[device].sizingType === 'percentage' ? (
                     <>

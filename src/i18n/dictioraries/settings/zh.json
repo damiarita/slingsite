@@ -11,8 +11,10 @@
   "setPercentage": "设置百分比",
   "setWidth": "设置宽度",
   "setHeight": "设置高度",
-  "layout": "跨度",
-  "imageWidth": "图片宽度",
-  "imageHeight": "图片高度",
+  "configMode": {
+    "percentage": "跨度",
+    "width": "图片宽度",
+    "height": "图片高度"
+  },
   "startCompression": "全部压缩"
 }

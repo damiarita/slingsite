@@ -11,8 +11,10 @@
   "setPercentage": "Définir le Pourcentage",
   "setWidth": "Définir la Largeur",
   "setHeight": "Définir la Hauteur",
-  "layout": "Étendue",
-  "imageWidth": "Largeur de l'image",
-  "imageHeight": "Hauteur de l'image",
+  "configMode": {
+    "percentage": "Étendue",
+    "width": "Largeur de l'image",
+    "height": "Hauteur de l'image"
+  },
   "startCompression": "DTout Compresser"
 }

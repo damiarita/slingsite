@@ -11,8 +11,10 @@
   "setPercentage": "Imposta Percentuale",
   "setWidth": "Imposta Larghezza",
   "setHeight": "Imposta Altezza",
-  "layout": "Copertura",
-  "imageWidth": "Larghezza immagine",
-  "imageHeight": "Altezza immagine",
+  "configMode": {
+    "percentage": "Copertura",
+    "width": "Larghezza immagine",
+    "height": "Altezza immagine"
+  },
   "startCompression": "Comprimi Tutto"
 }

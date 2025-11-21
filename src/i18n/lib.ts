@@ -1,3 +1,4 @@
+import { Device } from '@/types/devices';
 import {
   BlogTranslations,
   CompressionPageSeoTranslations,
@@ -6,6 +7,7 @@ import {
   NavBarTranslations,
   PageMetadata,
   RedirectingTranslations,
+  ResultsDictionary,
   SettingsDictionary,
   UploadDictionary,
 } from './type';
@@ -140,3 +142,23 @@ export const getSettingsDictionary = createDictionaryGetter<SettingsDictionary>(
     en: () => import('./dictioraries/settings/en.json'),
   },
 );
+export const getResultDictionary = createDictionaryGetter<ResultsDictionary>({
+  ar: () => import('./dictioraries/result/ar.json'),
+  de: () => import('./dictioraries/result/de.json'),
+  es: () => import('./dictioraries/result/es.json'),
+  fr: () => import('./dictioraries/result/fr.json'),
+  it: () => import('./dictioraries/result/it.json'),
+  zh: () => import('./dictioraries/result/zh.json'),
+  en: () => import('./dictioraries/result/en.json'),
+});
+export const getDevicesDictionary = createDictionaryGetter<
+  Record<Device, string>
+>({
+  ar: () => import('./dictioraries/devices/ar.json'),
+  de: () => import('./dictioraries/devices/de.json'),
+  es: () => import('./dictioraries/devices/es.json'),
+  fr: () => import('./dictioraries/devices/fr.json'),
+  it: () => import('./dictioraries/devices/it.json'),
+  zh: () => import('./dictioraries/devices/zh.json'),
+  en: () => import('./dictioraries/devices/en.json'),
+});

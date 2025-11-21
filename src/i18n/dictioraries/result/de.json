@@ -1,0 +1,11 @@
+{
+  "yourFiles": "Ihre Dateien",
+  "downloadAllFiles": "Alle Dateien herunterladen",
+  "uploadMoreFiles": "Laden Sie Dateien hoch, um zu beginnen!",
+  "waiting": "Wartend",
+  "running": "Läuft",
+  "error": "Fehler",
+  "compressing": "Komprimiere...",
+  "inQueue": "In Warteschlange...",
+  "compressedFiles": "Komprimierte Dateien"
+}

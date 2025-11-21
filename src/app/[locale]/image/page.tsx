@@ -1,7 +1,9 @@
 import CompressorPage from '@/components/compressor-page';
 import {
+  getDevicesDictionary,
   getImagePageMetadataDictionary,
   getImagePageSeoDictionary,
+  getResultDictionary,
   getSettingsDictionary,
   getUploadDictionary,
   Locale,
@@ -29,6 +31,8 @@ export default async function App({ params }: Props) {
   const seoTranslation = await getImagePageSeoDictionary(locale);
   const uploadTranslation = await getUploadDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
+  const resultTranslation = await getResultDictionary(locale);
+  const devicesTranslation = await getDevicesDictionary(locale);
   return (
     <CompressorPage
       locale={locale}
@@ -36,6 +40,8 @@ export default async function App({ params }: Props) {
       seoTranslation={seoTranslation}
       uploadTranslation={uploadTranslation}
       settingTranslation={settingTranslation}
+      resultTranslation={resultTranslation}
+      devicesTranslation={devicesTranslation}
     />
   );
 }

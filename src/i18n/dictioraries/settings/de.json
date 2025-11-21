@@ -11,8 +11,10 @@
   "setPercentage": "Prozentsatz festlegen",
   "setWidth": "Breite festlegen",
   "setHeight": "Höhe festlegen",
-  "layout": "Spannweite",
-  "imageWidth": "Bildbreite",
-  "imageHeight": "Bildhöhe",
+  "configMode": {
+    "percentage": "Spannweite",
+    "width": "Bildbreite",
+    "height": "Bildhöhe"
+  },
   "startCompression": "Alle komprimieren"
 }

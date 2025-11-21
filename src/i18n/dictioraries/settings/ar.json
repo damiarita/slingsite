@@ -11,8 +11,10 @@
   "setPercentage": "تعيين النسبة المئوية",
   "setWidth": "تعيين العرض",
   "setHeight": "تعيين الارتفاع",
-  "layout": "الامتداد",
-  "imageWidth": "عرض الصورة",
-  "imageHeight": "ارتفاع الصورة",
+  "configMode": {
+    "percentage": "الامتداد",
+    "width": "عرض الصورة",
+    "height": "ارتفاع الصورة"
+  },
   "startCompression": "ضغط الكل"
 }

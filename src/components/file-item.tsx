@@ -4,12 +4,15 @@ import type { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
 import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
+import { ResultsDictionary } from '@/i18n/type';
 
 type FileItemProps = {
   onRemove: () => void;
   onDownloadAll: () => void;
   onDownloadOne: (device: Device, format: Format) => void;
   job: Job;
+  translation: ResultsDictionary;
+  devicesTranslation: Record<Device, string>;
 };
 
 export const FileItem = ({
@@ -17,6 +20,8 @@ export const FileItem = ({
   onDownloadAll,
   onDownloadOne,
   job,
+  translation,
+  devicesTranslation,
 }: FileItemProps) => {
   const { originalFile, originalFileObjectURL, tasks } = job;
   const progress = jobProportionOfDoneTasks(job);
@@ -38,7 +43,7 @@ export const FileItem = ({
         ([device, formats]) => (
           <div key={device}>
             <p className="text-xs font-bold text-gray-500 capitalize mb-1 flex items-center">
-              {device}
+              {devicesTranslation[device]}
               <span className="ml-2 font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full text-[10px]">
                 {job.requestedDimensions[device]?.width}x
                 {job.requestedDimensions[device]?.height}
@@ -55,7 +60,9 @@ export const FileItem = ({
                       <FileIcon className="w-3 h-3 mr-1.5 text-gray-500" />
                       <span className="font-mono uppercase">{format}</span>
                       {task.status === 'waiting' && (
-                        <span className="text-gray-500 ml-2">Waiting</span>
+                        <span className="text-gray-500 ml-2">
+                          {translation.waiting}
+                        </span>
                       )}
                       {task.status === 'running' && !!task.percentage && (
                         <span className="text-gray-500 ml-2">
@@ -63,10 +70,14 @@ export const FileItem = ({
                         </span>
                       )}
                       {task.status === 'running' && !task.percentage && (
-                        <span className="text-gray-500 ml-2">Running</span>
+                        <span className="text-gray-500 ml-2">
+                          {translation.running}
+                        </span>
                       )}
                       {task.status === 'errored' && (
-                        <span className="text-red-200 ml-2">Error</span>
+                        <span className="text-red-200 ml-2">
+                          {translation.error}
+                        </span>
                       )}
                       {task.status === 'completed' && (
                         <span className="text-gray-500 ml-2">
@@ -135,11 +146,12 @@ export const FileItem = ({
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h4 className="text-sm font-semibold text-gray-700">
-              Compressed Files:
+              {translation.compressedFiles}:
             </h4>
             {progress === 1 && (
               <SecondaryButton onClick={() => onDownloadAll()} small={true}>
-                <Package className="w-3 h-3 mr-1" /> Download All
+                <Package className="w-3 h-3 mr-1" />{' '}
+                {translation.downloadAllFiles}
               </SecondaryButton>
             )}
           </div>
@@ -154,13 +166,13 @@ export const FileItem = ({
               />
             </div>
             <p className="text-xs text-center text-gray-600 mt-1">
-              Compressing... {progressPercentage}
+              {translation.compressing} {progressPercentage}
             </p>
           </div>
         ) : (
           progress === 0 && (
             <div className="mt-4 text-center text-sm text-gray-500 flex items-center justify-center bg-gray-100 p-2 rounded-md">
-              <Clock className="w-4 h-4 mr-2" /> In queue...
+              <Clock className="w-4 h-4 mr-2" /> {translation.inQueue}
             </div>
           )
         )}

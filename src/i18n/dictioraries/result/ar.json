@@ -1,0 +1,11 @@
+{
+  "yourFiles": "ملفاتك",
+  "downloadAllFiles": "تحميل كافة الملفات",
+  "uploadMoreFiles": "قم بتحميل بعض الملفات للبدء!",
+  "waiting": "في انتظار",
+  "running": "قيد التشغيل",
+  "error": "خطأ",
+  "compressing": "جاري الضغط...",
+  "inQueue": "في قائمة الانتظار...",
+  "compressedFiles": "الملفات المضغوطة"
+}
