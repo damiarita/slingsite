@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Format, isVideoFormat, isImageFormat } from '@/utils/formats';
+import { Format, isImageFormat } from '@/utils/formats';
 import { MediaDimensions } from '@/types/mediaDimensions';
 import { Device } from '@/types/devices';
 import { Message } from '@/types/workers';
@@ -48,9 +48,6 @@ export default function useCompressor(type: CompressionInput) {
         }
         const worker = workerRef.current;
         for (const format of formats) {
-          if (type === 'video' && !isVideoFormat(format)) {
-            throw new Error('Videos can only be converted to video formats');
-          }
           if (type === 'image' && !isImageFormat(format)) {
             throw new Error('Images can only be converted to Image formats');
           }

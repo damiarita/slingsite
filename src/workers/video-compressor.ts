@@ -1,109 +1,57 @@
 import { Device } from '@/types/devices';
 import { MediaDimensions } from '@/types/mediaDimensions';
-import { VideoFormat } from '@/utils/formats';
+import { compressImage } from '@/utils/compressor/image';
+import { compressVideo, extractFirstFrame } from '@/utils/compressor/video';
 import {
-  getCompressedFileName,
+  Format,
+  ImageFormat,
+  isImageFormat,
+  isVideoFormat,
+  VideoFormat,
+} from '@/utils/formats';
+import {
   sendProgressMessage,
   sendReadyMessage,
   sendResultMessage,
 } from '@/utils/workers';
-import {
-  Input,
-  Output,
-  WebMOutputFormat,
-  Mp4OutputFormat,
-  BufferTarget,
-  Conversion,
-  VideoCodec,
-  ALL_FORMATS,
-  BlobSource,
-} from 'mediabunny';
-
-const outputFormats: Record<VideoFormat, WebMOutputFormat | Mp4OutputFormat> = {
-  'vp9.webm': new WebMOutputFormat(),
-  'av1.webm': new WebMOutputFormat(),
-  mp4: new Mp4OutputFormat({ fastStart: 'in-memory' }),
-};
-
-const outputCodecs: Record<VideoFormat, VideoCodec> = {
-  'vp9.webm': 'vp9',
-  'av1.webm': 'av1',
-  mp4: 'avc',
-};
-
-sendReadyMessage();
 
 self.addEventListener('message', async (ev) => {
   const { file, formats, mediaSizes } = ev.data as {
     file: File;
-    formats: VideoFormat[];
+    formats: Format[];
     mediaSizes: Partial<Record<Device, MediaDimensions>>;
   };
-  const input = new Input({
-    formats: ALL_FORMATS,
-    source: new BlobSource(file),
-  });
 
-  for (const [device, mediaSize] of Object.entries(mediaSizes) as [
-    Device,
-    MediaDimensions,
-  ][]) {
-    for (const format of formats) {
-      const outputFormat = outputFormats[format];
-      const outputCodec = outputCodecs[format];
+  const videFormats = formats.filter(isVideoFormat) as VideoFormat[];
+  const imageFormats = formats.filter(isImageFormat) as ImageFormat[];
 
-      const output = new Output({
-        format: outputFormat,
-        target: new BufferTarget(),
-      });
+  const thumbnail = await extractFirstFrame(file);
 
-      const conversion = await Conversion.init({
-        input,
-        output,
-        video: {
-          width: mediaSize.width,
-          height: mediaSize.height,
-          fit: 'contain',
-          codec: outputCodec,
-        },
-        audio: {
-          discard: true,
-        },
-        tags: {},
-      });
-      if (!conversion.isValid) {
-        // Conversion is invalid and cannot be executed without error.
-        // This field gives reasons for why tracks were discarded:
-        throw new Error(
-          'Reasons the conversion was no possible:' +
-            conversion.discardedTracks
-              .map((t) => t.track.name + ': ' + t.reason)
-              .join(', '),
-        );
-      }
+  await compressVideo(
+    file,
+    videFormats,
+    mediaSizes,
+    async (compressedFile: File, device: Device, format: VideoFormat) => {
+      sendResultMessage(device, format, compressedFile);
+    },
+    (device: Device, format: VideoFormat, progress: number) => {
+      sendProgressMessage(device, format, progress);
+    },
+  );
 
-      conversion.onProgress = (progress: number) => {
-        sendProgressMessage(device, format, progress);
-      };
+  await compressImage(
+    thumbnail,
+    imageFormats,
+    mediaSizes,
+    async (compressedFile: File, device: Device, format: ImageFormat) => {
+      sendResultMessage(device, format, compressedFile);
+    },
+    (device: Device, format: ImageFormat) => {
+      sendProgressMessage(device, format);
+    },
+  );
 
-      await conversion.execute();
-
-      if (!output.target.buffer) {
-        throw new Error('No output generated');
-      }
-
-      sendResultMessage(
-        device,
-        format,
-        new File(
-          [output.target.buffer],
-          getCompressedFileName(file.name, device, format),
-          {
-            type: await output.getMimeType(),
-          },
-        ),
-      );
-    }
-  }
   sendReadyMessage();
 });
+
+sendReadyMessage();

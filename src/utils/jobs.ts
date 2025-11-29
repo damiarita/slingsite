@@ -44,7 +44,7 @@ export const createJob = (
       });
       const requestedFormats: Format[] = file.type.startsWith('image/')
         ? [...imageFormats]
-        : [...videoFormats];
+        : [...videoFormats, ...imageFormats];
       const tasks: Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
       requestedDevices.forEach((device) => {
         requestedFormats.forEach((format) => {
