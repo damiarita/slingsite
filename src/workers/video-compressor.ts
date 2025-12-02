@@ -44,8 +44,11 @@ self.addEventListener('message', async (ev) => {
     file,
     videFormats,
     mediaSizes,
-    async (compressedFile: File, device: Device, format: VideoFormat) => {
+    (compressedFile: File, device: Device, format: VideoFormat) => {
       sendResultMessage(device, format, compressedFile);
+    },
+    (device: Device, format: VideoFormat, errorMessage: string) => {
+      sendErrorMessage(device, format, errorMessage);
     },
     (device: Device, format: VideoFormat, progress: number) => {
       sendProgressMessage(device, format, progress);
@@ -57,8 +60,11 @@ self.addEventListener('message', async (ev) => {
       thumbnail,
       imageFormats,
       mediaSizes,
-      async (compressedFile: File, device: Device, format: ImageFormat) => {
+      (compressedFile: File, device: Device, format: ImageFormat) => {
         sendResultMessage(device, format, compressedFile);
+      },
+      (device: Device, format: ImageFormat, errorMessage: string) => {
+        sendErrorMessage(device, format, errorMessage);
       },
       (device: Device, format: ImageFormat) => {
         sendProgressMessage(device, format);

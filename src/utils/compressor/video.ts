@@ -32,9 +32,8 @@ export async function compressVideo(
   formats: VideoFormat[],
   mediaSizes: Partial<Record<Device, MediaDimensions>>,
   onSuccess: (file: File, device: Device, format: VideoFormat) => void,
-  onProgress:
-    | ((device: Device, format: VideoFormat, progress: number) => void)
-    | undefined,
+  onError: (device: Device, format: VideoFormat, errorMessage: string) => void,
+  onProgress: (device: Device, format: VideoFormat, progress: number) => void,
 ): Promise<void> {
   const input = new Input({
     formats: ALL_FORMATS,
@@ -70,22 +69,24 @@ export async function compressVideo(
       if (!conversion.isValid) {
         // Conversion is invalid and cannot be executed without error.
         // This field gives reasons for why tracks were discarded:
-        throw new Error(
+        const errorMessage =
           'Reasons the conversion was no possible:' +
-            conversion.discardedTracks
-              .map((t) => t.track.name + ': ' + t.reason)
-              .join(', '),
-        );
+          conversion.discardedTracks
+            .map((t) => t.track.name + ': ' + t.reason)
+            .join(', ');
+        onError(device, format, errorMessage);
+        continue;
       }
 
       conversion.onProgress = (progress: number) => {
-        if (onProgress) onProgress(device, format, progress);
+        onProgress(device, format, progress);
       };
 
       await conversion.execute();
 
       if (!output.target.buffer) {
-        throw new Error('No output generated');
+        onError(device, format, 'No output generated');
+        continue;
       }
       const compressedFile = new File(
         [output.target.buffer],

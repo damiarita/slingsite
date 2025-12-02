@@ -29,7 +29,8 @@ export async function compressImage(
   formats: ImageFormat[],
   mediaSizes: Partial<Record<Device, MediaDimensions>>,
   onSuccess: (file: File, device: Device, format: ImageFormat) => void,
-  onBegin: ((device: Device, format: ImageFormat) => void) | undefined,
+  onError: (device: Device, format: ImageFormat, errorMessage: string) => void,
+  onBegin: (device: Device, format: ImageFormat) => void,
 ): Promise<void> {
   const imageBitmap = await createImageBitmap(file);
 
@@ -43,8 +44,12 @@ export async function compressImage(
       alpha: true,
       desynchronized: true, // Hint for hardware acceleration
     });
-    if (!ctx) throw new Error('Failed to get canvas context');
-
+    if (!ctx) {
+      for (const format of formats) {
+        onError(device, format, 'Failed to get canvas context');
+      }
+      continue;
+    }
     // Use high-quality image rendering
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -52,7 +57,7 @@ export async function compressImage(
     // Draw resized image
     ctx.drawImage(imageBitmap, 0, 0, mediaSize.width, mediaSize.height);
     for (const format of formats) {
-      if (onBegin) onBegin(device, format);
+      onBegin(device, format);
       const outputMimeType = getMimeType(format);
       if (nativelySupportedEncoders[format]) {
         const blob = await canvas.convertToBlob({

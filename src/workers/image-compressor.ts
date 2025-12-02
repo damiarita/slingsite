@@ -6,6 +6,7 @@ import {
   sendReadyMessage,
   sendResultMessage,
   sendProgressMessage,
+  sendErrorMessage,
 } from '@/utils/workers';
 import { compressImage } from '@/utils/compressor/image';
 
@@ -20,8 +21,11 @@ self.onmessage = async (ev) => {
     file,
     formats,
     mediaSizes,
-    async (compressedFile: File, device: Device, format: ImageFormat) => {
+    (compressedFile: File, device: Device, format: ImageFormat) => {
       sendResultMessage(device, format, compressedFile);
+    },
+    (device: Device, format: ImageFormat, errorMessage: string) => {
+      sendErrorMessage(device, format, errorMessage);
     },
     (device: Device, format: ImageFormat) => {
       sendProgressMessage(device, format);
