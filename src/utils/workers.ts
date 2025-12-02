@@ -21,3 +21,11 @@ export function sendProgressMessage(
 export function sendResultMessage(device: Device, format: Format, file: File) {
   sendMessage({ type: 'result', device, format, content: file });
 }
+
+export function sendErrorMessage(
+  device: Device,
+  format: Format,
+  error: string,
+) {
+  sendMessage({ type: 'error', device, format, content: error });
+}

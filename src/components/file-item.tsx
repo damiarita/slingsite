@@ -1,4 +1,4 @@
-import { FileIcon, Download, X, Clock, Package } from 'lucide-react';
+import { FileIcon, Download, X, Clock, Package, Info } from 'lucide-react';
 import type { Format } from '@/utils/formats';
 import type { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
@@ -75,8 +75,17 @@ export const FileItem = ({
                         </span>
                       )}
                       {task.status === 'errored' && (
-                        <span className="text-red-200 ml-2">
-                          {translation.error}
+                        <span className="ml-2 flex items-center gap-2">
+                          <span className="text-red-500">
+                            {translation.error}
+                          </span>
+                          <span
+                            title={task.errorMessage ?? translation.error}
+                            className="text-red-500 hover:text-gray-600"
+                            aria-hidden={false}
+                          >
+                            <Info className="w-3 h-3" />
+                          </span>
                         </span>
                       )}
                       {task.status === 'completed' && (

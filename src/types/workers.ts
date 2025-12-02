@@ -17,4 +17,10 @@ export type Message =
       device: Device;
       format: Format;
       content?: number;
+    }
+  | {
+      type: 'error';
+      device: Device;
+      format: Format;
+      content: string;
     };

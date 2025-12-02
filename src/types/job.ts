@@ -6,7 +6,7 @@ export type Task =
   | { status: 'waiting' }
   | { status: 'running'; percentage?: number }
   | { status: 'completed'; result: File }
-  | { status: 'errored'; error: Error };
+  | { status: 'errored'; errorMessage: string };
 
 export type Job = {
   id: string;

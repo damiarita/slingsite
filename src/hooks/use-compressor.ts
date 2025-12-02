@@ -40,6 +40,7 @@ export default function useCompressor(type: CompressionInput) {
         mediaSizes: Partial<Record<Device, MediaDimensions>>,
         onProgress: (format: Format, device: Device, progress?: number) => void,
         onResult: (format: Format, device: Device, output: File) => void,
+        onError: (format: Format, device: Device, message: string) => void,
       ): void {
         if (!workerRef.current) {
           throw new Error(
@@ -66,6 +67,9 @@ export default function useCompressor(type: CompressionInput) {
           } else if (ev.data.type === 'progress') {
             const { device, format, content: progress } = ev.data;
             onProgress(format, device, progress);
+          } else if (ev.data.type === 'error') {
+            const { device, format, content: message } = ev.data;
+            onError(format, device, message);
           } else {
             throw new Error('Unknown message type from worker:' + ev.data);
           }

@@ -177,6 +177,20 @@ export default function App({
           );
         });
       },
+      (format: Format, device: Device, message: string) => {
+        setJobs((prevJobs) => {
+          return getJobWithUpdatedTask(
+            prevJobs,
+            runningJobIndex,
+            device,
+            format,
+            {
+              status: 'errored',
+              errorMessage: message,
+            },
+          );
+        });
+      },
     );
   }, [jobs, compressFunction]);
 
