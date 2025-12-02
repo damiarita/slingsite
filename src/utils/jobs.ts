@@ -65,7 +65,10 @@ export const createJob = (
     })
     .catch((error) => {
       const errorMessage =
-        'Failed to create job for file ' + file.name + ': ' + error.message;
+        'Failed to create job for file ' +
+        file.name +
+        ': ' +
+        (error.message || String(error));
       console.error(errorMessage);
       return Promise.reject(errorMessage);
     });
