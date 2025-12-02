@@ -118,15 +118,17 @@ export async function extractFirstFrame(file: File): Promise<File> {
         }
         const sink = new CanvasSink(videoTrack);
 
-        // Get the thumbnail at timestamp 0s
-        sink.getCanvas(0).then((result) => {
-          if (!result) {
-            reject('Could not extract frame');
-            return;
-          }
-          const canvas = result.canvas as OffscreenCanvas;
-          canvas.convertToBlob({ type: 'image/png' }).then((blob) => {
-            resolve(new File([blob], 'thumbnail.png', { type: 'image/png' }));
+        videoTrack.getFirstTimestamp().then((firstTimestamp) => {
+          // Get the thumbnail at timestamp 0s
+          sink.getCanvas(firstTimestamp).then((result) => {
+            if (!result) {
+              reject('Could not extract frame');
+              return;
+            }
+            const canvas = result.canvas as OffscreenCanvas;
+            canvas.convertToBlob({ type: 'image/png' }).then((blob) => {
+              resolve(new File([blob], 'thumbnail.png', { type: 'image/png' }));
+            });
           });
         });
       });
