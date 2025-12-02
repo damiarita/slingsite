@@ -117,7 +117,7 @@ export async function extractFirstFrame(file: File): Promise<File> {
         }
         const sink = new CanvasSink(videoTrack);
 
-        // Get the thumbnail at timestamp 10s
+        // Get the thumbnail at timestamp 0s
         sink.getCanvas(0).then((result) => {
           if (!result) {
             reject('Could not extract frame');
