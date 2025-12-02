@@ -110,7 +110,7 @@ export async function extractFirstFrame(file: File): Promise<File> {
         reject('No video track found');
         return;
       }
-      const decodable = videoTrack.canDecode().then((decodable) => {
+      videoTrack.canDecode().then((decodable) => {
         if (!decodable) {
           reject('Video track is not decodable');
           return;
