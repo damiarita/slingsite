@@ -10,6 +10,7 @@ import {
   VideoFormat,
 } from '@/utils/formats';
 import {
+  sendErrorMessage,
   sendProgressMessage,
   sendReadyMessage,
   sendResultMessage,
@@ -25,7 +26,19 @@ self.addEventListener('message', async (ev) => {
   const videFormats = formats.filter(isVideoFormat) as VideoFormat[];
   const imageFormats = formats.filter(isImageFormat) as ImageFormat[];
 
-  const thumbnail = await extractFirstFrame(file);
+  const thumbnail = await extractFirstFrame(file).catch((error) => {
+    const errorMessage =
+      'Failed to extract thumbnail from video ' +
+      file.name +
+      ': ' +
+      (error.message || String(error));
+    console.error(errorMessage);
+    for (const format of imageFormats) {
+      for (const device of Object.keys(mediaSizes) as Device[]) {
+        sendErrorMessage(device, format, errorMessage);
+      }
+    }
+  });
 
   await compressVideo(
     file,
@@ -39,17 +52,19 @@ self.addEventListener('message', async (ev) => {
     },
   );
 
-  await compressImage(
-    thumbnail,
-    imageFormats,
-    mediaSizes,
-    async (compressedFile: File, device: Device, format: ImageFormat) => {
-      sendResultMessage(device, format, compressedFile);
-    },
-    (device: Device, format: ImageFormat) => {
-      sendProgressMessage(device, format);
-    },
-  );
+  if (thumbnail) {
+    await compressImage(
+      thumbnail,
+      imageFormats,
+      mediaSizes,
+      async (compressedFile: File, device: Device, format: ImageFormat) => {
+        sendResultMessage(device, format, compressedFile);
+      },
+      (device: Device, format: ImageFormat) => {
+        sendProgressMessage(device, format);
+      },
+    );
+  }
 
   sendReadyMessage();
 });
