@@ -20,14 +20,26 @@ export const downloadResultFile = (
   }
 };
 
-export const downloadAllFiles = (jobs: Job[]) => {
-  jobs.forEach((job) => {
-    (
-      Object.entries(job.tasks) as [Device, Partial<Record<Format, Task>>][]
-    ).forEach(([device, formats]) => {
-      (Object.entries(formats) as [Format, Task][]).forEach(([format]) => {
+export const downloadAllFiles = async (jobs: Job[]) => {
+  let count = 0;
+  for (const job of jobs) {
+    for (const [device, formats] of Object.entries(job.tasks) as [
+      Device,
+      Partial<Record<Format, Task>>,
+    ][]) {
+      for (const [format] of Object.entries(formats) as [Format, Task][]) {
         downloadResultFile(job, device, format);
-      });
-    });
-  });
+        if (++count >= 10) {
+          await pause(1000); //We need to wait 1s for Chrome to allow another 10files to download
+          count = 0;
+        }
+      }
+    }
+  }
 };
+
+function pause(msec: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, msec);
+  });
+}
