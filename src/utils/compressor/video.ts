@@ -1,7 +1,10 @@
 import { Device } from '@/types/devices';
 import { MediaDimensions } from '@/types/mediaDimensions';
 import { VideoFormat } from '@/utils/formats';
-import { getCompressedFileName } from '@/utils/compressor/all';
+import {
+  getCompressedFileName,
+  getFileNameWithExtensionAndSuffix,
+} from '@/utils/compressor/all';
 import {
   Input,
   Output,
@@ -127,7 +130,17 @@ export async function extractFirstFrame(file: File): Promise<File> {
             }
             const canvas = result.canvas as OffscreenCanvas;
             canvas.convertToBlob({ type: 'image/png' }).then((blob) => {
-              resolve(new File([blob], 'thumbnail.png', { type: 'image/png' }));
+              resolve(
+                new File(
+                  [blob],
+                  getFileNameWithExtensionAndSuffix(
+                    file.name,
+                    'png',
+                    '-thumbnail',
+                  ),
+                  { type: 'image/png' },
+                ),
+              );
             });
           });
         });
