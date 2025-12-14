@@ -20,14 +20,14 @@ import {
 
 const outputFormats: Record<VideoFormat, WebMOutputFormat | Mp4OutputFormat> = {
   'vp9.webm': new WebMOutputFormat(),
-  'av1.webm': new WebMOutputFormat(),
-  mp4: new Mp4OutputFormat({ fastStart: 'in-memory' }),
+  'hevc.mp4': new Mp4OutputFormat({ fastStart: 'in-memory' }),
+  'avc.mp4': new Mp4OutputFormat({ fastStart: 'in-memory' }),
 };
 
 const outputCodecs: Record<VideoFormat, VideoCodec> = {
   'vp9.webm': 'vp9',
-  'av1.webm': 'av1',
-  mp4: 'avc',
+  'hevc.mp4': 'hevc',
+  'avc.mp4': 'avc',
 };
 
 export async function compressVideo(
