@@ -74,18 +74,10 @@ export const createJob = (
     });
 };
 
-export const jobIsWaiting = (job: Job): boolean => {
-  for (const [, formats] of Object.entries(job.tasks) as [
-    Device,
-    Partial<Record<Format, Task>>,
-  ][]) {
-    for (const [, task] of Object.entries(formats) as [Format, Task][]) {
-      if (task.status !== 'waiting') {
-        return false;
-      }
-    }
-  }
-  return true;
+export const jobIsIncomplete = (job: Job): boolean => {
+  return jobTasksAsArray(job).some(
+    (task) => task.status === 'running' || task.status === 'waiting',
+  );
 };
 
 const jobTasksAsArray = (job: Job): Task[] => {

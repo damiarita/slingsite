@@ -11,7 +11,7 @@ import useCompressor from '@/hooks/use-compressor';
 import { Format } from '@/utils/formats';
 import { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
-import { createJob, jobIsWaiting } from '@/utils/jobs';
+import { createJob, jobIsIncomplete } from '@/utils/jobs';
 import { Locale } from '@/i18n/lib';
 import { CompressionInput } from '@/types/compressor';
 import {
@@ -95,7 +95,7 @@ export default function App({
       height: 100,
     },
   });
-  const compressFunction = useCompressor(compressorType);
+  const compressor = useCompressor(compressorType);
 
   const handleFilesAdded = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
@@ -138,18 +138,25 @@ export default function App({
   };
 
   useEffect(() => {
-    if (!compressFunction) return; //compressor is not ready
+    if (compressor.status == 'loading') return; //compressor is not ready
 
-    const runningJobIndex = jobs.findIndex((job) => jobIsWaiting(job));
-    if (runningJobIndex === -1) return;
+    const jobToRunIndex = jobs.findIndex((job) => jobIsIncomplete(job));
+    if (jobToRunIndex === -1) return;
+    const jobToRun = jobs[jobToRunIndex];
 
-    const runningJob = jobs[runningJobIndex];
+    if (compressor.status === 'working') {
+      if (jobToRun.id !== compressor.currentJobId) {
+        return compressor.abort(); //abort current and start new
+      } else {
+        return; //same job is already running
+      }
+    }
 
-    compressFunction(
-      runningJob.id,
-      runningJob.originalFile,
-      runningJob.requestedFormats,
-      runningJob.requestedDimensions,
+    compressor.compress(
+      jobToRun.id,
+      jobToRun.originalFile,
+      jobToRun.requestedFormats,
+      jobToRun.requestedDimensions,
       (jobId: string, format: Format, device: Device, progress?: number) => {
         setJobs((prevJobs) => {
           return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
@@ -175,7 +182,7 @@ export default function App({
         });
       },
     );
-  }, [jobs, compressFunction]);
+  }, [jobs, compressor]);
 
   useEffect(() => {
     const refToScroll: Record<
