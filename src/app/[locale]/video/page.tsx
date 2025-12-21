@@ -23,6 +23,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: getUrl(locale, 'video'),
       languages: getUrlsByLocale('video'),
     },
+    openGraph: {
+      title: translations.title,
+      description: translations.description,
+      url: getUrl(locale, 'video'),
+      siteName: 'SlingSite',
+      images: [
+        {
+          url: '/screenshots/video.jpg',
+          width: 910,
+          height: 465,
+          alt: 'SlingSite Logo',
+        },
+        {
+          url: '/favicon.ico',
+          width: 256,
+          height: 256,
+          alt: 'SlingSite Logo',
+        },
+      ],
+      locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: translations.title,
+      description: translations.description,
+      images: ['/screenshots/image.jpg', '/favicon.ico'],
+    },
   };
 }
 

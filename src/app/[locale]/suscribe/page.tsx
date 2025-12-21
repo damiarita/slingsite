@@ -14,6 +14,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: getUrl(locale, 'suscribe'),
       languages: getUrlsByLocale('suscribe'),
     },
+    openGraph: {
+      title: 'Suscribe to the SlingSite Newsletter',
+      description:
+        'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
+      url: getUrl(locale, 'suscribe'),
+      siteName: 'SlingSite',
+      images: [
+        {
+          url: '/favicon.ico',
+          width: 256,
+          height: 256,
+          alt: 'SlingSite Logo',
+        },
+      ],
+      locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: 'Suscribe to the SlingSite Newsletter',
+      description:
+        'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
+      images: ['/favicon.ico'],
+    },
   };
 }
 

@@ -33,6 +33,28 @@ export async function generateMetadata({
       canonical: getPostUrl(post),
       languages: getPostUrlsByLocale(post),
     },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: getPostUrl(post),
+      siteName: 'SlingSite',
+      images: [
+        {
+          url: '/favicon.ico',
+          width: 256,
+          height: 256,
+          alt: 'SlingSite Logo',
+        },
+      ],
+      locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: post.title,
+      description: post.description,
+      images: ['/favicon.ico'],
+    },
   };
 }
 
