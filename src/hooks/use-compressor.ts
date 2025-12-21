@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Format, isImageFormat } from '@/utils/formats';
 import { MediaDimensions } from '@/types/mediaDimensions';
 import { Device } from '@/types/devices';
-import { Message } from '@/types/workers';
+import { InputMessage, OutputMessage } from '@/types/workers';
 import { CompressionInput } from '@/types/compressor';
 
 export default function useCompressor(type: CompressionInput) {
@@ -20,7 +20,7 @@ export default function useCompressor(type: CompressionInput) {
       );
       workerRef.current = type === 'image' ? imgW : vidW;
 
-      workerRef.current.onmessage = (ev: MessageEvent<Message>) => {
+      workerRef.current.onmessage = (ev: MessageEvent<OutputMessage>) => {
         if (ev.data.type === 'status' && ev.data.content === 'ready') {
           setProcessorStatus('ready');
         }
@@ -35,12 +35,28 @@ export default function useCompressor(type: CompressionInput) {
   return processorStatus !== 'ready'
     ? null
     : function (
+        jobId: string,
         file: File,
         formats: Format[],
         mediaSizes: Partial<Record<Device, MediaDimensions>>,
-        onProgress: (format: Format, device: Device, progress?: number) => void,
-        onResult: (format: Format, device: Device, output: File) => void,
-        onError: (format: Format, device: Device, message: string) => void,
+        onProgress: (
+          jobId: string,
+          format: Format,
+          device: Device,
+          progress?: number,
+        ) => void,
+        onResult: (
+          jobId: string,
+          format: Format,
+          device: Device,
+          output: File,
+        ) => void,
+        onError: (
+          jobId: string,
+          format: Format,
+          device: Device,
+          message: string,
+        ) => void,
       ): void {
         if (!workerRef.current) {
           throw new Error(
@@ -58,18 +74,18 @@ export default function useCompressor(type: CompressionInput) {
             'Processor is not ready. Please wait for the current task to finish.',
           );
         }
-        worker.onmessage = (ev: MessageEvent<Message>) => {
+        worker.onmessage = (ev: MessageEvent<OutputMessage>) => {
           if (ev.data.type === 'status' && ev.data.content === 'ready') {
             setProcessorStatus('ready');
           } else if (ev.data.type === 'result') {
-            const { device, format, content: output } = ev.data;
-            onResult(format, device, output);
+            const { jobId, device, format, content: output } = ev.data;
+            onResult(jobId, format, device, output);
           } else if (ev.data.type === 'progress') {
-            const { device, format, content: progress } = ev.data;
-            onProgress(format, device, progress);
+            const { jobId, device, format, content: progress } = ev.data;
+            onProgress(jobId, format, device, progress);
           } else if (ev.data.type === 'error') {
-            const { device, format, content: message } = ev.data;
-            onError(format, device, message);
+            const { jobId, device, format, content: message } = ev.data;
+            onError(jobId, format, device, message);
           } else {
             throw new Error('Unknown message type from worker:' + ev.data);
           }
@@ -79,6 +95,7 @@ export default function useCompressor(type: CompressionInput) {
           throw new Error('Worker error: ' + ev.message);
         };
         setProcessorStatus('working');
-        worker.postMessage({ file, formats, mediaSizes });
+        const message: InputMessage = { jobId, file, formats, mediaSizes };
+        worker.postMessage(message);
       };
 }

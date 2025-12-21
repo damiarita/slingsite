@@ -23,13 +23,13 @@ import {
 
 function getJobWithUpdatedTask(
   jobs: Job[],
-  jobIndex: number,
+  jobId: string,
   device: Device,
   format: Format,
   newTask: Task,
 ) {
-  return jobs.map((currentJob, index) => {
-    if (index !== jobIndex) return currentJob;
+  return jobs.map((currentJob) => {
+    if (currentJob.id !== jobId) return currentJob;
     return {
       ...currentJob,
       tasks: {
@@ -146,49 +146,32 @@ export default function App({
     const runningJob = jobs[runningJobIndex];
 
     compressFunction(
+      runningJob.id,
       runningJob.originalFile,
       runningJob.requestedFormats,
       runningJob.requestedDimensions,
-      (format: Format, device: Device, progress?: number) => {
+      (jobId: string, format: Format, device: Device, progress?: number) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(
-            prevJobs,
-            runningJobIndex,
-            device,
-            format,
-            {
-              status: 'running',
-              percentage: progress && Math.floor(progress * 100),
-            },
-          );
+          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+            status: 'running',
+            percentage: progress && Math.floor(progress * 100),
+          });
         });
       },
-      (format: Format, device: Device, output: File) => {
+      (jobId: string, format: Format, device: Device, output: File) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(
-            prevJobs,
-            runningJobIndex,
-            device,
-            format,
-            {
-              status: 'completed',
-              result: output,
-            },
-          );
+          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+            status: 'completed',
+            result: output,
+          });
         });
       },
-      (format: Format, device: Device, message: string) => {
+      (jobId: string, format: Format, device: Device, message: string) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(
-            prevJobs,
-            runningJobIndex,
-            device,
-            format,
-            {
-              status: 'errored',
-              errorMessage: message,
-            },
-          );
+          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+            status: 'errored',
+            errorMessage: message,
+          });
         });
       },
     );

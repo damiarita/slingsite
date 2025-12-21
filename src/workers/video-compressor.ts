@@ -1,5 +1,5 @@
 import { Device } from '@/types/devices';
-import { MediaDimensions } from '@/types/mediaDimensions';
+import { InputMessage } from '@/types/workers';
 import { compressImage } from '@/utils/compressor/image';
 import { compressVideo, extractFirstFrame } from '@/utils/compressor/video';
 import {
@@ -17,11 +17,7 @@ import {
 } from '@/utils/workers';
 
 self.addEventListener('message', async (ev) => {
-  const { file, formats, mediaSizes } = ev.data as {
-    file: File;
-    formats: Format[];
-    mediaSizes: Partial<Record<Device, MediaDimensions>>;
-  };
+  const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;
 
   const videFormats = formats.filter(isVideoFormat) as VideoFormat[];
   const imageFormats = formats.filter(isImageFormat) as ImageFormat[];
@@ -35,7 +31,7 @@ self.addEventListener('message', async (ev) => {
     console.error(errorMessage);
     for (const format of imageFormats) {
       for (const device of Object.keys(mediaSizes) as Device[]) {
-        sendErrorMessage(device, format, errorMessage);
+        sendErrorMessage(jobId, device, format, errorMessage);
       }
     }
   });
@@ -45,13 +41,13 @@ self.addEventListener('message', async (ev) => {
     videFormats,
     mediaSizes,
     (compressedFile: File, device: Device, format: VideoFormat) => {
-      sendResultMessage(device, format, compressedFile);
+      sendResultMessage(jobId, device, format, compressedFile);
     },
     (device: Device, format: VideoFormat, errorMessage: string) => {
-      sendErrorMessage(device, format, errorMessage);
+      sendErrorMessage(jobId, device, format, errorMessage);
     },
     (device: Device, format: VideoFormat, progress: number) => {
-      sendProgressMessage(device, format, progress);
+      sendProgressMessage(jobId, device, format, progress);
     },
   );
 
@@ -61,13 +57,13 @@ self.addEventListener('message', async (ev) => {
       imageFormats,
       mediaSizes,
       (compressedFile: File, device: Device, format: ImageFormat) => {
-        sendResultMessage(device, format, compressedFile);
+        sendResultMessage(jobId, device, format, compressedFile);
       },
       (device: Device, format: ImageFormat, errorMessage: string) => {
-        sendErrorMessage(device, format, errorMessage);
+        sendErrorMessage(jobId, device, format, errorMessage);
       },
       (device: Device, format: ImageFormat) => {
-        sendProgressMessage(device, format);
+        sendProgressMessage(jobId, device, format);
       },
     );
   }
