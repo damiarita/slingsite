@@ -202,30 +202,26 @@ export default function App({
 
   return (
     <div className="space-y-8">
-      {focus === 'initial' && (
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            {seoTranslation.title}
-          </h1>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            {seoTranslation.subtitle}
-          </p>
-        </div>
-      )}
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+          {seoTranslation.title}
+        </h1>
+        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+          {seoTranslation.subtitle}
+        </p>
+      </div>
       <div className="grid grid-cols-1 gap-8 items-start">
-        {focus !== 'settings' && (
-          <div ref={uploadRef} className="scroll-mt-20">
-            <FileUpload
-              onFilesAdded={handleFilesAdded}
-              type={compressorType}
-              translations={uploadTranslation}
-            />
-          </div>
-        )}
-        {focus === 'settings' && (
+        <div ref={uploadRef} className="scroll-mt-20">
+          <FileUpload
+            onFilesAdded={handleFilesAdded}
+            type={compressorType}
+            translations={uploadTranslation}
+          />
+        </div>
+        {files.length > 0 && (
           <div ref={settingsRef} className="scroll-mt-20">
             <DimensionsSettings
-              handleExitSettings={() => {
+              handelClickAddMoreFiles={() => {
                 setFocus('upload');
               }}
               handleRemoveFile={handleRemoveFile}

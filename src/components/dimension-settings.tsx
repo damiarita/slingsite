@@ -37,7 +37,7 @@ export const DimensionsSettings = ({
   handleCompressClick,
   files,
   handleRemoveFile,
-  handleExitSettings,
+  handelClickAddMoreFiles,
   translation,
   devicesTranslation,
 }: {
@@ -46,7 +46,7 @@ export const DimensionsSettings = ({
   handleCompressClick: () => void;
   files: File[];
   handleRemoveFile: (index: number) => void;
-  handleExitSettings: () => void;
+  handelClickAddMoreFiles: () => void;
   translation: SettingsDictionary;
   devicesTranslation: Record<Device, string>;
 }) => {
@@ -145,7 +145,7 @@ export const DimensionsSettings = ({
         ))}
       </div>
       <div className="flex justify-end items-center mb-4">
-        <SecondaryButton onClick={handleExitSettings}>
+        <SecondaryButton onClick={handelClickAddMoreFiles}>
           <FilePlus className="w-4 h-4 mr-2" />
           {translation.addMoreFiles}
         </SecondaryButton>
