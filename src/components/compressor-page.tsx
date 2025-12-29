@@ -204,9 +204,9 @@ export default function App({
     <div className="space-y-8">
       {focus === 'initial' && (
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             {seoTranslation.title}
-          </h2>
+          </h1>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
             {seoTranslation.subtitle}
           </p>
