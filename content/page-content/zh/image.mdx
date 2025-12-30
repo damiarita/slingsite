@@ -1,0 +1,65 @@
+---
+locale: 'zh'
+slug: 'image'
+---
+
+## 停止用一刀切的图片拖慢你的网站
+
+大多数图片压缩器有一个致命缺陷：它们只是把你的巨型图片变成一个“稍微小一点的”巨型图片。如果你向智能手机用户发送一个1920px宽的桌面图片，你是在浪费带宽，伤害你的加载速度，并损害你的Google排名。
+
+SlingSite不同。我们不仅仅压缩；我们优化。
+
+当你上传一个文件时，我们立即生成每个现代网站需要的9个基本版本。我们创建三个完美缩放的大小（移动端、平板、桌面）在三个下一代格式（JPG、WebP、AVIF）中。这确保每个访问者得到他们需要的精确文件—不多不少。
+
+<FAQ question="如何优化图片以获得最大页面速度？" h={2}>
+达到100/100 Google PageSpeed分数从你的资产开始。以下是我们工作流程如何在几秒钟内修复你的Core Web Vitals：
+
+1. 上传：拖放你的高质量主图片（JPG或PNG）。
+1. 智能分析：我们的引擎检测视觉复杂性以平衡质量与文件大小。
+1. 生成：我们生产9个特定资产：
+   - 移动端（450px）：用于智能手机，防止“断点陷阱”，其中手机下载平板大小的图片。
+   - 平板（850px）：完美适合iPad和垂直平板。
+   - 桌面（1920px）：高清用于大显示器。
+1. 下载：你得到一个整洁的.zip文件，每个资产都被命名和组织，准备生产。
+   </FAQ>
+
+<FAQ question="JPG vs. WebP vs. AVIF：为什么你需要全部三个？" h={2}>
+  现代网络标准要求为兼容浏览器提供下一代格式，同时为旧的保留安全网。我们自动生成全部三个。
+  - AVIF（性能之王）：比JPG小至50%，质量更优。这是你希望80%的用户看到的格式。 -
+  WebP（现代标准）：97%的浏览器支持。提供~30%的JPG节省并支持透明度。 -
+  JPG（通用后备）：确保你的图片在遗留浏览器或旧设备上加载。
+</FAQ>
+
+## 常见问题
+
+<FAQ question="为什么我需要特定的移动端图片？难道不能用桌面版吗？">
+  你可以，但它会杀死你的性能。如果用户在手机上（屏幕宽度~390px）并下载桌面图片（1920px），他们的浏览器必须下载25倍必要的像素。这会使你的LCP（Largest
+  Contentful
+  Paint）指标飙升，这是Google排名算法中的主要因素。我们的移动版本专门针对350px–450px流量峰值优化。
+</FAQ>
+
+<FAQ question="为什么要使用WebP？">
+为了自动为每个用户提供最好的图片，使用HTML5 `<picture>`标签。以下是我们生成的文件中你可以复制粘贴的标准片段：
+
+```HTML
+<picture>
+  <source media="(min-width: 1200px)" srcset="image-desktop.avif" type="image/avif" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.webp" type="image/webp" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.jpg" type="image/jpg" width="1920" height="1080">
+
+  <source media="(min-width: 768px)" srcset="image-tablet.avif" type="image/avif" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.webp" type="image/webp" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.jpg" type="image/jpg" width="850" height="480">
+
+  <source media="(max-width: 767px)" srcset="image-mobile.avif" type="image/avif" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.webp" type="image/webp" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.jpg" type="image/jpg" width="450" height="254">
+
+  <img src="image-fallback.jpg" alt="你的图片描述" width="450" height="254">
+</picture>
+```
+
+</FAQ>
+<FAQ question="这会帮助我的SEO吗？">
+是的。Google明确表示页面速度是一个排名因素。通过减少你的图片负载至85%（使用AVIF + 正确尺寸），你的页面加载更快，用户停留更久，搜索引擎排名你更高。
+</FAQ>

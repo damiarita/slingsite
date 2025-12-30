@@ -1,0 +1,87 @@
+---
+locale: 'de'
+slug: 'video'
+---
+
+## Hören Sie auf, Ihre Seitengeschwindigkeit mit schweren, unoptimierten Hintergrundvideos zu töten
+
+Das Hinzufügen von Video zu einer Website erzwingt normalerweise einen Kompromiss: Es sieht großartig aus, aber es zerstört Ihre Ladezeit. Eine Standard-1080p-Videodatei kann leicht 20 MB+ betragen, was ein Todesurteil für mobile Benutzer in 4G-Netzwerken ist.
+
+### SlingSite löst das "Video Bloat"-Problem.
+
+Wir verkleinern nicht nur Ihr Video; wir erstellen eine vollständige HTML5-Streaming-Suite. Für jedes Video, das Sie hochladen, generieren wir 18 spezialisierte Assets, die jede Gerätegröße, Browserpräferenz und Verbindungsgeschwindigkeit abdecken.
+
+<FAQ question="Die 'Triple-Codec'-Strategie: Warum ein MP4 nicht ausreicht?">
+Browser kämpfen einen Krieg über Videoformate. Apple bevorzugt HEVC, Google bevorzugt VP9, und ältere Geräte kennen nur AVC. Wenn Sie nur ein Format bereitstellen, servieren Sie entweder Video von niedriger Qualität oder blockieren Benutzer vollständig.
+
+Wir transkodieren automatisch Ihr Video in die drei kritischen Formate, die für eine moderne, kugelsichere Weberfahrung erforderlich sind:
+
+- WebM (VP9-Codec): Der Google-Standard. Hochkomprimiert und kristallklar. Bevorzugt von Chrome, Android und Firefox. Normalerweise 30-50% kleiner als Standard-MP4
+- MP4 (HEVC-Codec aka H.265): Der Apple-Standard. Der einzige Weg, um hoch-effizientes Video auf iPhones, iPads und Safari (macOS) zu erhalten.
+- MP4 (AVC-Codec aka H.264): Der universelle Fallback. Das "Sicherheitsnetz", das auf praktisch jedem Gerät funktioniert, das in den letzten 15 Jahren erstellt wurde.
+  </FAQ>
+
+<FAQ question="Vergessen Sie nicht das Poster: Was ist das Geheimnis, um Core Web Vitals zu bestehen?">
+Eine Videodatei braucht Zeit zum Laden. Während sie puffert, sieht Ihr Benutzer einen leeren Raum—oder schlimmer, eine Layout-Verschiebung. Das schadet Ihren Cumulative Layout Shift (CLS) und Largest Contentful Paint (LCP) Scores.
+
+Um das zu beheben, brauchen Sie ein leichtes "Poster-Bild", das sofort lädt.
+
+Für jede Videogröße (Mobile, Tablet, Desktop) extrahieren wir den ersten Frame und konvertieren ihn in 3 optimierte Bildformate: JPG, WebP und AVIF. Das stellt sicher, dass Ihre Site sogar vor dem Abspielen des Videos instantan, professionell und visuell stabil aussieht.
+
+</FAQ>
+
+### Häufig gestellte Fragen
+
+<FAQ question="Warum brauche ich 6 Dateien nur für mobile?">
+Sie brauchen 3 Videoformate, um sicherzustellen, dass der Browser dasjenige auswählen kann, das er nativ unterstützt (Batterie und Daten sparen), und Sie brauchen 3 Bildformate, damit der Browser das leichteste mögliche "Vorschau"-Bild sofort laden kann. Es scheint viel Dateien zu sein, aber der Browser des Benutzers lädt nur ein Video und ein Bild herunter.
+</FAQ>
+<FAQ question="Wie hilft das mit Apple-Geräten?">
+iPhones und Macs sind für HEVC (H.265) optimiert. Wenn Sie ihnen ein Standard-MP4 servieren, müssen sie härter arbeiten, um es zu dekodieren. Wenn Sie ihnen ein VP9 WebM servieren, spielen sie es vielleicht gar nicht ab. Durch Bereitstellung einer HEVC-Version stellen Sie sicher, dass Apple-Benutzer die höchste Qualität mit dem geringsten Batterieverbrauch erhalten.
+</FAQ>
+<FAQ question="Wie kodiert man das auf meiner Site?">
+Die Implementierung von responsivem Video in React kann knifflig sein, weil standardmäßige HTML `<video>`-Tags keine Medienabfragen für Quellen wie `<picture>`-Tags unterstützen.
+
+Wir empfehlen die Verwendung der Open-Source-Bibliothek @damiarita/react-responsive-video. Sie handhabt automatisch die komplexe Logik des Austauschs von Videoquellen und Poster-Bildern basierend auf dem Gerät des Benutzers, sicherstellend, dass sie nur genau das herunterladen, was sie brauchen.
+
+Hier ist, wie einfach es mit den Assets zu verwenden ist, die SlingSite generiert:
+
+```JSX
+import ReactResponsiveVideo from '@damiarita/react-responsive-video';
+
+<ReactResponsiveVideo
+  sizes={[
+      {
+        width: 1920,
+        height: 1080,
+        mediaQuery: '(min-width: 1200px)', // Desktop
+        videoSources: [
+          { url: 'desktop.webm', format: 'video/webm' }, // VP9
+          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+        ],
+        posterSources: [
+          { url: 'desktop-poster.avif', format: 'image/avif' },
+          { url: 'desktop-poster.webp', format: 'image/webp' },
+          { url: 'desktop-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+      {
+        width: 450,
+        height: 800,
+        mediaQuery: '(max-width: 768px)', // Mobile
+        videoSources: [
+          { url: 'mobile.webm', format: 'video/webm' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile.mp4', format: 'video/mp4' }
+        ],
+        posterSources: [
+          { url: 'mobile-poster.avif', format: 'image/avif' },
+          { url: 'mobile-poster.webp', format: 'image/webp' },
+          { url: 'mobile-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+    ]}
+/>
+```
+
+</FAQ>

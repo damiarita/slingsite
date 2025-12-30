@@ -1,0 +1,87 @@
+---
+locale: 'ar'
+slug: 'video'
+---
+
+## توقف عن قتل سرعة صفحتك بفيديوهات خلفية ثقيلة وغير محسنة
+
+إضافة الفيديو إلى موقع إلكتروني عادةً يفرض مفاضلة: يبدو رائعاً، لكنه يدمر وقت التحميل الخاص بك. ملف فيديو قياسي 1080p يمكن أن يكون بسهولة 20 ميغابايت+، وهو حكم إعدام لمستخدمي الموبايل على شبكات 4G.
+
+### SlingSite يحل مشكلة "Video Bloat".
+
+نحن لا نصغر فيديوك فقط؛ نحن ننشئ Suite Streaming HTML5 كامل. لكل فيديو تحمله، نولد 18 أصل متخصص يغطي كل حجم جهاز، تفضيل متصفح، وسرعة اتصال.
+
+<FAQ question="استراتيجية 'Triple-Codec': لماذا MP4 واحد غير كافٍ؟">
+المتصفحات تخوض حرباً على تنسيقات الفيديو. Apple تفضل HEVC، Google تفضل VP9، والأجهزة الأقدم تعرف فقط AVC. إذا قدمت تنسيقاً واحداً فقط، فأنت إما تقدم فيديو ذو جودة منخفضة أو تحجب المستخدمين تماماً.
+
+نحن نعيد ترميز فيديوك تلقائياً إلى التنسيقات الثلاثة الحرجة المطلوبة لتجربة ويب حديثة ومضادة للرصاص:
+
+- WebM (codec VP9): معيار Google. مضغوط بشدة وواضح كريستالي. مفضل من قبل Chrome، Android، وFirefox. عادةً 30-50% أصغر من MP4 قياسي
+- MP4 (codec HEVC aka H.265): معيار Apple. الطريقة الوحيدة للحصول على فيديو كفاءة عالية على iPhones، iPads، وSafari (macOS).
+- MP4 (codec AVC aka H.264): الاحتياطي العالمي. "شبكة الأمان" التي تعمل على كل جهاز تم إنشاؤه في الـ15 عاماً الماضية تقريباً.
+  </FAQ>
+
+<FAQ question="لا تنس الملصق: ما هو السر لاجتياز Core Web Vitals؟">
+ملف فيديو يستغرق وقتاً للتحميل. أثناء التخزين المؤقت، يرى مستخدمك مساحة فارغة—أو أسوأ، تغيير في التخطيط. هذا يؤذي درجات Cumulative Layout Shift (CLS) وLargest Contentful Paint (LCP) الخاصة بك.
+
+لإصلاح ذلك، تحتاج إلى "صورة ملصق" خفيفة تحمل فوراً.
+
+لكل حجم فيديو (موبايل، تابلت، سطح مكتب)، نستخرج الإطار الأول ونحوله إلى 3 تنسيقات صور محسنة: JPG، WebP، وAVIF. هذا يضمن أن موقعك يبدو فورياً، احترافياً، ومستقراً بصرياً حتى قبل بدء تشغيل الفيديو.
+
+</FAQ>
+
+### الأسئلة الشائعة
+
+<FAQ question="لماذا أحتاج إلى 6 ملفات فقط للموبايل؟">
+تحتاج إلى 3 تنسيقات فيديو لضمان أن المتصفح يمكنه اختيار الذي يدعمه محلياً (توفير البطارية والبيانات)، وتحتاج إلى 3 تنسيقات صور ليتمكن المتصفح من تحميل "صورة المعاينة" الأخف وزناً فوراً. يبدو أنه الكثير من الملفات، لكن متصفح المستخدم سيحمل فيديو واحد وصورة واحدة فقط.
+</FAQ>
+<FAQ question="كيف يساعد ذلك مع أجهزة Apple؟">
+iPhones وMacs محسنة لـHEVC (H.265). إذا قدمت لها MP4 قياسي، يجب عليها العمل أكثر لفك التشفير. إذا قدمت لها WebM VP9، قد لا تعمل على الإطلاق. من خلال تقديم نسخة HEVC، تضمن أن مستخدمي Apple يحصلون على أعلى جودة مع أقل استهلاك بطارية.
+</FAQ>
+<FAQ question="كيف أكتب الكود على موقعي؟">
+تنفيذ فيديو متجاوب في React يمكن أن يكون معقداً لأن علامات HTML `<video>` القياسية لا تدعم استعلامات الوسائط للمصادر مثل علامات `<picture>`.
+
+نوصي باستخدام مكتبة المصدر المفتوح @damiarita/react-responsive-video. إنها تتعامل تلقائياً مع المنطق المعقد لتبديل مصادر الفيديو وصور الملصق بناءً على جهاز المستخدم، مما يضمن أنهم يحملون فقط ما يحتاجون إليه بالضبط.
+
+إليك مدى سهولة استخدامها مع الأصول التي يولدها SlingSite:
+
+```JSX
+import ReactResponsiveVideo from '@damiarita/react-responsive-video';
+
+<ReactResponsiveVideo
+  sizes={[
+      {
+        width: 1920,
+        height: 1080,
+        mediaQuery: '(min-width: 1200px)', // سطح المكتب
+        videoSources: [
+          { url: 'desktop.webm', format: 'video/webm' }, // VP9
+          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+        ],
+        posterSources: [
+          { url: 'desktop-poster.avif', format: 'image/avif' },
+          { url: 'desktop-poster.webp', format: 'image/webp' },
+          { url: 'desktop-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+      {
+        width: 450,
+        height: 800,
+        mediaQuery: '(max-width: 768px)', // موبايل
+        videoSources: [
+          { url: 'mobile.webm', format: 'video/webm' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile.mp4', format: 'video/mp4' }
+        ],
+        posterSources: [
+          { url: 'mobile-poster.avif', format: 'image/avif' },
+          { url: 'mobile-poster.webp', format: 'image/webp' },
+          { url: 'mobile-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+    ]}
+/>
+```
+
+</FAQ>

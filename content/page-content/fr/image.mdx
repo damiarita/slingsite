@@ -1,0 +1,76 @@
+---
+locale: 'fr'
+slug: 'image'
+---
+
+## Arrêtez de ralentir votre site web avec des images taille unique
+
+La plupart des compresseurs d'images ont un défaut fatal : ils prennent votre image géante et en font une "image géante légèrement plus petite". Si vous envoyez une image de bureau de 1920px de large à un utilisateur sur smartphone, vous gaspillez la bande passante, nuisez à vos vitesses de chargement et endommagez vos classements Google.
+
+SlingSite est différent. Nous ne compressons pas seulement ; nous optimisons.
+
+Lorsque vous téléchargez un fichier, nous générons instantanément les 9 versions essentielles dont tout site web moderne a besoin. Nous créons trois tailles parfaitement mises à l'échelle (Mobile, Tablet, Desktop) dans trois formats de nouvelle génération (JPG, WebP, AVIF). Cela garantit que chaque visiteur obtient le fichier exact dont il a besoin—rien de plus, rien de moins.
+
+<FAQ question="Comment optimiser les images pour une vitesse de page maximale ?" h={2}>
+Atteindre un score Google PageSpeed de 100/100 commence par vos actifs. Voici comment notre flux de travail corrige vos Core Web Vitals en secondes :
+
+1. Téléchargement : Déposez votre image maître de haute qualité (JPG ou PNG).
+1. Analyse intelligente : Notre moteur détecte la complexité visuelle pour équilibrer qualité vs. taille de fichier.
+1. Génération : Nous produisons 9 actifs spécifiques :
+   - Mobile (450px) : Pour smartphones, empêchant le "Piège de Breakpoint" où les téléphones téléchargent des images de taille tablette.
+   - Tablet (850px) : Parfaitement dimensionné pour iPads et tablettes verticales.
+   - Desktop (1920px) : Haute définition pour moniteurs larges.
+1. Téléchargement : Vous obtenez un fichier .zip ordonné avec chaque actif nommé et organisé, prêt pour la production.
+   </FAQ>
+
+<FAQ
+  question="JPG vs. WebP vs. AVIF : Pourquoi avez-vous besoin des trois ?"
+  h={2}
+>
+  Les normes web modernes exigent de servir des formats de nouvelle génération
+  aux navigateurs compatibles tout en gardant un filet de sécurité pour les plus
+  anciens. Nous générons les trois automatiquement. - AVIF (Le Roi de la
+  Performance) : Jusqu'à 50% plus petit que JPG avec une qualité supérieure.
+  C'est le format que vous voulez que 80% de vos utilisateurs voient. - WebP (Le
+  Standard Moderne) : Supporté par 97% des navigateurs. Offre ~30% d'économies
+  sur JPG et supporte la transparence. - JPG (Le Fallback Universel) : Assure
+  que votre image se charge sur les navigateurs legacy ou appareils plus
+  anciens.
+</FAQ>
+
+## Questions Fréquemment Posées
+
+<FAQ question="Pourquoi ai-je besoin d'images spécifiques pour Mobile ? Ne puis-je pas utiliser celle de Desktop ?">
+  Vous pouvez, mais ça tue votre performance. Si un utilisateur est sur un
+  téléphone (largeur d'écran ~390px) et télécharge une image Desktop (1920px),
+  son navigateur doit télécharger 25x plus de pixels que nécessaire. Cela fait
+  grimper votre métrique LCP (Largest Contentful Paint), qui est un facteur
+  majeur dans l'algorithme de classement de Google. Nos versions mobiles sont
+  optimisées spécifiquement pour le pic de trafic de 350px–450px.
+</FAQ>
+
+<FAQ question="Pourquoi utiliser WebP ?">
+Pour servir la meilleure image à chaque utilisateur automatiquement, utilisez la balise HTML5 `<picture>`. Voici un snippet standard que vous pouvez copier et coller en utilisant les fichiers que nous générons :
+
+```HTML
+<picture>
+  <source media="(min-width: 1200px)" srcset="image-desktop.avif" type="image/avif" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.webp" type="image/webp" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.jpg" type="image/jpg" width="1920" height="1080">
+
+  <source media="(min-width: 768px)" srcset="image-tablet.avif" type="image/avif" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.webp" type="image/webp" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.jpg" type="image/jpg" width="850" height="480">
+
+  <source media="(max-width: 767px)" srcset="image-mobile.avif" type="image/avif" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.webp" type="image/webp" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.jpg" type="image/jpg" width="450" height="254">
+
+  <img src="image-fallback.jpg" alt="Description de votre image" width="450" height="254">
+</picture>
+```
+
+</FAQ>
+<FAQ question="Cela aidera-t-il mon SEO ?">
+Oui. Google déclare explicitement que la vitesse de page est un facteur de classement. En réduisant votre charge d'image jusqu'à 85% (en utilisant AVIF + dimensionnement correct), vos pages se chargent plus rapidement, les utilisateurs restent plus longtemps, et les moteurs de recherche vous classent plus haut.
+</FAQ>

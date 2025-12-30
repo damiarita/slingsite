@@ -1,0 +1,70 @@
+---
+locale: 'en'
+slug: 'image'
+---
+
+## Stop Slowing Down Your Website with One-Size-Fits-All Images
+
+Most image compressors have a fatal flaw: they just take your giant image and make it a "slightly smaller" giant image. If you are sending a 1920px wide desktop image to a user on a smartphone, you are wasting bandwidth, hurting your loading speeds, and damaging your Google rankings.
+
+SlingSite is different. We don't just compress; we optimize.
+
+When you upload a file, we instantly generate the 9 essential versions every modern website needs. We create three perfectly scaled sizes (Mobile, Tablet, Desktop) in three next-generation formats (JPG, WebP, AVIF). This ensures every visitor gets the exact file they need—nothing more, nothing less.
+
+<FAQ question="How to Optimize Images for Maximum Page Speed?" h={2}>
+Achieving a 100/100 Google PageSpeed score starts with your assets. Here is how our workflow fixes your Core Web Vitals in seconds:
+
+1. Upload: Drop your high-quality master image (JPG or PNG).
+1. Smart Analysis: Our engine detects the visual complexity to balance quality vs. file size.
+1. Generation: We produce 9 specific assets:
+   - Mobile (450px): For smartphones, preventing the "Breakpoint Trap" where phones download tablet-sized images.
+   - Tablet (850px): Perfectly sized for iPads and vertical tablets.
+   - Desktop (1920px): High-definition for large monitors.
+1. Download: You get a tidy .zip file with every asset named and organized, ready for production.
+   </FAQ>
+
+<FAQ question="JPG vs. WebP vs. AVIF: Why You Need All Three?" h={2}>
+  Modern web standards require serving next-gen formats to compatible browsers
+  while keeping a safety net for older ones. We generate all three
+  automatically. - AVIF (The Performance King): Up to 50% smaller than JPG with
+  superior quality. This is the format you want 80% of your users to see. - WebP
+  (The Modern Standard): Supported by 97% of browsers. Offers ~30% savings over
+  JPG and supports transparency. - JPG (The Universal Fallback): Ensures your
+  image loads on legacy browsers or older devices.
+</FAQ>
+
+## Frequently Asked Questions
+
+<FAQ question="Why do I need specific Mobile images? Can't I just use the Desktop one?">
+  You can, but it kills your performance. If a user is on a phone (screen width
+  ~390px) and downloads a Desktop image (1920px), their browser has to download
+  25x more pixels than necessary. This spikes your LCP (Largest Contentful
+  Paint) metric, which is a major factor in Google's ranking algorithm. Our
+  mobile versions are optimized specifically for the 350px–450px traffic spike.
+</FAQ>
+
+<FAQ question="Why use WebP?">
+To serve the best image to every user automatically, use the HTML5 `<picture>` tag. Here is a standard snippet you can copy and paste using the files we generate:
+
+```HTML
+<picture>
+  <source media="(min-width: 1200px)" srcset="image-desktop.avif" type="image/avif" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.webp" type="image/webp" width="1920" height="1080">
+  <source media="(min-width: 1200px)" srcset="image-desktop.jpg" type="image/jpg" width="1920" height="1080">
+
+  <source media="(min-width: 768px)" srcset="image-tablet.avif" type="image/avif" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.webp" type="image/webp" width="850" height="480">
+  <source media="(min-width: 768px)" srcset="image-tablet.jpg" type="image/jpg" width="850" height="480">
+
+  <source media="(max-width: 767px)" srcset="image-mobile.avif" type="image/avif" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.webp" type="image/webp" width="450" height="254">
+  <source media="(max-width: 767px)" srcset="image-mobile.jpg" type="image/jpg" width="450" height="254">
+
+  <img src="image-fallback.jpg" alt="Description of your image" width="450" height="254">
+</picture>
+```
+
+</FAQ>
+<FAQ question="Will this help my SEO?">
+Yes. Google explicitly states that page speed is a ranking factor. By reducing your image payload by up to 85% (using AVIF + correct sizing), your pages load faster, users stay longer, and search engines rank you higher.
+</FAQ>

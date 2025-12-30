@@ -1,0 +1,87 @@
+---
+locale: 'zh'
+slug: 'video'
+---
+
+## 停止用沉重的未优化背景视频杀死你的页面速度
+
+向网站添加视频通常会强迫权衡：看起来很棒，但它破坏了你的加载时间。一个标准的1080p视频文件可以轻松达到20MB+，这对4G网络上的移动用户来说是死刑。
+
+### SlingSite解决了“视频膨胀”问题。
+
+我们不仅仅缩小你的视频；我们创建一个完整的HTML5流媒体套件。对于你上传的每个视频，我们生成18个专门的资产，覆盖每个设备大小、浏览器偏好和连接速度。
+
+<FAQ question="‘三重编解码器’策略：为什么一个MP4不够？">
+浏览器正在视频格式上打仗。Apple偏好HEVC，Google偏好VP9，老设备只知道AVC。如果你只提供一种格式，你要么提供低质量视频，要么完全阻塞用户。
+
+我们自动将你的视频转码为现代、防弹网络体验所需的三个关键格式：
+
+- WebM（VP9编解码器）：Google标准。高度压缩和晶莹剔透。由Chrome、Android和Firefox偏好。通常比标准MP4小30-50%
+- MP4（HEVC编解码器 aka H.265）：Apple标准。在iPhones、iPads和Safari（macOS）上获得高效率视频的唯一方式。
+- MP4（AVC编解码器 aka H.264）：通用后备。“安全网”，适用于过去15年中创建的几乎每个设备。
+  </FAQ>
+
+<FAQ question="别忘了海报：通过Core Web Vitals的秘密是什么？">
+视频文件需要时间加载。在缓冲时，你的用户的空白空间—或者更糟，布局移位。这伤害了你的Cumulative Layout Shift（CLS）和Largest Contentful Paint（LCP）分数。
+
+为了修复这个，你需要一个轻量的“海报图像”，立即加载。
+
+对于每个视频大小（移动端、平板、桌面），我们提取第一帧并将其转换为3个优化的图像格式：JPG、WebP和AVIF。这确保即使在视频开始播放之前，你的网站看起来即时、专业和视觉稳定。
+
+</FAQ>
+
+### 常见问题
+
+<FAQ question="为什么我只需要移动端就需要6个文件？">
+你需要3个视频格式以确保浏览器可以选择它本地支持的（节省电池和数据），你需要3个图像格式以便浏览器可以立即加载最轻的“预览”图像。似乎很多文件，但用户的浏览器只会下载一个视频和一个图像。
+</FAQ>
+<FAQ question="这如何帮助Apple设备？">
+iPhones和Macs针对HEVC（H.265）优化。如果你为它们提供标准MP4，它们必须更努力解码。如果你为它们提供VP9 WebM，它们可能根本不播放。通过提供HEVC版本，你确保Apple用户获得最高质量和最少电池消耗。
+</FAQ>
+<FAQ question="我如何在我的网站上编码这个？">
+在React中实现响应式视频可能很棘手，因为标准的HTML `<video>`标签不支持像 `<picture>`标签那样的媒体查询来源。
+
+我们推荐使用开源库@damiarita/react-responsive-video。它自动处理基于用户设备的交换视频来源和海报图像的复杂逻辑，确保他们只下载他们需要的。
+
+以下是我们生成的资产中使用它有多容易：
+
+```JSX
+import ReactResponsiveVideo from '@damiarita/react-responsive-video';
+
+<ReactResponsiveVideo
+  sizes={[
+      {
+        width: 1920,
+        height: 1080,
+        mediaQuery: '(min-width: 1200px)', // 桌面
+        videoSources: [
+          { url: 'desktop.webm', format: 'video/webm' }, // VP9
+          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+        ],
+        posterSources: [
+          { url: 'desktop-poster.avif', format: 'image/avif' },
+          { url: 'desktop-poster.webp', format: 'image/webp' },
+          { url: 'desktop-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+      {
+        width: 450,
+        height: 800,
+        mediaQuery: '(max-width: 768px)', // 移动端
+        videoSources: [
+          { url: 'mobile.webm', format: 'video/webm' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile.mp4', format: 'video/mp4' }
+        ],
+        posterSources: [
+          { url: 'mobile-poster.avif', format: 'image/avif' },
+          { url: 'mobile-poster.webp', format: 'image/webp' },
+          { url: 'mobile-poster.jpg', format: 'image/jpeg' }
+        ],
+      },
+    ]}
+/>
+```
+
+</FAQ>
