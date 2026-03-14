@@ -4,12 +4,14 @@ import type { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
 import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
+import { GoogleDriveButton } from './google-drive-button';
 import { ResultsDictionary } from '@/i18n/type';
+import { persistenceType } from '@/types/persistence';
 
 type FileItemProps = {
   onRemove: () => void;
-  onDownloadAll: () => void;
-  onDownloadOne: (device: Device, format: Format) => void;
+  onDownloadAll: (type: persistenceType) => void;
+  onDownloadOne: (file: File) => void;
   job: Job;
   translation: ResultsDictionary;
   devicesTranslation: Record<Device, string>;
@@ -96,7 +98,7 @@ export const FileItem = ({
                     </div>
                     {task.status === 'completed' && (
                       <button
-                        onClick={() => onDownloadOne(device, format)}
+                        onClick={() => onDownloadOne(task.result)}
                         className="p-0.5 rounded hover:bg-gray-200 text-gray-600"
                       >
                         <Download className="w-3 h-3" />
@@ -158,10 +160,19 @@ export const FileItem = ({
               {translation.compressedFiles}:
             </h4>
             {progress === 1 && (
-              <SecondaryButton onClick={() => onDownloadAll()} small={true}>
-                <Package className="w-3 h-3 mr-1" />{' '}
-                {translation.downloadAllFiles}
-              </SecondaryButton>
+              <>
+                <SecondaryButton
+                  onClick={() => onDownloadAll('device')}
+                  small={true}
+                >
+                  <Package className="w-3 h-3 mr-1" />{' '}
+                  {translation.downloadAllFiles}
+                </SecondaryButton>
+                <GoogleDriveButton
+                  onClick={() => onDownloadAll('googleDrive')}
+                  className="p-1.5 ml-2"
+                />
+              </>
             )}
           </div>
           {rendertTasks(tasks)}
