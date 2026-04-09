@@ -28,6 +28,41 @@ export const Post = defineDocumentType(() => ({
       type: 'string',
       resolve: async (doc) => doc._raw.sourceFileName,
     },
+    pathPrefix: {
+      type: 'string',
+      resolve: async (doc) => {
+        // Extract folder structure after locale
+        // e.g., 'posts/en/blog/file.mdx' -> 'blog'
+        // e.g., 'posts/en/file.mdx' -> ''
+        const path = doc._raw.sourceFilePathRelativeToContentDir;
+        const parts = path.split('/');
+
+        // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
+        // Everything from index 2 onwards (except filename) is the pathPrefix
+        if (parts.length <= 3) {
+          return ''; // No path prefix (just posts/locale/file.mdx)
+        }
+
+        return parts.slice(2, -1).join('/');
+      },
+    },
+    fullSlug: {
+      type: 'string',
+      resolve: async (doc) => {
+        // Slug that includes path prefix
+        // e.g., 'privacy' or 'blog/my-article'
+        const path = doc._raw.sourceFilePathRelativeToContentDir;
+        const parts = path.split('/');
+
+        // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
+        if (parts.length <= 3) {
+          return doc.slug; // No path prefix, just use slug
+        }
+
+        const prefix = parts.slice(2, -1).join('/');
+        return `${prefix}/${doc.slug}`;
+      },
+    },
   },
 }));
 

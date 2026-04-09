@@ -22,6 +22,13 @@ export function getPost(slug: string, locale: Locale): Post | undefined {
   return allPosts.find((p) => p.slug === slug && p.locale === locale);
 }
 
+export function getPostByFullSlug(
+  fullSlug: string,
+  locale: Locale,
+): Post | undefined {
+  return allPosts.find((p) => p.fullSlug === fullSlug && p.locale === locale);
+}
+
 export function getTranslations(post: Post): Record<Locale, Post> {
   return allPosts
     .filter((p) => p.id === post.id)
