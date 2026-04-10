@@ -34,7 +34,7 @@ export const Post = defineDocumentType(() => ({
         // Extract folder structure after locale
         // e.g., 'posts/en/blog/file.mdx' -> 'blog'
         // e.g., 'posts/en/file.mdx' -> ''
-        const path = doc._raw.sourceFilePathRelativeToContentDir;
+        const path = doc._raw.sourceFilePath;
         const parts = path.split('/');
 
         // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
@@ -51,7 +51,7 @@ export const Post = defineDocumentType(() => ({
       resolve: async (doc) => {
         // Slug that includes path prefix
         // e.g., 'privacy' or 'blog/my-article'
-        const path = doc._raw.sourceFilePathRelativeToContentDir;
+        const path = doc._raw.sourceFilePath;
         const parts = path.split('/');
 
         // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
