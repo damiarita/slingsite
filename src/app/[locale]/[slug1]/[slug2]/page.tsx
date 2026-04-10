@@ -1,17 +1,18 @@
 import { getBlogDictionary, Locale } from '@/i18n/lib';
-import { getAllPosts, getPost } from '@/content/lib';
+import { getAllPosts, getPostByFullSlug } from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getPostUrl, getPostUrlsByLocale } from '@/utils/urls';
 import { PostPageContent } from '@/components/post-page';
 
-type Props = { slug: string; locale: Locale };
+type Props = { slug2: string; slug1: string; locale: Locale };
 
 export function generateStaticParams(): Props[] {
   return getAllPosts()
-    .filter((post) => post.pathPrefix === '') // Only root-level posts
+    .filter((post) => post.pathPrefix !== '') // Only posts in a subfolder
     .map((post) => ({
-      slug: post.slug,
+      slug2: post.slug,
+      slug1: post.pathPrefix,
       locale: post.locale,
     }));
 }
@@ -21,8 +22,8 @@ export async function generateMetadata({
 }: {
   params: Promise<Props>;
 }): Promise<Metadata> {
-  const { locale, slug } = await params;
-  const post = getPost(slug, locale);
+  const { locale, slug2, slug1 } = await params;
+  const post = getPostByFullSlug(`${slug1}/${slug2}`, locale);
   if (!post) {
     return {
       title: '', //The generic 404 takes care of this
@@ -61,13 +62,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function PostPageWrapper({
+export default async function BlogPostPageWrapper({
   params,
 }: {
   params: Promise<Props>;
 }) {
-  const { slug, locale } = await params;
-  const post = getPost(slug, locale);
+  const { slug2, locale, slug1 } = await params;
+  const post = getPostByFullSlug(`${slug1}/${slug2}`, locale);
   if (!post) notFound();
   const translations = await getBlogDictionary(locale);
   return (
