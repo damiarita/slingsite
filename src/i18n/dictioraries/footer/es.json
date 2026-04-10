@@ -4,12 +4,14 @@
     "connect": "Conectar",
     "legal": "Legal",
     "development": "Desarrollo",
-    "languages": "Idiomas"
+    "languages": "Idiomas",
+    "comparisons": "Comparativas"
   },
   "suscribe": "Suscribirse",
   "contactUs": "Contáctenos",
   "cookies": "Cookies",
-  "sourceCode": "Código fuente",
-  "issues": "Issues",
-  "copyright": "Todos los derechos reservados."
+  "sourceCode": "Código Fuente",
+  "issues": "Problemas",
+  "copyright": "Todos los derechos reservados.",
+  "comparisonsSlug": "comparativa-slingsite"
 }

@@ -1,15 +1,16 @@
 {
   "claim": "Lo strumento moderno per l'ottimizzazione delle immagini ad alte prestazioni.",
   "headings": {
-    "connect": "Connettiti",
+    "connect": "Connetti",
     "legal": "Legale",
     "development": "Sviluppo",
     "languages": "Lingue"
   },
   "suscribe": "Iscriviti",
   "contactUs": "Contattaci",
-  "cookies": "Cookie",
+  "cookies": "Cookies",
   "sourceCode": "Codice sorgente",
   "issues": "Issues",
-  "copyright": "Tutti i diritti riservati."
+  "copyright": "Tutti i diritti riservati.",
+  "comparisonsSlug": "slingsite-confronto"
 }

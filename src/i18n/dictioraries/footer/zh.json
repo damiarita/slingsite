@@ -1,15 +1,19 @@
 {
   "claim": "高性能图像优化的现代工具。",
   "headings": {
-    "connect": "连接",
-    "legal": "法律声明",
+    "connect": "联系方式",
+    "legal": "法律",
     "development": "开发",
     "languages": "语言"
   },
   "suscribe": "订阅",
   "contactUs": "联系我们",
-  "cookies": "Cookie",
+  "cookies": "Cookies",
   "sourceCode": "源代码",
-  "issues": "Issues",
-  "copyright": "版权所有。"
+  "issues": "问题",
+  "copyright": "版权所有。",
+  "comparisons": {
+    "label": "对比",
+    "slug": "slingsite-duibi"
+  }
 }

@@ -4,12 +4,14 @@
     "connect": "اتصال",
     "legal": "قانوني",
     "development": "تطوير",
-    "languages": "اللغات"
+    "languages": "اللغات",
+    "comparisons": "مقارنات"
   },
   "suscribe": "اشتراك",
   "contactUs": "اتصل بنا",
   "cookies": "ملفات تعريف الارتباط",
   "sourceCode": "كود المصدر",
   "issues": "Issues",
-  "copyright": "جميع الحقوق محفوظة."
+  "copyright": "جميع الحقوق محفوظة.",
+  "comparisonsSlug": "slingsite-mukarana"
 }

@@ -38,6 +38,7 @@ export interface FooterTranslations {
     legal: string;
     development: string;
     languages: string;
+    comparisons: string;
   };
   suscribe: string;
   contactUs: string;
@@ -45,6 +46,7 @@ export interface FooterTranslations {
   sourceCode: string;
   issues: string;
   copyright: string;
+  comparisonsSlug: string;
 }
 
 export interface UploadDictionary {

@@ -4,12 +4,14 @@
     "connect": "Connect",
     "legal": "Legal",
     "development": "Development",
-    "languages": "Languages"
+    "languages": "Languages",
+    "comparisons": "Comparisons"
   },
   "suscribe": "Subscribe",
   "contactUs": "Contact Us",
   "cookies": "Cookies",
   "sourceCode": "Source Code",
   "issues": "Issues",
-  "copyright": "All Rights Reserved."
+  "copyright": "All Rights Reserved.",
+  "comparisonsSlug": "slingsite-vs"
 }

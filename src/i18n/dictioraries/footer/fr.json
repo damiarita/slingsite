@@ -2,14 +2,15 @@
   "claim": "L'outil moderne pour une optimisation d'image haute performance.",
   "headings": {
     "connect": "Se connecter",
-    "legal": "Mentions légales",
+    "legal": "Légal",
     "development": "Développement",
     "languages": "Langues"
   },
   "suscribe": "S'abonner",
-  "contactUs": "Nous contacter",
+  "contactUs": "Contactez-nous",
   "cookies": "Cookies",
-  "sourceCode": "Code source",
+  "sourceCode": "Code Source",
   "issues": "Issues",
-  "copyright": "Tous droits réservés."
+  "copyright": "Tous droits réservés.",
+  "comparisonsSlug": "comparatif-slingsite"
 }
