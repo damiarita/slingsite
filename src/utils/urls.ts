@@ -37,7 +37,7 @@ export function getPostUrl(postOrId: Post | string, locale?: Locale): string {
       ? getPostOfId(postOrId, locale)
       : (postOrId as Post);
   if (!post) throw new Error('Post not found');
-  return `/${post.locale}/${post.slug}/`;
+  return `/${post.locale}/${post.fullSlug}/`;
 }
 
 export const getPostUrlsByLocale = (post: Post): Record<Locale, string> => {
