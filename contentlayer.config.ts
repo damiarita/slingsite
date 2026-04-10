@@ -3,6 +3,7 @@ import { defineDocumentType, makeSource } from 'contentlayer2/source-files';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
 import rehypePrettyCode from 'rehype-pretty-code';
+import remarkGfm from 'remark-gfm';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -106,7 +107,11 @@ export const PageContent = defineDocumentType(() => ({
 export default makeSource({
   contentDirPath: 'content',
   documentTypes: [Post, PageContent],
+  markdown: {
+    remarkPlugins: [remarkGfm],
+  },
   mdx: {
+    remarkPlugins: [remarkGfm],
     rehypePlugins: [
       [rehypePrettyCode, { theme: 'dark-plus', keepBackground: false }],
     ],
