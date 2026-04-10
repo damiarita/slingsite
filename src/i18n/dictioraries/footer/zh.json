@@ -4,16 +4,14 @@
     "connect": "联系方式",
     "legal": "法律",
     "development": "开发",
-    "languages": "语言"
+    "languages": "语言",
+    "comparisons": "对比"
   },
   "suscribe": "订阅",
   "contactUs": "联系我们",
   "cookies": "Cookies",
   "sourceCode": "源代码",
-  "issues": "问题",
+  "issues": "Issues",
   "copyright": "版权所有。",
-  "comparisons": {
-    "label": "对比",
-    "slug": "slingsite-duibi"
-  }
+  "comparisonsSlug": "slingsite-duibi"
 }
