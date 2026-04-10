@@ -1,4 +1,8 @@
-import { getPostOfId, getTranslations } from '@/content/lib';
+import {
+  getFolderTranslations,
+  getPostOfId,
+  getTranslations,
+} from '@/content/lib';
 import { Locale, locales } from '@/i18n/lib';
 import { Post } from 'contentlayer/generated';
 
@@ -49,3 +53,22 @@ export const getPostUrlsByLocale = (post: Post): Record<Locale, string> => {
     {} as Record<Locale, string>,
   );
 };
+
+export function getFolderUrl(folder: string, locale: Locale): string {
+  return `/${locale}/${folder}/`;
+}
+
+export function getFolderUrlsByLocale(
+  folder: string,
+  currentLocale: Locale,
+): Record<Locale, string> {
+  const folderTranslations = getFolderTranslations(folder, currentLocale);
+
+  return Object.entries(folderTranslations).reduce(
+    (acc, [locale, translatedFolder]) => {
+      acc[locale as Locale] = getFolderUrl(translatedFolder, locale as Locale);
+      return acc;
+    },
+    {} as Record<Locale, string>,
+  );
+}

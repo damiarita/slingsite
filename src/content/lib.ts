@@ -29,6 +29,17 @@ export function getPostByFullSlug(
   return allPosts.find((p) => p.fullSlug === fullSlug && p.locale === locale);
 }
 
+export function getPostsByPrefix(
+  prefix: string,
+  locale: Locale,
+  sorted = true,
+): Post[] {
+  const posts = allPosts.filter(
+    (p) => p.pathPrefix === prefix && p.locale === locale,
+  );
+  return sorted ? sortPosts(posts) : posts;
+}
+
 export function getTranslations(post: Post): Record<Locale, Post> {
   return allPosts
     .filter((p) => p.id === post.id)
@@ -39,4 +50,23 @@ export function getTranslations(post: Post): Record<Locale, Post> {
       },
       {} as Record<Locale, Post>,
     );
+}
+
+export function getFolderTranslations(
+  folder: string,
+  locale: Locale,
+): Record<Locale, string> {
+  const postsInFolder = getPostsByPrefix(folder, locale);
+  const translations: Record<Locale, string> = {} as Record<Locale, string>;
+
+  postsInFolder.forEach((post) => {
+    const postTranslations = getTranslations(post);
+    Object.entries(postTranslations).forEach(([loc, trans]) => {
+      if (!translations[loc as Locale]) {
+        translations[loc as Locale] = trans.pathPrefix;
+      }
+    });
+  });
+
+  return translations;
 }

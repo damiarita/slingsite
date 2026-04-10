@@ -16,6 +16,7 @@ export interface RedirectingTranslations {
 export interface BlogTranslations {
   publidhed_on: string;
   last_edited_on: string;
+  browse_posts_description: string;
 }
 export interface PageMetadata {
   title: string;
