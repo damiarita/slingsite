@@ -16,6 +16,7 @@ export const Post = defineDocumentType(() => ({
     modificationDate: { type: 'date', required: true },
     locale: { type: 'enum', options: locales, required: true },
     slug: { type: 'string', required: true },
+    slugPrefix: { type: 'string', required: false },
   },
   computedFields: {
     text: {
@@ -31,38 +32,12 @@ export const Post = defineDocumentType(() => ({
     },
     pathPrefix: {
       type: 'string',
-      resolve: async (doc) => {
-        // Extract folder structure after locale
-        // e.g., 'posts/en/blog/file.mdx' -> 'blog'
-        // e.g., 'posts/en/file.mdx' -> ''
-        const path = doc._raw.sourceFilePath;
-        const parts = path.split('/');
-
-        // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
-        // Everything from index 2 onwards (except filename) is the pathPrefix
-        if (parts.length <= 3) {
-          return ''; // No path prefix (just posts/locale/file.mdx)
-        }
-
-        return parts.slice(2, -1).join('/');
-      },
+      resolve: (doc) => doc.slugPrefix || '',
     },
     fullSlug: {
       type: 'string',
-      resolve: async (doc) => {
-        // Slug that includes path prefix
-        // e.g., 'privacy' or 'blog/my-article'
-        const path = doc._raw.sourceFilePath;
-        const parts = path.split('/');
-
-        // parts[0] = 'posts', parts[1] = locale, parts[2..n-1] = folders, parts[-1] = filename
-        if (parts.length <= 3) {
-          return doc.slug; // No path prefix, just use slug
-        }
-
-        const prefix = parts.slice(2, -1).join('/');
-        return `${prefix}/${doc.slug}`;
-      },
+      resolve: (doc) =>
+        doc.slugPrefix ? `${doc.slugPrefix}/${doc.slug}` : doc.slug,
     },
   },
 }));
