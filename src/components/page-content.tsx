@@ -1,6 +1,7 @@
 import { allPageContents } from 'contentlayer/generated';
 import { MDXRemote } from 'next-mdx-remote/rsc'; // Keep this
 import { FAQ } from '@/components/faq'; // Import your new component
+import { Locale } from '@/i18n/lib';
 
 // Map components to be available in MDX
 const mdxComponents = { FAQ };
@@ -9,7 +10,7 @@ export default function PageContent({
   locale,
   slug,
 }: {
-  locale: string;
+  locale: Locale;
   slug: string;
 }) {
   const pageContent = allPageContents.find(

@@ -4,13 +4,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Locale } from '@/i18n/lib';
 import { usePathname } from 'next/navigation';
 import {
+  getFolderUrlsByLocale,
   getPostUrl,
   getPostUrlsByLocale,
   getUrl,
   getUrlsByLocale,
   pageTypes,
 } from '@/utils/urls';
-import { getAllPosts } from '@/content/lib';
+import { getAllPosts, getFolderTranslations } from '@/content/lib';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function LanguageSelector({
@@ -44,6 +45,11 @@ export default function LanguageSelector({
     return;
   }, [path, currentLocale]);
 
+  const currentFolder = useMemo(() => {
+    if (!path || path.split('/').length !== 4) return;
+    return path.split('/')[2];
+  }, [path]);
+
   const languageNames: Record<Locale, string> = {
     en: 'English',
     es: 'Español',
@@ -71,6 +77,9 @@ export default function LanguageSelector({
     }
     if (currentPageType) {
       return getUrlsByLocale(currentPageType);
+    }
+    if (currentFolder) {
+      return getFolderUrlsByLocale(currentFolder, currentLocale);
     }
     return getUrlsByLocale('image'); // default to 'image' page type
   }

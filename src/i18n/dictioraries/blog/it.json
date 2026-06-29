@@ -1,5 +1,9 @@
 {
-  "publidhed_on": "Pubblicato il",
-  "last_edited_on": "Ultimo aggiornamento il",
-  "browse_posts_description": "Sfoglia articoli e aggiornamenti in questa categoria."
+  "published_on": "Pubblicato il",
+  "last_edited_on": "Ultima modifica",
+  "read_time": "min di lettura",
+  "read_article": "Leggi l'articolo",
+  "enjoyed_question": "Ti è piaciuto questo articolo?",
+  "share_or_subscribe": "Condividilo con i tuoi colleghi o iscriviti per riceverne altri.",
+  "subscribe": "Iscriviti"
 }

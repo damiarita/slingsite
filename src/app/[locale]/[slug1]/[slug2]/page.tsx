@@ -17,6 +17,8 @@ export function generateStaticParams(): Props[] {
     }));
 }
 
+import { constructMetadata } from '@/utils/metadata';
+
 export async function generateMetadata({
   params,
 }: {
@@ -24,42 +26,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug2, slug1 } = await params;
   const post = getPostByFullSlug(`${slug1}/${slug2}`, locale);
+
   if (!post) {
-    return {
-      title: '', //The generic 404 takes care of this
-      description: '', //The generic 404 takes care of this,
-    };
+    return constructMetadata({
+      title: 'Post Not Found',
+      locale,
+      noIndex: true,
+    });
   }
-  return {
+
+  return constructMetadata({
     title: post.title,
     description: post.description,
-    alternates: {
-      canonical: getPostUrl(post),
-      languages: getPostUrlsByLocale(post),
-    },
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      url: getPostUrl(post),
-      siteName: 'SlingSite',
-      images: [
-        {
-          url: '/favicon.ico',
-          width: 256,
-          height: 256,
-          alt: 'SlingSite Logo',
-        },
-      ],
-      locale,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary',
-      title: post.title,
-      description: post.description,
-      images: ['/favicon.ico'],
-    },
-  };
+    locale,
+    canonical: getPostUrl(post),
+    languages: getPostUrlsByLocale(post),
+  });
 }
 
 export default async function BlogPostPageWrapper({

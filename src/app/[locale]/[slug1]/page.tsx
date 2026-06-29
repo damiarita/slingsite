@@ -110,7 +110,7 @@ export default async function PostPageWrapper({
       <PostListing
         posts={posts}
         locale={locale}
-        title={slug1.charAt(0).toUpperCase() + slug1.slice(1)}
+        title={posts[0].folder || ''}
         translations={translations}
       />
     );

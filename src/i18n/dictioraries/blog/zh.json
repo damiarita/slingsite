@@ -1,5 +1,9 @@
 {
-  "publidhed_on": "发布于",
-  "last_edited_on": "最后更新于",
-  "browse_posts_description": "在此类别中浏览文章和更新。"
+  "published_on": "发布于",
+  "last_edited_on": "最后编辑",
+  "read_time": "分钟阅读",
+  "read_article": "阅读文章",
+  "enjoyed_question": "喜欢这篇文章吗？",
+  "share_or_subscribe": "分享给同事或订阅以获取更多",
+  "subscribe": "订阅"
 }

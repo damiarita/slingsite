@@ -4,6 +4,7 @@ import { remark } from 'remark';
 import strip from 'strip-markdown';
 import rehypePrettyCode from 'rehype-pretty-code';
 import remarkGfm from 'remark-gfm';
+import urlSlug from 'url-slug';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -16,7 +17,7 @@ export const Post = defineDocumentType(() => ({
     modificationDate: { type: 'date', required: true },
     locale: { type: 'enum', options: locales, required: true },
     slug: { type: 'string', required: true },
-    slugPrefix: { type: 'string', required: false },
+    folder: { type: 'string', required: false },
   },
   computedFields: {
     text: {
@@ -32,12 +33,21 @@ export const Post = defineDocumentType(() => ({
     },
     pathPrefix: {
       type: 'string',
-      resolve: (doc) => doc.slugPrefix || '',
+      resolve: (doc) => (doc.folder ? urlSlug(doc.folder) : ''),
     },
     fullSlug: {
       type: 'string',
       resolve: (doc) =>
-        doc.slugPrefix ? `${doc.slugPrefix}/${doc.slug}` : doc.slug,
+        doc.folder ? `${urlSlug(doc.folder)}/${doc.slug}` : doc.slug,
+    },
+    readingTime: {
+      type: 'number',
+      resolve: (doc) => {
+        const wordsPerMinute = 200;
+        const noOfWords = doc.body.raw.split(/\s+/g).length;
+        const minutes = noOfWords / wordsPerMinute;
+        return Math.ceil(minutes);
+      },
     },
   },
 }));
@@ -49,6 +59,7 @@ export const PageContent = defineDocumentType(() => ({
   fields: {
     locale: { type: 'enum', options: locales, required: true },
     slug: { type: 'string', required: true },
+    modificationDate: { type: 'date', required: false },
   },
   computedFields: {
     faqs: {

@@ -1,5 +1,9 @@
 {
-  "publidhed_on": "Published on",
+  "published_on": "Published on",
   "last_edited_on": "Last updated on",
-  "browse_posts_description": "Browse articles and updates in this category."
+  "read_time": "min read",
+  "read_article": "Read article",
+  "enjoyed_question": "Enjoyed this article?",
+  "share_or_subscribe": "Share it with your colleagues or subscribe for more.",
+  "subscribe": "Subscribe"
 }

@@ -14,9 +14,14 @@ export interface RedirectingTranslations {
   redirecting: string;
 }
 export interface BlogTranslations {
-  publidhed_on: string;
-  last_edited_on: string;
   browse_posts_description: string;
+  published_on: string;
+  last_edited_on: string;
+  read_time: string;
+  read_article: string;
+  enjoyed_question: string;
+  share_or_subscribe: string;
+  subscribe: string;
 }
 export interface PageMetadata {
   title: string;

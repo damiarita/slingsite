@@ -1,5 +1,9 @@
 {
-  "publidhed_on": "نُشر في",
+  "published_on": "نُشر في",
   "last_edited_on": "آخر تحديث في",
-  "browse_posts_description": "تصفح المقالات والتحديثات في هذه الفئة."
+  "read_time": "دقيقة للقراءة",
+  "read_article": "اقرأ المقال",
+  "enjoyed_question": "استمتعت بهذا المقال؟",
+  "share_or_subscribe": "شاركها مع زملائك أو اشترك للمزيد.",
+  "subscribe": "اشترك"
 }

@@ -1,5 +1,9 @@
 {
-  "publidhed_on": "Veröffentlicht am",
+  "published_on": "Veröffentlicht am",
   "last_edited_on": "Zuletzt aktualisiert am",
-  "browse_posts_description": "Durchsuchen Sie Artikel und Updates in dieser Kategorie."
+  "read_time": "Min. Lesedauer",
+  "read_article": "Artikel lesen",
+  "enjoyed_question": "Diesen Artikel genossen?",
+  "share_or_subscribe": "Teile ihn mit Kollegen oder abonniere für mehr.",
+  "subscribe": "Abonnieren"
 }
