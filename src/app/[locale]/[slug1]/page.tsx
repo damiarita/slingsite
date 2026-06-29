@@ -48,7 +48,7 @@ export async function generateMetadata({
     if (posts.length > 0) {
       const translations = await getBlogDictionary(locale);
       return {
-        title: slug1.charAt(0).toUpperCase() + slug1.slice(1),
+        title: posts[0].folder || '',
         description: translations.browse_posts_description,
         alternates: {
           canonical: getFolderUrl(slug1, locale),
