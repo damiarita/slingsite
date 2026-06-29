@@ -37,7 +37,6 @@ export default async function LocaleLayout({
   const navBarItems: NavBarItem[] = [
     { pageType: 'image', label: navBarTranslations.imageCompressor },
     { pageType: 'video', label: navBarTranslations.videoCompressor },
-    { pageType: 'blog', label: navBarTranslations.blog },
   ];
 
   // Verificar que el locale es válido
