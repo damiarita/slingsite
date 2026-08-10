@@ -72,3 +72,19 @@ export function getFolderUrlsByLocale(
     {} as Record<Locale, string>,
   );
 }
+
+export function withDefault(
+  urlsByLocale: Record<Locale, string>,
+  defaultLocale: Locale = 'en',
+): Record<Locale | 'x-default', string> {
+  return Object.entries(urlsByLocale).reduce(
+    (acc, [locale, url]) => {
+      acc[locale as Locale] = url;
+      if (locale === defaultLocale) {
+        acc['x-default'] = url;
+      }
+      return acc;
+    },
+    {} as Record<Locale | 'x-default', string>,
+  );
+}

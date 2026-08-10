@@ -7,6 +7,7 @@ import {
   getFolderUrlsByLocale,
   getPostUrl,
   getPostUrlsByLocale,
+  withDefault,
 } from '@/utils/urls';
 import { PostPageContent } from '@/components/post-page';
 import { PostListing } from '@/components/post-listing';
@@ -52,7 +53,7 @@ export async function generateMetadata({
         description: translations.browse_posts_description,
         alternates: {
           canonical: getFolderUrl(slug1, locale),
-          languages: getFolderUrlsByLocale(slug1, locale),
+          languages: withDefault(getFolderUrlsByLocale(slug1, locale)),
         },
       };
     }
@@ -66,7 +67,7 @@ export async function generateMetadata({
     description: post.description,
     alternates: {
       canonical: getPostUrl(post),
-      languages: getPostUrlsByLocale(post),
+      languages: withDefault(getPostUrlsByLocale(post)),
     },
     openGraph: {
       title: post.title,

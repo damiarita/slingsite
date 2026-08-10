@@ -1,5 +1,5 @@
 import { Locale } from '@/i18n/lib';
-import { getUrl, getUrlsByLocale } from '@/utils/urls';
+import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 
 type Props = { params: Promise<{ locale: Locale }> };
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
     alternates: {
       canonical: getUrl(locale, 'suscribe'),
-      languages: getUrlsByLocale('suscribe'),
+      languages: withDefault(getUrlsByLocale('suscribe')),
     },
     openGraph: {
       title: 'Suscribe to the SlingSite Newsletter',

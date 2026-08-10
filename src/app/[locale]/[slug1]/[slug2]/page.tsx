@@ -2,7 +2,7 @@ import { getBlogDictionary, Locale } from '@/i18n/lib';
 import { getAllPosts, getPostByFullSlug } from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { getPostUrl, getPostUrlsByLocale } from '@/utils/urls';
+import { getPostUrl, getPostUrlsByLocale, withDefault } from '@/utils/urls';
 import { PostPageContent } from '@/components/post-page';
 
 type Props = { slug2: string; slug1: string; locale: Locale };
@@ -40,7 +40,7 @@ export async function generateMetadata({
     description: post.description,
     locale,
     canonical: getPostUrl(post),
-    languages: getPostUrlsByLocale(post),
+    languages: withDefault(getPostUrlsByLocale(post)),
   });
 }
 

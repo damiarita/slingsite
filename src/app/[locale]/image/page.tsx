@@ -9,7 +9,7 @@ import {
   getUploadDictionary,
   Locale,
 } from '@/i18n/lib';
-import { getUrl, getUrlsByLocale } from '@/utils/urls';
+import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 
 type Props = { params: Promise<{ locale: Locale }> };
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: translation.description,
     alternates: {
       canonical: getUrl(locale, 'image'),
-      languages: getUrlsByLocale('image'),
+      languages: withDefault(getUrlsByLocale('image')),
     },
     openGraph: {
       title: translation.title,
