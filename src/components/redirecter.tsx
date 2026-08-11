@@ -15,11 +15,9 @@ export const Redirecter = ({
 }) => {
   useEffect(() => {
     const redirect = () => {
-      const queryString = window.location.search;
       const destinationUrl = getUrl(
         locale ? locale : getRedirectLocale(),
         pageType,
-        queryString,
       );
 
       const meta = document.createElement('meta');

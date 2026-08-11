@@ -15,13 +15,9 @@ const pagePaths: Record<PageType, string> = {
   video: 'video',
 };
 
-export const getUrl = (
-  locale: Locale,
-  pageType: PageType,
-  queryParams?: string,
-): string => {
+export const getUrl = (locale: Locale, pageType: PageType): string => {
   const path = pagePaths[pageType];
-  return `/${locale}/${path}/${queryParams || ''}`;
+  return `/${locale}/${path}/`;
 };
 
 export const getUrlsByLocale = (pageType: PageType): Record<Locale, string> =>
