@@ -4,19 +4,21 @@ import { Redirecter } from '@/components/redirecter';
 import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
+  defaultLocale,
 } from '@/i18n/lib';
 import { getUrl } from '@/utils/urls';
 import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const redirectionDictionary = await getRedirectionDictionary('en');
-  const destinationPageTranslation = await getImagePageMetadataDictionary('en');
+  const redirectionDictionary = await getRedirectionDictionary(defaultLocale);
+  const destinationPageTranslation =
+    await getImagePageMetadataDictionary(defaultLocale);
   return {
     title: redirectionDictionary.redirecting,
     openGraph: {
       title: destinationPageTranslation.title,
       description: destinationPageTranslation.description,
-      url: getUrl('en', 'image'),
+      url: getUrl(defaultLocale, 'image'),
       siteName: 'SlingSite',
       images: [
         {
@@ -32,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
           alt: 'SlingSite Logo',
         },
       ],
-      locale: 'en',
+      locale: defaultLocale,
       type: 'website',
     },
     twitter: {
@@ -45,11 +47,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const dict = await getRedirectionDictionary('en');
+  const dict = await getRedirectionDictionary(defaultLocale);
   return (
-    <Body locale="en">
+    <Body locale={defaultLocale}>
       <Redirecter pageType="image" redirecting={dict.redirecting} />
-      <BaseDatalayer locale="en" pageType="redirect" pageSubtype="root" />
+      <BaseDatalayer
+        locale={defaultLocale}
+        pageType="redirect"
+        pageSubtype="root"
+      />
     </Body>
   );
 }

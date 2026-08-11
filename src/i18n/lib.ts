@@ -24,7 +24,7 @@ export const localeIsValid = (locale: string) =>
 type DictionaryImporter<T> = Record<Locale, () => Promise<{ default: T }>>;
 function createDictionaryGetter<T>(importers: DictionaryImporter<T>) {
   return async (locale: Locale): Promise<T> => {
-    const importer = importers[locale] || importers['en'];
+    const importer = importers[locale] || importers[defaultLocale];
     return (await importer()).default;
   };
 }

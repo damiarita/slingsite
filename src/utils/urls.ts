@@ -3,7 +3,7 @@ import {
   getPostOfId,
   getTranslations,
 } from '@/content/lib';
-import { Locale, locales } from '@/i18n/lib';
+import { defaultLocale, Locale, locales } from '@/i18n/lib';
 import { Post } from 'contentlayer/generated';
 
 export const pageTypes = ['image', 'suscribe', 'video'] as const;
@@ -75,7 +75,6 @@ export function getFolderUrlsByLocale(
 
 export function withDefault(
   urlsByLocale: Record<Locale, string>,
-  defaultLocale: Locale = 'en',
 ): Record<Locale | 'x-default', string> {
   return Object.entries(urlsByLocale).reduce(
     (acc, [locale, url]) => {
