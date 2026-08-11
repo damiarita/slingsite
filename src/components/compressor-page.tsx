@@ -203,7 +203,8 @@ export default function App({
 
   const schema = {
     '@context': 'https://schema.org',
-    '@type': ['DeveloparApplication', 'BrowserApplication', 'WebApplication'],
+    '@type': 'WebApplication',
+    applicationCategory: 'BrowserApplication',
     name: 'SlingSite',
     offers: { '@type': 'Offer', price: 0 },
     aggregateRating: {
