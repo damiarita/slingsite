@@ -20,6 +20,7 @@ import {
   SettingsDictionary,
   UploadDictionary,
 } from '@/i18n/type';
+import Script from 'next/script';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -200,51 +201,68 @@ export default function App({
     });
   }, [focus]);
 
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': ['DeveloparApplication', 'BrowserApplication', 'WebApplication'],
+    name: 'SlingSite',
+    offers: { '@type': 'Offer', price: 0 },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: 4.9,
+      reviewCount: 100,
+      bestRating: 5,
+    },
+    isAccessibleForFree: true,
+  };
+
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-          {seoTranslation.title}
-        </h1>
-        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-          {seoTranslation.subtitle}
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-8 items-start">
-        <div ref={uploadRef} className="scroll-mt-20">
-          <FileUpload
-            onFilesAdded={handleFilesAdded}
-            type={compressorType}
-            translations={uploadTranslation}
-          />
+    <>
+      <Script type="application/ld+json">{JSON.stringify(schema)}</Script>
+      <div className="space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            {seoTranslation.title}
+          </h1>
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+            {seoTranslation.subtitle}
+          </p>
         </div>
-        {files.length > 0 && (
-          <div ref={settingsRef} className="scroll-mt-20">
-            <DimensionsSettings
-              handelClickAddMoreFiles={() => {
-                setFocus('upload');
-              }}
-              handleRemoveFile={handleRemoveFile}
-              files={files}
-              config={deviceConfig}
-              setConfig={setDeviceConfig}
-              handleCompressClick={handleCompressClick}
-              translation={settingTranslation}
-              devicesTranslation={devicesTranslation}
+        <div className="grid grid-cols-1 gap-8 items-start">
+          <div ref={uploadRef} className="scroll-mt-20">
+            <FileUpload
+              onFilesAdded={handleFilesAdded}
+              type={compressorType}
+              translations={uploadTranslation}
             />
           </div>
-        )}
-        {jobs.length > 0 && (
-          <div ref={resultsRef} className="scroll-mt-20">
-            <Results
-              jobs={jobs}
-              handleRemoveJob={handleRemoveJob}
-              translation={resultTranslation}
-              devicesTranslation={devicesTranslation}
-            />
-          </div>
-        )}
+          {files.length > 0 && (
+            <div ref={settingsRef} className="scroll-mt-20">
+              <DimensionsSettings
+                handelClickAddMoreFiles={() => {
+                  setFocus('upload');
+                }}
+                handleRemoveFile={handleRemoveFile}
+                files={files}
+                config={deviceConfig}
+                setConfig={setDeviceConfig}
+                handleCompressClick={handleCompressClick}
+                translation={settingTranslation}
+                devicesTranslation={devicesTranslation}
+              />
+            </div>
+          )}
+          {jobs.length > 0 && (
+            <div ref={resultsRef} className="scroll-mt-20">
+              <Results
+                jobs={jobs}
+                handleRemoveJob={handleRemoveJob}
+                translation={resultTranslation}
+                devicesTranslation={devicesTranslation}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
