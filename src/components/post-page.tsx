@@ -5,6 +5,7 @@ import { Calendar, Clock, Edit3, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Breadcrumbs from './breadcrumbs';
 import { BlogTranslations } from '@/i18n/type';
+import Script from 'next/script';
 
 const formatDateTime = (dt: Date, locale: Locale): string =>
   dt.toLocaleDateString(locale, {
@@ -45,7 +46,7 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
 
   return (
     <>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
+      <Script type="application/ld+json">{JSON.stringify(schema)}</Script>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Breadcrumbs locale={locale} items={breadcrumbItems} />
