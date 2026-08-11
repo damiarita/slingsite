@@ -1,3 +1,4 @@
+import BaseDatalayer from '@/components/base-datalayer';
 import CompressorPage from '@/components/compressor-page';
 import PageContent from '@/components/page-content';
 import {
@@ -74,6 +75,7 @@ export default async function App({ params }: Props) {
         devicesTranslation={devicesTranslation}
       />
       <PageContent locale={locale} slug="video" />
+      <BaseDatalayer locale={locale} pageType="tool" pageSubtype="video" />
     </>
   );
 }

@@ -1,3 +1,5 @@
+import BaseDatalayer from '@/components/base-datalayer';
+import Body from '@/components/body';
 import { Redirecter } from '@/components/redirecter';
 import {
   getImagePageMetadataDictionary,
@@ -45,10 +47,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const dict = await getRedirectionDictionary('en');
   return (
-    <html>
-      <body>
-        <Redirecter pageType="image" redirecting={dict.redirecting} />
-      </body>
-    </html>
+    <Body locale="en">
+      <Redirecter pageType="image" redirecting={dict.redirecting} />
+      <BaseDatalayer locale="en" pageType="redirect" pageSubtype="root" />
+    </Body>
   );
 }

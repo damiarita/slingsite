@@ -11,6 +11,7 @@ import {
 } from '@/utils/urls';
 import { PostPageContent } from '@/components/post-page';
 import { PostListing } from '@/components/post-listing';
+import BaseDatalayer from '@/components/base-datalayer';
 
 type Props = { slug1: string; locale: Locale };
 
@@ -108,17 +109,27 @@ export default async function PostPageWrapper({
 
     const translations = await getBlogDictionary(locale);
     return (
-      <PostListing
-        posts={posts}
-        locale={locale}
-        title={posts[0].folder || ''}
-        translations={translations}
-      />
+      <>
+        <PostListing
+          posts={posts}
+          locale={locale}
+          title={posts[0].folder || ''}
+          translations={translations}
+        />
+        <BaseDatalayer locale={locale} pageType="postlisting" />
+      </>
     );
   }
 
   const translations = await getBlogDictionary(locale);
   return (
-    <PostPageContent post={post} locale={locale} translations={translations} />
+    <>
+      <PostPageContent
+        post={post}
+        locale={locale}
+        translations={translations}
+      />
+      <BaseDatalayer locale={locale} pageType="post" pageSubtype={post.id} />
+    </>
   );
 }

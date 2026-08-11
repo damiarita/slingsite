@@ -18,6 +18,7 @@ export function generateStaticParams(): Props[] {
 }
 
 import { constructMetadata } from '@/utils/metadata';
+import BaseDatalayer from '@/components/base-datalayer';
 
 export async function generateMetadata({
   params,
@@ -54,6 +55,13 @@ export default async function BlogPostPageWrapper({
   if (!post) notFound();
   const translations = await getBlogDictionary(locale);
   return (
-    <PostPageContent post={post} locale={locale} translations={translations} />
+    <>
+      <PostPageContent
+        post={post}
+        locale={locale}
+        translations={translations}
+      />
+      <BaseDatalayer locale={locale} pageType="post" pageSubtype={post.id} />
+    </>
   );
 }

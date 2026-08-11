@@ -6,6 +6,7 @@ import {
 import { Redirecter } from '@/components/redirecter';
 import { Metadata } from 'next';
 import { getUrl } from '@/utils/urls';
+import BaseDatalayer from '@/components/base-datalayer';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -52,10 +53,17 @@ export default async function HomePage({ params }: Props) {
   const dict = await getRedirectionDictionary(locale);
 
   return (
-    <Redirecter
-      locale={locale}
-      pageType="image"
-      redirecting={dict.redirecting}
-    />
+    <>
+      <Redirecter
+        locale={locale}
+        pageType="image"
+        redirecting={dict.redirecting}
+      />
+      <BaseDatalayer
+        locale={locale}
+        pageType="redirect"
+        pageSubtype="/locale"
+      />
+    </>
   );
 }
