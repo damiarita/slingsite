@@ -23,7 +23,7 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
   const url = getPostUrl(post);
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': 'TechArticle',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': url,
