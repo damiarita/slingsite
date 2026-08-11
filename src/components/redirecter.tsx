@@ -14,18 +14,25 @@ export const Redirecter = ({
   locale?: Locale;
 }) => {
   useEffect(() => {
-    const queryString = window.location.search;
-    const destinationUrl = getUrl(
-      locale ? locale : getRedirectLocale(),
-      pageType,
-      queryString,
-    );
+    const redirect = () => {
+      const queryString = window.location.search;
+      const destinationUrl = getUrl(
+        locale ? locale : getRedirectLocale(),
+        pageType,
+        queryString,
+      );
 
-    const meta = document.createElement('meta');
-    meta.httpEquiv = 'refresh';
-    meta.content = `0; url=${destinationUrl}`;
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'refresh';
+      meta.content = `0; url=${destinationUrl}`;
 
-    document.head.appendChild(meta);
+      document.head.appendChild(meta);
+    };
+    //We make the redirect function available for GTM to call it, and we call it after 1s in case it fails
+    window.redirect = redirect;
+    setTimeout(() => {
+      window.redirect();
+    }, 1000);
   }, [locale, pageType]);
 
   return <div>{redirecting}...</div>;
