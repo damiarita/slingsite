@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Logo } from './logo';
 import NavLink from './nav-link';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { getUrl } from '@/utils/urls';
 import { NavBarItem } from '@/types/nav-bar';
 

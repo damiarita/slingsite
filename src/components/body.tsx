@@ -1,4 +1,4 @@
-import { Locale, rtlLocales } from '@/i18n/lib';
+import { Locale, rtlLocales } from '@/i18n/routing';
 import { GoogleTagManager } from '@next/third-parties/google';
 
 export default function Body({

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 
 interface BreadcrumbItem {
   label: string;

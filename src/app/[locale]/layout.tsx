@@ -6,7 +6,7 @@ import {
   getNavBarDictionary,
   getFooterDictionary,
   getCookieDictionary,
-} from '@/i18n/lib';
+} from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import '../globals.css';
 import CookieConsent from '@/components/cookie-consent';

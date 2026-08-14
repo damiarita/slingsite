@@ -1,4 +1,4 @@
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { getPostUrl, getPostUrlsByLocale } from '@/utils/urls';
 import type { Post } from 'contentlayer/generated';
 import { Calendar, Clock, Edit3, ArrowLeft } from 'lucide-react';

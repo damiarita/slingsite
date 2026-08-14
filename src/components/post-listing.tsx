@@ -1,4 +1,4 @@
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import type { Post } from 'contentlayer/generated';
 import Link from 'next/link';
 import { getPostUrl } from '@/utils/urls';

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 
 export const siteConfig = {
   name: 'SlingSite',

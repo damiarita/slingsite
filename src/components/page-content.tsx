@@ -1,7 +1,7 @@
 import { allPageContents } from 'contentlayer/generated';
 import { MDXRemote } from 'next-mdx-remote/rsc'; // Keep this
 import { FAQ } from '@/components/faq'; // Import your new component
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 
 // Map components to be available in MDX
 const mdxComponents = { FAQ };

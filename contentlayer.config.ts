@@ -1,4 +1,4 @@
-import { locales } from '@/i18n/lib';
+import { locales } from '@/i18n/routing';
 import { defineDocumentType, makeSource } from 'contentlayer2/source-files';
 import { remark } from 'remark';
 import strip from 'strip-markdown';

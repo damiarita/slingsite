@@ -1,5 +1,5 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 

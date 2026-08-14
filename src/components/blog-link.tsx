@@ -1,5 +1,5 @@
 import { getPostOfId } from '@/content/lib';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { getPostUrl } from '@/utils/urls';
 
 export default function BlogLink({

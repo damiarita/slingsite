@@ -1,4 +1,4 @@
-import { getBlogDictionary, Locale } from '@/i18n/lib';
+import { getBlogDictionary, Locale } from '@/i18n/routing';
 import { getAllPosts, getPostByFullSlug } from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';

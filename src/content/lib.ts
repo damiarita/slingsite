@@ -1,4 +1,4 @@
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { allPosts, Post } from 'contentlayer/generated';
 
 const sortPosts = (posts: Post[]) => {

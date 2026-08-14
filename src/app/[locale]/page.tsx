@@ -2,7 +2,7 @@ import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
   Locale,
-} from '@/i18n/lib';
+} from '@/i18n/routing';
 import { Redirecter } from '@/components/redirecter';
 import { Metadata } from 'next';
 import { getUrl } from '@/utils/urls';

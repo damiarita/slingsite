@@ -1,5 +1,5 @@
 import Script from 'next/script';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 
 export default function BaseDatalayer({
   locale,

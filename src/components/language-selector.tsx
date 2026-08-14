@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import {
   getFolderUrlsByLocale,

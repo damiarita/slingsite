@@ -12,7 +12,7 @@ import { Format } from '@/utils/formats';
 import { Device } from '@/types/devices';
 import { Job, Task } from '@/types/job';
 import { createJob, jobIsIncomplete } from '@/utils/jobs';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { CompressionInput } from '@/types/compressor';
 import {
   CompressionPageSeoTranslations,

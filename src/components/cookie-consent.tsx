@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import { acceptedCategory, run } from 'vanilla-cookieconsent';
-import { Locale, rtlLocales } from '@/i18n/lib';
+import { Locale, rtlLocales } from '@/i18n/routing';
 import { CookieConsentTranslations } from '@/i18n/type';
 
 const defaultConsentMode = {

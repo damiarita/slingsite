@@ -9,7 +9,7 @@ import {
   getSettingsDictionary,
   getResultDictionary,
   getDevicesDictionary,
-} from '@/i18n/lib';
+} from '@/i18n/routing';
 import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 

@@ -5,7 +5,7 @@ import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
   defaultLocale,
-} from '@/i18n/lib';
+} from '@/i18n/routing';
 import { getUrl } from '@/utils/urls';
 import { Metadata } from 'next';
 

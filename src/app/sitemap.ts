@@ -1,5 +1,5 @@
 import { getAllPosts } from '@/content/lib';
-import { locales } from '@/i18n/lib';
+import { locales, Locale } from '@/i18n/routing';
 import {
   getFolderUrl,
   getFolderUrlsByLocale,
@@ -9,7 +9,6 @@ import {
   getUrlsByLocale,
   pageTypes,
 } from '@/utils/urls';
-import { Locale } from '@/i18n/lib';
 import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';

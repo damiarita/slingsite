@@ -1,5 +1,5 @@
 'use client';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import { getUrl, PageType } from '@/utils/urls';
 import { usePathname } from 'next/navigation';
 

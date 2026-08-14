@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { defaultLocale, Locale, localeIsValid } from '@/i18n/lib';
+import { defaultLocale, Locale, localeIsValid } from '@/i18n/routing';
 import { getUrl, PageType } from '@/utils/urls';
 
 export const Redirecter = ({

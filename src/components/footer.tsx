@@ -2,7 +2,7 @@ import { Logo } from './logo';
 import BlogLink from './blog-link';
 import { FooterTranslations } from '@/i18n/type';
 import { getUrl } from '@/utils/urls';
-import { Locale } from '@/i18n/lib';
+import { Locale } from '@/i18n/routing';
 import LanguageSelector from './language-selector';
 
 export default function Footer({

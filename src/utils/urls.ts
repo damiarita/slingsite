@@ -3,7 +3,7 @@ import {
   getPostOfId,
   getTranslations,
 } from '@/content/lib';
-import { defaultLocale, Locale, locales } from '@/i18n/lib';
+import { defaultLocale, Locale, locales } from '@/i18n/routing';
 import { Post } from 'contentlayer/generated';
 
 export const pageTypes = ['image', 'suscribe', 'video'] as const;
