@@ -1,12 +1,9 @@
+import { locales, localeIsValid, Locale, rtlLocales } from '@/i18n/routing';
 import {
-  locales,
-  localeIsValid,
-  Locale,
-  rtlLocales,
   getNavBarDictionary,
   getFooterDictionary,
   getCookieDictionary,
-} from '@/i18n/routing';
+} from '@/i18n/requests';
 import { notFound } from 'next/navigation';
 import '../globals.css';
 import CookieConsent from '@/components/cookie-consent';

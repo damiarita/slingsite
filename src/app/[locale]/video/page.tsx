@@ -1,15 +1,15 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import CompressorPage from '@/components/compressor-page';
 import PageContent from '@/components/page-content';
+import { Locale } from '@/i18n/routing';
 import {
   getVideoPageMetadataDictionary,
   getVideoPageSeoDictionary,
   getUploadDictionary,
-  Locale,
   getSettingsDictionary,
   getResultDictionary,
   getDevicesDictionary,
-} from '@/i18n/routing';
+} from '@/i18n/requests';
 import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 

@@ -1,8 +1,8 @@
+import { Locale } from '@/i18n/routing';
 import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
-  Locale,
-} from '@/i18n/routing';
+} from '@/i18n/requests';
 import { Redirecter } from '@/components/redirecter';
 import { Metadata } from 'next';
 import { getUrl } from '@/utils/urls';
