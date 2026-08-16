@@ -5,7 +5,7 @@ export const siteConfig = {
   name: 'SlingSite',
   description:
     'The ultimate tool for media optimization and multilang content.',
-  url: 'https://slingsite.com',
+  url: 'https://slingsite.github.io',
   ogImage: '/og-image.png',
   links: {
     github: 'https://github.com/damiarita/slingsite',
