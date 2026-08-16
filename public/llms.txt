@@ -1,14 +1,29 @@
-# Purpose
-This website is an interactive web tool designed to help developers and designers optimize their website's performance by compressing images.
+# Slingsite: Image and Video Compression Tools
 
-# Key Features
-- Upload multiple image files (JPG, PNG, WEBP, etc.).
-- Configure compression settings per device type: mobile, tablet, and desktop.
-- Flexible sizing options: by screen percentage, number of columns, or exact pixel dimensions (width/height).
-- Generate multiple optimized formats for each original image: JPG, WEBP, and AVIF.
+This website is an interactive web tool designed to help developers and designers optimize their website's performance by compressing images and videos.
+
+## Image Compression
+
+Learn more about image compression at [/en/image/](/en/image/)
+
+- Upload multiple image files (JPG, PNG, WEBP, etc.)
+- Configure compression settings per device type: mobile, tablet, and desktop
+- Flexible sizing options: by screen percentage, number of columns, or exact pixel dimensions (width/height)
+- Generate multiple optimized formats for each original image: JPG, WEBP, and AVIF
 - Download individual generated files or download all files in batch
 
-# Interaction with LLMs
-- The LLM can guide users on how to use the tool, explaining the different configuration options.
-- The LLM can answer questions about the importance of image optimization for SEO and web speed, using the context of this tool.
-- The LLM should not attempt to perform the compressions itself but should describe the process the user needs to follow within the UI.
+## Video Compression
+
+Learn more about video compression at [/en/video/](/en/video/)
+
+- Upload video files and generate optimized cover images
+- Cover images are produced in JPG, WEBP, and AVIF formats
+- Videos are produced in WEBM and AVIF formats for broad compatibility
+- Configure compression settings per device type: mobile, tablet, and desktop
+- Download individual generated files or download all files in batch
+
+## Interaction with LLMs
+
+- The LLM can guide users on how to use the tool, explaining the different configuration options
+- The LLM can answer questions about the importance of image and video optimization for SEO and web speed, using the context of these tools
+- The LLM should not attempt to perform the compressions itself but should describe the process the user needs to follow within the UI
