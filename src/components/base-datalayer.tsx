@@ -10,8 +10,8 @@ export default function BaseDatalayer({
   pageType: string;
   pageSubtype?: string;
 }) {
-  const objectToPush = JSON.stringify({ locale, pageType, pageSubtype });
-
+  const env = process.env.NODE_ENV || 'development';
+  const objectToPush = JSON.stringify({ locale, pageType, pageSubtype, env });
   return (
     <Script
       id="base-datalayer"
