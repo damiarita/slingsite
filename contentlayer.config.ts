@@ -1,4 +1,4 @@
-import { locales } from '@/i18n/routing';
+import { routing } from '@/i18n/routing';
 import { defineDocumentType, makeSource } from 'contentlayer2/source-files';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
@@ -15,7 +15,7 @@ export const Post = defineDocumentType(() => ({
     description: { type: 'string', required: true },
     publicationDate: { type: 'date', required: true },
     modificationDate: { type: 'date', required: true },
-    locale: { type: 'enum', options: locales, required: true },
+    locale: { type: 'enum', options: routing.locales, required: true },
     slug: { type: 'string', required: true },
     folder: { type: 'string', required: false },
   },
@@ -57,7 +57,7 @@ export const PageContent = defineDocumentType(() => ({
   filePathPattern: `page-content/**/*.mdx`, // where your files live
   contentType: 'mdx',
   fields: {
-    locale: { type: 'enum', options: locales, required: true },
+    locale: { type: 'enum', options: routing.locales, required: true },
     slug: { type: 'string', required: true },
     modificationDate: { type: 'date', required: false },
   },

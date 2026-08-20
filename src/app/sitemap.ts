@@ -1,5 +1,5 @@
 import { getAllPosts } from '@/content/lib';
-import { locales, Locale } from '@/i18n/routing';
+import { routing, Locale } from '@/i18n/routing';
 import {
   getFolderUrl,
   getFolderUrlsByLocale,
@@ -15,7 +15,7 @@ export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const dynamicPages = pageTypes.flatMap(function (pageType) {
-    return locales.map(function (locale) {
+    return routing.locales.map(function (locale) {
       return {
         url: getUrl(locale, pageType),
         lastModified: new Date(),

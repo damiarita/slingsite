@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
 import CopyPlugin from 'copy-webpack-plugin';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   output: 'export',
@@ -26,4 +27,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withContentlayer(nextConfig);
+const withNextIntl = createNextIntlPlugin('./src/i18n/requests.ts');
+export default withNextIntl(withContentlayer(nextConfig));

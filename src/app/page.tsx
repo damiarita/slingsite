@@ -1,7 +1,7 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import Body from '@/components/body';
 import { Redirecter } from '@/components/redirecter';
-import { defaultLocale } from '@/i18n/routing';
+import { routing } from '@/i18n/routing';
 import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
@@ -10,15 +10,18 @@ import { getUrl } from '@/utils/urls';
 import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const redirectionDictionary = await getRedirectionDictionary(defaultLocale);
-  const destinationPageTranslation =
-    await getImagePageMetadataDictionary(defaultLocale);
+  const redirectionDictionary = await getRedirectionDictionary(
+    routing.defaultLocale,
+  );
+  const destinationPageTranslation = await getImagePageMetadataDictionary(
+    routing.defaultLocale,
+  );
   return {
     title: redirectionDictionary.redirecting,
     openGraph: {
       title: destinationPageTranslation.title,
       description: destinationPageTranslation.description,
-      url: getUrl(defaultLocale, 'image'),
+      url: getUrl(routing.defaultLocale, 'image'),
       siteName: 'SlingSite',
       images: [
         {
@@ -34,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
           alt: 'SlingSite Logo',
         },
       ],
-      locale: defaultLocale,
+      locale: routing.defaultLocale,
       type: 'website',
     },
     twitter: {
@@ -47,12 +50,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const dict = await getRedirectionDictionary(defaultLocale);
+  const dict = await getRedirectionDictionary(routing.defaultLocale);
   return (
-    <Body locale={defaultLocale}>
+    <Body locale={routing.defaultLocale}>
       <Redirecter pageType="image" redirecting={dict.redirecting} />
       <BaseDatalayer
-        locale={defaultLocale}
+        locale={routing.defaultLocale}
         pageType="redirect"
         pageSubtype="root"
       />

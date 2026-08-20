@@ -1,7 +1,8 @@
 'use client';
 
+import { hasLocale } from 'next-intl';
 import { useEffect } from 'react';
-import { defaultLocale, Locale, localeIsValid } from '@/i18n/routing';
+import { routing, Locale } from '@/i18n/routing';
 import { getUrl, PageType } from '@/utils/urls';
 
 export const Redirecter = ({
@@ -38,7 +39,7 @@ export const Redirecter = ({
 
 function getRedirectLocale(): Locale {
   const browserLocale = navigator.language.split('-')[0];
-  return localeIsValid(browserLocale)
+  return hasLocale(routing.locales, browserLocale)
     ? (browserLocale as Locale)
-    : defaultLocale;
+    : routing.defaultLocale;
 }

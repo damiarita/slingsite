@@ -3,7 +3,7 @@ import {
   getPostOfId,
   getTranslations,
 } from '@/content/lib';
-import { defaultLocale, Locale, locales } from '@/i18n/routing';
+import { Locale, routing } from '@/i18n/routing';
 import { Post } from 'contentlayer/generated';
 
 export const pageTypes = ['image', 'suscribe', 'video'] as const;
@@ -21,7 +21,7 @@ export const getUrl = (locale: Locale, pageType: PageType): string => {
 };
 
 export const getUrlsByLocale = (pageType: PageType): Record<Locale, string> =>
-  locales.reduce(
+  routing.locales.reduce(
     function (acc, locale) {
       acc[locale] = getUrl(locale, pageType);
       return acc;
@@ -75,7 +75,7 @@ export function withDefault(
   return Object.entries(urlsByLocale).reduce(
     (acc, [locale, url]) => {
       acc[locale as Locale] = url;
-      if (locale === defaultLocale) {
+      if (locale === routing.defaultLocale) {
         acc['x-default'] = url;
       }
       return acc;

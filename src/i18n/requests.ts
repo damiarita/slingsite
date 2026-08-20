@@ -1,4 +1,6 @@
-import { defaultLocale, Locale, routing } from './routing';
+import { hasLocale } from 'next-intl';
+import { getRequestConfig } from 'next-intl/server';
+import { Locale, routing } from './routing';
 import { Device } from '@/types/devices';
 import {
   CookieConsentTranslations,
@@ -13,10 +15,20 @@ import {
   ResultsDictionary,
 } from './type';
 
+export default getRequestConfig(async ({ locale }) => {
+  const requestedLocale = await locale;
+  const cleanLocale = hasLocale(routing.locales, requestedLocale)
+    ? requestedLocale
+    : routing.defaultLocale;
+
+  return {
+    locale: cleanLocale,
+  };
+});
 type DictionaryImporter<T> = Record<Locale, () => Promise<{ default: T }>>;
 function createDictionaryGetter<T>(importers: DictionaryImporter<T>) {
   return async (locale: Locale): Promise<T> => {
-    const importer = importers[locale] || importers[defaultLocale];
+    const importer = importers[locale] || importers[routing.defaultLocale];
     return (await importer()).default;
   };
 }

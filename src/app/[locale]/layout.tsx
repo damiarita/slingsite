@@ -1,9 +1,10 @@
-import { locales, localeIsValid, Locale, rtlLocales } from '@/i18n/routing';
+import { routing, Locale } from '@/i18n/routing';
 import {
   getNavBarDictionary,
   getFooterDictionary,
   getCookieDictionary,
 } from '@/i18n/requests';
+import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import '../globals.css';
 import CookieConsent from '@/components/cookie-consent';
@@ -13,7 +14,7 @@ import { NavBarItem } from '@/types/nav-bar';
 import Body from '@/components/body';
 
 export async function generateStaticParams() {
-  return locales.map((locale) => ({
+  return routing.locales.map((locale) => ({
     locale,
   }));
 }
@@ -37,7 +38,7 @@ export default async function LocaleLayout({
   ];
 
   // Verificar que el locale es válido
-  if (!localeIsValid(validatedLocale)) {
+  if (!hasLocale(routing.locales, validatedLocale)) {
     notFound();
   }
 

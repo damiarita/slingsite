@@ -1,4 +1,4 @@
-import { Locale, rtlLocales } from '@/i18n/routing';
+import { Locale, localeDirection } from '@/i18n/routing';
 import { GoogleTagManager } from '@next/third-parties/google';
 
 export default function Body({
@@ -11,7 +11,7 @@ export default function Body({
   className?: string;
 }) {
   return (
-    <html lang={locale} dir={rtlLocales.includes(locale) ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={localeDirection(locale)}>
       <body className={className}>
         {children}
         <GoogleTagManager gtmId="GTM-THHRLH4N" />

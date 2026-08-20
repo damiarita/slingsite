@@ -1,26 +1,27 @@
-import { Locale } from '@/i18n/routing';
+import BaseDatalayer from '@/components/base-datalayer';
+import Body from '@/components/body';
+import { Redirecter } from '@/components/redirecter';
+import { routing } from '@/i18n/routing';
 import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
 } from '@/i18n/requests';
-import { Redirecter } from '@/components/redirecter';
-import { Metadata } from 'next';
 import { getUrl } from '@/utils/urls';
-import BaseDatalayer from '@/components/base-datalayer';
+import { Metadata } from 'next';
 
-type Props = { params: Promise<{ locale: Locale }> };
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  const redirectionDictionary = await getRedirectionDictionary(locale);
-  const destinationPageTranslation =
-    await getImagePageMetadataDictionary(locale);
+export async function generateMetadata(): Promise<Metadata> {
+  const redirectionDictionary = await getRedirectionDictionary(
+    routing.defaultLocale,
+  );
+  const destinationPageTranslation = await getImagePageMetadataDictionary(
+    routing.defaultLocale,
+  );
   return {
     title: redirectionDictionary.redirecting,
     openGraph: {
       title: destinationPageTranslation.title,
       description: destinationPageTranslation.description,
-      url: getUrl(locale, 'image'),
+      url: getUrl(routing.defaultLocale, 'image'),
       siteName: 'SlingSite',
       images: [
         {
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: 'SlingSite Logo',
         },
       ],
-      locale,
+      locale: routing.defaultLocale,
       type: 'website',
     },
     twitter: {
@@ -48,22 +49,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function HomePage({ params }: Props) {
-  const { locale } = await params;
-  const dict = await getRedirectionDictionary(locale);
-
+export default async function HomePage() {
+  const dict = await getRedirectionDictionary(routing.defaultLocale);
   return (
-    <>
-      <Redirecter
-        locale={locale}
-        pageType="image"
-        redirecting={dict.redirecting}
-      />
+    <Body locale={routing.defaultLocale}>
+      <Redirecter pageType="image" redirecting={dict.redirecting} />
       <BaseDatalayer
-        locale={locale}
+        locale={routing.defaultLocale}
         pageType="redirect"
-        pageSubtype="/locale"
+        pageSubtype="root"
       />
-    </>
+    </Body>
   );
 }

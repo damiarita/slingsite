@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import { acceptedCategory, run } from 'vanilla-cookieconsent';
-import { Locale, rtlLocales } from '@/i18n/routing';
+import { Locale, localeDirection } from '@/i18n/routing';
 import { CookieConsentTranslations } from '@/i18n/type';
 
 const defaultConsentMode = {
@@ -51,7 +51,7 @@ export default function CookieConsent({
       language: {
         default: locale,
         autoDetect: 'browser',
-        rtl: rtlLocales,
+        rtl: localeDirection(locale) === 'rtl' ? [locale] : [],
         translations: {
           [locale]: translations,
         },
