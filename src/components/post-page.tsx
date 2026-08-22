@@ -98,7 +98,7 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
             </div>
             <div className="flex gap-4">
               <Link
-                href={`/${locale}/suscribe`}
+                href={`/${locale}/subscribe`}
                 className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
               >
                 {translations.subscribe}

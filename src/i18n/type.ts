@@ -45,7 +45,7 @@ export interface FooterTranslations {
     languages: string;
     comparisons: string;
   };
-  suscribe: string;
+  subscribe: string;
   contactUs: string;
   cookies: string;
   sourceCode: string;
