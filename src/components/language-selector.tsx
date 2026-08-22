@@ -13,6 +13,7 @@ import {
 } from '@/utils/urls';
 import { getAllPosts, getFolderTranslations } from '@/content/lib';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LanguageSelector({
   currentLocale,
@@ -107,7 +108,7 @@ export default function LanguageSelector({
             {(Object.entries(getUrls()) as [Locale, string][]).map(
               ([locale, url]) => (
                 <li key={locale}>
-                  <a
+                  <Link
                     href={url}
                     hrefLang={locale}
                     onClick={() => setOpen(false)}
@@ -118,7 +119,7 @@ export default function LanguageSelector({
                     }`}
                   >
                     {languageNames[locale] || locale}
-                  </a>
+                  </Link>
                 </li>
               ),
             )}

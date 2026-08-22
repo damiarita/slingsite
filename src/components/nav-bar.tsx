@@ -6,6 +6,7 @@ import NavLink from './nav-link';
 import { Locale } from '@/i18n/routing';
 import { getUrl } from '@/utils/urls';
 import { NavBarItem } from '@/types/nav-bar';
+import Link from 'next/link';
 
 export default function NavBar({
   locale,
@@ -19,13 +20,13 @@ export default function NavBar({
   return (
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center h-16">
-        <a
+        <Link
           href={getUrl(locale, 'image')}
           className="flex items-center space-x-3"
         >
           <Logo />
           <span className="text-2xl font-bold text-gray-800">SlingSite</span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex space-x-6 text-sm font-medium">
@@ -34,6 +35,7 @@ export default function NavBar({
               key={item.pageType}
               pageType={item.pageType}
               locale={locale}
+              onLinkClick={() => setOpen(false)}
             >
               {item.label}
             </NavLink>
@@ -87,6 +89,7 @@ export default function NavBar({
                 key={item.pageType}
                 pageType={item.pageType}
                 locale={locale}
+                onLinkClick={() => setOpen(false)}
                 mobile
               >
                 <div className="px-4 py-2">{item.label}</div>

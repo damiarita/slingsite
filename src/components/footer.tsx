@@ -4,6 +4,7 @@ import { FooterTranslations } from '@/i18n/type';
 import { getUrl } from '@/utils/urls';
 import { Locale } from '@/i18n/routing';
 import LanguageSelector from './language-selector';
+import Link from 'next/link';
 
 export default function Footer({
   translations,
@@ -30,12 +31,12 @@ export default function Footer({
               </h2>
               <ul className="mt-4 mb-4 space-y-4">
                 <li>
-                  <a
-                    href={getUrl(locale, 'suscribe')}
+                  <Link
+                    href={getUrl(locale, 'subscribe')}
                     className="text-base text-gray-500 hover:text-gray-900"
                   >
-                    {translations.suscribe}
-                  </a>
+                    {translations.subscribe}
+                  </Link>
                 </li>
                 <li>
                   <a
@@ -49,11 +50,11 @@ export default function Footer({
                   </a>
                 </li>
               </ul>
-              <a href={`/${locale}/${translations.comparisonsSlug}/`}>
+              <Link href={`/${locale}/${translations.comparisonsSlug}/`}>
                 <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
                   {translations.headings.comparisons}
                 </h2>
-              </a>
+              </Link>
               <ul className="mt-4 space-y-4">
                 <li>
                   <BlogLink

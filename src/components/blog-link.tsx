@@ -1,6 +1,7 @@
 import { getPostOfId } from '@/content/lib';
 import { Locale } from '@/i18n/routing';
 import { getPostUrl } from '@/utils/urls';
+import Link from 'next/link';
 
 export default function BlogLink({
   postId,
@@ -17,8 +18,8 @@ export default function BlogLink({
   }
   const postUrl = getPostUrl(post);
   return (
-    <a href={postUrl} className={className}>
+    <Link href={postUrl} className={className}>
       {post.title}
-    </a>
+    </Link>
   );
 }
