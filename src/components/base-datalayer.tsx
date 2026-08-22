@@ -1,23 +1,29 @@
-import Script from 'next/script';
+'use client';
+
+import { useEffect } from 'react';
 import { Locale } from '@/i18n/routing';
+
+interface BaseDatalayerProps {
+  locale: Locale;
+  pageType: string;
+  pageSubtype?: string;
+}
 
 export default function BaseDatalayer({
   locale,
   pageType,
   pageSubtype,
-}: {
-  locale: Locale;
-  pageType: string;
-  pageSubtype?: string;
-}) {
-  const env = process.env.NODE_ENV || 'development';
-  const objectToPush = JSON.stringify({ locale, pageType, pageSubtype, env });
-  return (
-    <Script
-      id="base-datalayer"
-      dangerouslySetInnerHTML={{
-        __html: `window.dataLayer = window.dataLayer || [];window.dataLayer.push(${objectToPush});`,
-      }}
-    />
-  );
+}: BaseDatalayerProps) {
+  useEffect(() => {
+    window.dataLayer = window.dataLayer || [];
+
+    window.dataLayer.push({
+      locale,
+      pageType,
+      pageSubtype,
+      env: process.env.NODE_ENV || 'development',
+    });
+  }, [locale, pageType, pageSubtype]); // Triggers whenever route OR props change
+
+  return null;
 }
