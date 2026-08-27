@@ -1,7 +1,6 @@
 import { getPostOfId } from '@/content/lib';
 import { Locale } from '@/i18n/routing';
-import { getPostUrl } from '@/utils/urls';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export default function BlogLink({
   postId,
@@ -16,9 +15,16 @@ export default function BlogLink({
   if (!post) {
     throw new Error(`Post with id ${postId} not found for locale ${locale}`);
   }
-  const postUrl = getPostUrl(post);
+
   return (
-    <Link href={postUrl} className={className}>
+    <Link
+      locale={locale}
+      href={{
+        pathname: '/content/[...slugs]',
+        params: { slugs: post.slugPath },
+      }}
+      className={className}
+    >
       {post.title}
     </Link>
   );

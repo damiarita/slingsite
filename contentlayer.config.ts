@@ -35,10 +35,10 @@ export const Post = defineDocumentType(() => ({
       type: 'string',
       resolve: (doc) => (doc.folder ? urlSlug(doc.folder) : ''),
     },
-    fullSlug: {
-      type: 'string',
+    slugPath: {
+      type: 'list',
       resolve: (doc) =>
-        doc.folder ? `${urlSlug(doc.folder)}/${doc.slug}` : doc.slug,
+        doc.folder ? [urlSlug(doc.folder), doc.slug] : [doc.slug],
     },
     readingTime: {
       type: 'number',

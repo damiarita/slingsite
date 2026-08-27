@@ -1,7 +1,7 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import CompressorPage from '@/components/compressor-page';
 import PageContent from '@/components/page-content';
-import { Locale } from '@/i18n/routing';
+import { Locale, routing } from '@/i18n/routing';
 import {
   getVideoPageMetadataDictionary,
   getVideoPageSeoDictionary,
@@ -10,8 +10,9 @@ import {
   getResultDictionary,
   getDevicesDictionary,
 } from '@/i18n/requests';
-import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
+import { withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
+import { getPathname } from '@/i18n/navigation';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -22,13 +23,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: translations.title,
     description: translations.description,
     alternates: {
-      canonical: getUrl(locale, 'video'),
-      languages: withDefault(getUrlsByLocale('video')),
+      canonical: getPathname({ locale, href: { pathname: '/video/' } }),
+      languages: withDefault(
+        routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({ href: '/video/', locale: locale });
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        ),
+      ),
     },
     openGraph: {
       title: translations.title,
       description: translations.description,
-      url: getUrl(locale, 'video'),
+      url: getPathname({ locale, href: { pathname: '/video/' } }),
       siteName: 'SlingSite',
       images: [
         {

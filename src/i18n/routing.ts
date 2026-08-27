@@ -12,5 +12,12 @@ export type Locale = (typeof locales)[number];
 export const routing = defineRouting({
   locales,
   defaultLocale: 'en',
-  localePrefix: 'always', // importante: 'always' funciona mejor sin middleware
+  localePrefix: 'always',
+  pathnames: {
+    '/home/': '/',
+    '/image/': '/image/',
+    '/video/': '/video/',
+    '/subscribe/': '/subscribe/',
+    '/content/[...slugs]': '/[...slugs]',
+  },
 });

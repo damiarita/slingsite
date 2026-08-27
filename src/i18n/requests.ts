@@ -15,16 +15,13 @@ import {
   ResultsDictionary,
 } from './type';
 
-export default getRequestConfig(async ({ locale }) => {
-  const requestedLocale = await locale;
-  const cleanLocale = hasLocale(routing.locales, requestedLocale)
-    ? requestedLocale
-    : routing.defaultLocale;
-
-  return {
-    locale: cleanLocale,
-  };
-});
+// Avoid using `requestLocale` here because it can read request headers under the hood
+// (via `headers()`) and that forces routes to be dynamic during prerendering.
+// For static pre-rendering we derive the locale from route params (app/[locale]) so
+// return a static default locale here.
+export default getRequestConfig(() => ({
+  locale: routing.defaultLocale as Locale,
+}));
 type DictionaryImporter<T> = Record<Locale, () => Promise<{ default: T }>>;
 function createDictionaryGetter<T>(importers: DictionaryImporter<T>) {
   return async (locale: Locale): Promise<T> => {

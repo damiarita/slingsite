@@ -1,6 +1,7 @@
-import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import { Link as IntlLink } from '@/i18n/navigation';
 import { Locale } from '@/i18n/routing';
+import { ChevronRight, Home } from 'lucide-react';
+import Link from 'next/link';
 
 interface BreadcrumbItem {
   label: string;
@@ -17,13 +18,14 @@ export default function Breadcrumbs({ locale, items }: BreadcrumbsProps) {
     <nav className="flex mb-8" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm font-medium text-gray-500">
         <li className="inline-flex items-center">
-          <Link
-            href={`/${locale}`}
+          <IntlLink
+            locale={locale}
+            href={{ pathname: '/home/' }}
             className="inline-flex items-center hover:text-blue-600 transition-colors"
           >
             <Home className="w-4 h-4 mr-2" />
             <span className="sr-only">Home</span>
-          </Link>
+          </IntlLink>
         </li>
         {items.map((item, index) => (
           <li key={index} className="flex items-center">

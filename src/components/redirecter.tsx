@@ -3,36 +3,31 @@
 import { hasLocale } from 'next-intl';
 import { useEffect } from 'react';
 import { routing, Locale } from '@/i18n/routing';
-import { getUrl, PageType } from '@/utils/urls';
+import { redirect } from '@/i18n/navigation';
 
 export const Redirecter = ({
   redirecting,
-  pageType,
+  href,
   locale,
 }: {
   redirecting: string;
-  pageType: PageType;
+  href: Parameters<typeof redirect>[0]['href'];
   locale?: Locale;
 }) => {
   useEffect(() => {
-    const redirect = () => {
-      const destinationUrl = getUrl(
-        locale ? locale : getRedirectLocale(),
-        pageType,
-      );
-
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'refresh';
-      meta.content = `0; url=${destinationUrl}`;
-
-      document.head.appendChild(meta);
+    const redirectToPage = () => {
+      const loc = locale || getRedirectLocale();
+      redirect({
+        href: href,
+        locale: loc,
+      });
     };
     //We make the redirect function available for GTM to call it, and we call it after 1s in case it fails
-    window.redirect = redirect;
+    window.redirect = redirectToPage;
     setTimeout(() => {
       window.redirect();
     }, 1000);
-  }, [locale, pageType]);
+  }, [locale, href]);
 
   return <div>{redirecting}...</div>;
 };

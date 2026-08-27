@@ -1,30 +1,32 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import Body from '@/components/body';
 import { Redirecter } from '@/components/redirecter';
-import { routing } from '@/i18n/routing';
+import { Locale, routing } from '@/i18n/routing';
 import { getRedirectionDictionary } from '@/i18n/requests';
 import { Metadata } from 'next';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const redirectionDictionary = await getRedirectionDictionary(
-    routing.defaultLocale,
-  );
+type Props = { params: Promise<{ locale: Locale }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const redirectionDictionary = await getRedirectionDictionary(locale);
   return {
     title: redirectionDictionary.redirecting,
   };
 }
 
-export default async function HomePage() {
-  const dict = await getRedirectionDictionary(routing.defaultLocale);
+export default async function HomePage({ params }: Props) {
+  const { locale } = await params;
+  const dict = await getRedirectionDictionary(locale);
   return (
-    <Body locale={routing.defaultLocale}>
+    <Body locale={locale}>
       <Redirecter
-        pageType="subscribe"
-        locale={routing.defaultLocale}
+        href={{ pathname: '/subscribe/' }}
+        locale={locale}
         redirecting={dict.redirecting}
       />
       <BaseDatalayer
-        locale={routing.defaultLocale}
+        locale={locale}
         pageType="redirect"
         pageSubtype="suscribe"
       />

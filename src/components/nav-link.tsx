@@ -1,23 +1,22 @@
 'use client';
 import { Locale } from '@/i18n/routing';
-import { getUrl, PageType } from '@/utils/urls';
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { AppHref } from '@/types/nav-bar';
 
 export default function NavLink({
+  href,
   locale,
-  pageType,
   children,
   onLinkClick,
   mobile,
 }: {
+  href: AppHref;
   locale: Locale;
-  pageType: PageType;
   children: React.ReactNode;
   onLinkClick?: () => void;
   mobile?: boolean;
 }) {
-  const href = getUrl(locale, pageType);
   const currentPath = usePathname() || '';
   const isActive = currentPath === href;
   const baseClass = mobile
@@ -26,6 +25,7 @@ export default function NavLink({
 
   return (
     <Link
+      locale={locale}
       href={href}
       aria-current={isActive ? 'page' : undefined}
       aria-disabled={isActive ? 'true' : undefined}

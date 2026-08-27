@@ -1,7 +1,6 @@
 import { Locale } from '@/i18n/routing';
 import type { Post } from 'contentlayer/generated';
-import Link from 'next/link';
-import { getPostUrl } from '@/utils/urls';
+import { Link } from '@/i18n/navigation';
 import { Clock, Calendar, ChevronRight } from 'lucide-react';
 import { BlogTranslations } from '@/i18n/type';
 
@@ -61,7 +60,13 @@ export function PostListing({
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">
-                <Link href={getPostUrl(post)}>
+                <Link
+                  locale={locale}
+                  href={{
+                    pathname: '/content/[...slugs]',
+                    params: { slugs: post.slugPath },
+                  }}
+                >
                   <span className="absolute inset-0" aria-hidden="true" />
                   {post.title}
                 </Link>

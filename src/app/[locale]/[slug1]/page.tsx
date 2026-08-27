@@ -1,18 +1,18 @@
-import { Locale } from '@/i18n/routing';
+import { Locale, routing } from '@/i18n/routing';
 import { getBlogDictionary } from '@/i18n/requests';
-import { getAllPosts, getPost, getPostsByPrefix } from '@/content/lib';
+import {
+  getAllPosts,
+  getPost,
+  getPostsByPrefix,
+  getTranslations,
+} from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import {
-  getFolderUrl,
-  getFolderUrlsByLocale,
-  getPostUrl,
-  getPostUrlsByLocale,
-  withDefault,
-} from '@/utils/urls';
+import { withDefault } from '@/utils/urls';
 import { PostPageContent } from '@/components/post-page';
 import { PostListing } from '@/components/post-listing';
 import BaseDatalayer from '@/components/base-datalayer';
+import { getPathname } from '@/i18n/navigation';
 
 type Props = { slug1: string; locale: Locale };
 
@@ -50,12 +50,36 @@ export async function generateMetadata({
     const posts = getPostsByPrefix(slug1, locale);
     if (posts.length > 0) {
       const translations = await getBlogDictionary(locale);
+      const postTranslations = getTranslations(posts[0]);
       return {
         title: posts[0].folder || '',
         description: translations.browse_posts_description,
         alternates: {
-          canonical: getFolderUrl(slug1, locale),
-          languages: withDefault(getFolderUrlsByLocale(slug1, locale)),
+          canonical: getPathname({
+            locale,
+            href: {
+              pathname: '/content/[...slugs]',
+              params: { slugs: [slug1] },
+            },
+          }),
+          languages: withDefault(
+            routing.locales.reduce(
+              (acc, localeCode) => {
+                const translation = postTranslations[localeCode];
+                if (translation) {
+                  acc[localeCode] = getPathname({
+                    locale: localeCode,
+                    href: {
+                      pathname: '/content/[...slugs]',
+                      params: { slugs: [translation.pathPrefix] },
+                    },
+                  });
+                }
+                return acc;
+              },
+              {} as Record<Locale, string>,
+            ),
+          ),
         },
       };
     }
@@ -64,17 +88,46 @@ export async function generateMetadata({
       description: '', //The generic 404 takes care of this,
     };
   }
+  const translations = getTranslations(post);
+  const urls = routing.locales.reduce(
+    (acc, locale) => {
+      const translation = translations[locale];
+      if (translation) {
+        acc[locale] = getPathname({
+          href: {
+            pathname: '/content/[...slugs]',
+            params: { slugs: [translation.slugPath] },
+          },
+          locale: locale,
+        });
+      }
+      return acc;
+    },
+    {} as Record<Locale, string>,
+  );
   return {
     title: post.title,
     description: post.description,
     alternates: {
-      canonical: getPostUrl(post),
-      languages: withDefault(getPostUrlsByLocale(post)),
+      canonical: getPathname({
+        locale,
+        href: {
+          pathname: '/content/[...slugs]',
+          params: { slugs: post.slugPath },
+        },
+      }),
+      languages: withDefault(urls),
     },
     openGraph: {
       title: post.title,
       description: post.description,
-      url: getPostUrl(post),
+      url: getPathname({
+        locale,
+        href: {
+          pathname: '/content/[...slugs]',
+          params: { slugs: post.slugPath },
+        },
+      }),
       siteName: 'SlingSite',
       images: [
         {

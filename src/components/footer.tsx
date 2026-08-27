@@ -1,10 +1,9 @@
 import { Logo } from './logo';
 import BlogLink from './blog-link';
 import { FooterTranslations } from '@/i18n/type';
-import { getUrl } from '@/utils/urls';
 import { Locale } from '@/i18n/routing';
 import LanguageSelector from './language-selector';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export default function Footer({
   translations,
@@ -32,7 +31,8 @@ export default function Footer({
               <ul className="mt-4 mb-4 space-y-4">
                 <li>
                   <Link
-                    href={getUrl(locale, 'subscribe')}
+                    locale={locale}
+                    href="/subscribe/"
                     className="text-base text-gray-500 hover:text-gray-900"
                   >
                     {translations.subscribe}
@@ -50,7 +50,13 @@ export default function Footer({
                   </a>
                 </li>
               </ul>
-              <Link href={`/${locale}/${translations.comparisonsSlug}/`}>
+              <Link
+                locale={locale}
+                href={{
+                  pathname: '/content/[...slugs]',
+                  params: { slugs: [translations.comparisonsSlug] },
+                }}
+              >
                 <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
                   {translations.headings.comparisons}
                 </h2>

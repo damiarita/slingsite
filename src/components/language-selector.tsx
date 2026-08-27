@@ -1,19 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Locale } from '@/i18n/routing';
-import { usePathname } from 'next/navigation';
-import {
-  getFolderUrlsByLocale,
-  getPostUrl,
-  getPostUrlsByLocale,
-  getUrl,
-  getUrlsByLocale,
-  pageTypes,
-} from '@/utils/urls';
-import { getAllPosts, getFolderTranslations } from '@/content/lib';
+import { useEffect, useRef, useState } from 'react';
+import { Locale, routing } from '@/i18n/routing';
+import { getPathname, usePathname } from '@/i18n/navigation';
+import { getFolderTranslations, getPost, getTranslations } from '@/content/lib';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+import { useSelectedLayoutSegments } from 'next/navigation';
 
 export default function LanguageSelector({
   currentLocale,
@@ -22,34 +15,9 @@ export default function LanguageSelector({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
-  const path = usePathname();
+  const pathname = usePathname();
 
-  const currentPageType = useMemo(() => {
-    if (!path) return;
-    for (const pageType of pageTypes) {
-      const expectedPath = getUrl(currentLocale, pageType);
-      if (expectedPath === path) {
-        return pageType;
-      }
-    }
-    return;
-  }, [path, currentLocale]);
-
-  const currentPost = useMemo(() => {
-    if (!path) return;
-    for (const post of getAllPosts()) {
-      const expectedPath = getPostUrl(post.id, currentLocale);
-      if (expectedPath === path) {
-        return post;
-      }
-    }
-    return;
-  }, [path, currentLocale]);
-
-  const currentFolder = useMemo(() => {
-    if (!path || path.split('/').length !== 4) return;
-    return path.split('/')[2];
-  }, [path]);
+  const layoutSegments = useSelectedLayoutSegments();
 
   const languageNames: Record<Locale, string> = {
     en: 'English',
@@ -72,17 +40,66 @@ export default function LanguageSelector({
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
-  function getUrls(): Record<Locale, string> {
-    if (currentPost) {
-      return getPostUrlsByLocale(currentPost);
+  function getUrls(
+    pathname: ReturnType<typeof usePathname>,
+  ): Record<Locale, string> {
+    switch (pathname) {
+      case '/home/':
+      case '/image/':
+      case '/video/':
+      case '/subscribe/':
+        return routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({ href: pathname, locale: locale });
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        );
+      case '/content/[...slugs]': {
+        const slug = layoutSegments[layoutSegments.length - 1];
+        const post = getPost(slug, currentLocale);
+        if (post) {
+          const translations = getTranslations(post);
+          return routing.locales.reduce(
+            (acc, locale) => {
+              const translation = translations[locale];
+              if (translation) {
+                acc[locale] = getPathname({
+                  href: {
+                    pathname: '/content/[...slugs]',
+                    params: { slugs: translation.slugPath },
+                  },
+                  locale: locale,
+                });
+              }
+              return acc;
+            },
+            {} as Record<Locale, string>,
+          );
+        }
+        const translations = getFolderTranslations(slug, currentLocale);
+        return routing.locales.reduce(
+          (acc, locale) => {
+            const translation = translations[locale];
+            if (translation) {
+              acc[locale] = getPathname({
+                href: {
+                  pathname: '/content/[...slugs]',
+                  params: { slugs: [translation] },
+                },
+                locale: locale,
+              });
+            }
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        );
+      }
+      default: {
+        const _exhaustiveCheck: never = pathname;
+        return _exhaustiveCheck;
+      }
     }
-    if (currentPageType) {
-      return getUrlsByLocale(currentPageType);
-    }
-    if (currentFolder) {
-      return getFolderUrlsByLocale(currentFolder, currentLocale);
-    }
-    return getUrlsByLocale('image'); // default to 'image' page type
   }
 
   return (
@@ -105,7 +122,7 @@ export default function LanguageSelector({
       {open && (
         <div className="absolute left-0 mt-1 w-full bg-white rounded-md shadow-md z-50 border border-gray-300">
           <ul className="py-1">
-            {(Object.entries(getUrls()) as [Locale, string][]).map(
+            {(Object.entries(getUrls(pathname)) as [Locale, string][]).map(
               ([locale, url]) => (
                 <li key={locale}>
                   <Link

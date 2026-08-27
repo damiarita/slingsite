@@ -4,10 +4,8 @@ import { useState } from 'react';
 import { Logo } from './logo';
 import NavLink from './nav-link';
 import { Locale } from '@/i18n/routing';
-import { getUrl } from '@/utils/urls';
 import { NavBarItem } from '@/types/nav-bar';
-import Link from 'next/link';
-
+import { Link } from '@/i18n/navigation';
 export default function NavBar({
   locale,
   items,
@@ -21,7 +19,8 @@ export default function NavBar({
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center h-16">
         <Link
-          href={getUrl(locale, 'image')}
+          locale={locale}
+          href="/image/"
           className="flex items-center space-x-3"
         >
           <Logo />
@@ -30,11 +29,11 @@ export default function NavBar({
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex space-x-6 text-sm font-medium">
-          {items.map((item) => (
+          {items.map((item, i) => (
             <NavLink
-              key={item.pageType}
-              pageType={item.pageType}
+              key={i}
               locale={locale}
+              href={item.href}
               onLinkClick={() => setOpen(false)}
             >
               {item.label}
@@ -84,11 +83,11 @@ export default function NavBar({
       {open && (
         <div className="absolute left-0 right-0 top-full sm:hidden z-50">
           <div className="bg-white rounded-b-md shadow-md py-2">
-            {items.map((item) => (
+            {items.map((item, i) => (
               <NavLink
-                key={item.pageType}
-                pageType={item.pageType}
+                key={i}
                 locale={locale}
+                href={item.href}
                 onLinkClick={() => setOpen(false)}
                 mobile
               >

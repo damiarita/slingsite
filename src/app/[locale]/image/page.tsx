@@ -1,7 +1,7 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import CompressorPage from '@/components/compressor-page';
 import PageContent from '@/components/page-content';
-import { Locale } from '@/i18n/routing';
+import { Locale, routing } from '@/i18n/routing';
 import {
   getDevicesDictionary,
   getImagePageMetadataDictionary,
@@ -10,8 +10,9 @@ import {
   getSettingsDictionary,
   getUploadDictionary,
 } from '@/i18n/requests';
-import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
+import { withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
+import { getPathname } from '@/i18n/navigation';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -22,13 +23,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: translation.title,
     description: translation.description,
     alternates: {
-      canonical: getUrl(locale, 'image'),
-      languages: withDefault(getUrlsByLocale('image')),
+      canonical: getPathname({ locale, href: { pathname: '/image/' } }),
+      languages: withDefault(
+        routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({ href: '/image/', locale: locale });
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        ),
+      ),
     },
     openGraph: {
       title: translation.title,
       description: translation.description,
-      url: getUrl(locale, 'image'),
+      url: getPathname({ locale, href: { pathname: '/image/' } }),
       siteName: 'SlingSite',
       images: [
         {

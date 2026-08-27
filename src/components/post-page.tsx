@@ -1,11 +1,11 @@
 import { Locale } from '@/i18n/routing';
-import { getPostUrl, getPostUrlsByLocale } from '@/utils/urls';
 import type { Post } from 'contentlayer/generated';
-import { Calendar, Clock, Edit3, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar, Clock, Edit3 } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import Breadcrumbs from './breadcrumbs';
 import { BlogTranslations } from '@/i18n/type';
 import Script from 'next/script';
+import { getPathname } from '@/i18n/navigation';
 
 const formatDateTime = (dt: Date, locale: Locale): string =>
   dt.toLocaleDateString(locale, {
@@ -21,7 +21,10 @@ interface PostPageProps {
 }
 
 export function PostPageContent({ post, locale, translations }: PostPageProps) {
-  const url = getPostUrl(post);
+  const url = getPathname({
+    locale,
+    href: { pathname: '/content/[...slugs]', params: { slugs: post.slugPath } },
+  });
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
@@ -39,7 +42,18 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
 
   const breadcrumbItems = [
     ...(post.folder
-      ? [{ label: post.folder, href: `/${locale}/${post.pathPrefix}` }]
+      ? [
+          {
+            label: post.folder,
+            href: getPathname({
+              locale: post.locale,
+              href: {
+                pathname: '/content/[...slugs]',
+                params: { slugs: [post.pathPrefix] },
+              },
+            }),
+          },
+        ]
       : []),
     { label: post.title },
   ];
@@ -98,7 +112,8 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
             </div>
             <div className="flex gap-4">
               <Link
-                href={`/${locale}/subscribe`}
+                locale={locale}
+                href="/subscribe/"
                 className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
               >
                 {translations.subscribe}

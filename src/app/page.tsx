@@ -6,8 +6,8 @@ import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
 } from '@/i18n/requests';
-import { getUrl } from '@/utils/urls';
 import { Metadata } from 'next';
+import { getPathname } from '@/i18n/navigation';
 
 export async function generateMetadata(): Promise<Metadata> {
   const redirectionDictionary = await getRedirectionDictionary(
@@ -21,7 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: destinationPageTranslation.title,
       description: destinationPageTranslation.description,
-      url: getUrl(routing.defaultLocale, 'image'),
+      url: getPathname({
+        locale: routing.defaultLocale,
+        href: { pathname: '/image/' },
+      }),
       siteName: 'SlingSite',
       images: [
         {
@@ -53,7 +56,10 @@ export default async function HomePage() {
   const dict = await getRedirectionDictionary(routing.defaultLocale);
   return (
     <Body locale={routing.defaultLocale}>
-      <Redirecter pageType="image" redirecting={dict.redirecting} />
+      <Redirecter
+        href={{ pathname: '/image/' }}
+        redirecting={dict.redirecting}
+      />
       <BaseDatalayer
         locale={routing.defaultLocale}
         pageType="redirect"

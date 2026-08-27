@@ -1,6 +1,7 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import { Locale } from '@/i18n/routing';
-import { getUrl, getUrlsByLocale, withDefault } from '@/utils/urls';
+import { getPathname } from '@/i18n/navigation';
+import { Locale, routing } from '@/i18n/routing';
+import { withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 
 type Props = { params: Promise<{ locale: Locale }> };
@@ -12,14 +13,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
     alternates: {
-      canonical: getUrl(locale, 'subscribe'),
-      languages: withDefault(getUrlsByLocale('subscribe')),
+      canonical: getPathname({ locale, href: { pathname: '/subscribe/' } }),
+      languages: withDefault(
+        routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({ href: '/subscribe/', locale: locale });
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        ),
+      ),
     },
     openGraph: {
       title: 'Suscribe to the SlingSite Newsletter',
       description:
         'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
-      url: getUrl(locale, 'subscribe'),
+      url: getPathname({ locale, href: { pathname: '/subscribe/' } }),
       siteName: 'SlingSite',
       images: [
         {
