@@ -22,7 +22,8 @@ const wasmEncoders: Record<
   },
 };
 
-const nativelySupportedEncoders = await calculateSupportedEncoders();
+const nativelySupportedEncodersPromise: Promise<Record<ImageFormat, boolean>> =
+  calculateSupportedEncoders();
 
 export async function compressImage(
   file: File,
@@ -32,6 +33,7 @@ export async function compressImage(
   onError: (device: Device, format: ImageFormat, errorMessage: string) => void,
   onBegin: (device: Device, format: ImageFormat) => void,
 ): Promise<void> {
+  const nativelySupportedEncoders = await nativelySupportedEncodersPromise;
   const imageBitmap = await createImageBitmap(file);
 
   for (const [device, mediaSize] of Object.entries(mediaSizes) as [
