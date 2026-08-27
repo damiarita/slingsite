@@ -77,10 +77,17 @@ export function PostListing({
               </p>
 
               <div className="pt-4">
-                <span className="inline-flex items-center text-sm font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
+                <Link
+                  locale={locale}
+                  href={{
+                    pathname: '/content/[...slugs]',
+                    params: { slugs: post.slugPath },
+                  }}
+                  className="inline-flex items-center text-sm font-bold text-blue-600 group-hover:translate-x-1 transition-transform"
+                >
                   {translations.read_article}
                   <ChevronRight className="w-4 h-4 ml-1" />
-                </span>
+                </Link>
               </div>
             </div>
           </article>
