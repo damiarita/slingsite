@@ -83,6 +83,13 @@ export default function Footer({
                     locale={locale}
                   />
                 </li>
+                <li>
+                  <BlogLink
+                    postId="shortpixel.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
               </ul>
             </div>
             <div className="mt-12 md:mt-0">
