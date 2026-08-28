@@ -52,6 +52,17 @@ export const getBlogDictionary = createDictionaryGetter<BlogTranslations>({
   en: () => import('./dictioraries/blog/en.json'),
 });
 
+export const getSubscribePageMetadataDictionary =
+  createDictionaryGetter<PageMetadata>({
+    ar: () => import('./dictioraries/subscribe/metadata/ar.json'),
+    de: () => import('./dictioraries/subscribe/metadata/de.json'),
+    es: () => import('./dictioraries/subscribe/metadata/es.json'),
+    fr: () => import('./dictioraries/subscribe/metadata/fr.json'),
+    it: () => import('./dictioraries/subscribe/metadata/it.json'),
+    zh: () => import('./dictioraries/subscribe/metadata/zh.json'),
+    en: () => import('./dictioraries/subscribe/metadata/en.json'),
+  });
+
 export const getVideoPageMetadataDictionary =
   createDictionaryGetter<PageMetadata>({
     ar: () => import('./dictioraries/compression/video/metadata/ar.json'),

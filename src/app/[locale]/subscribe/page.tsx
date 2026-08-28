@@ -1,6 +1,7 @@
 import BaseDatalayer from '@/components/base-datalayer';
 import { getPathname } from '@/i18n/navigation';
 import { Locale, routing } from '@/i18n/routing';
+import { getSubscribePageMetadataDictionary } from '@/i18n/requests';
 import { withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 
@@ -8,10 +9,11 @@ type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  const translation = await getSubscribePageMetadataDictionary(locale);
+
   return {
-    title: 'Suscribe to the SlingSite Newsletter',
-    description:
-      'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
+    title: translation.title,
+    description: translation.description,
     alternates: {
       canonical: getPathname({ locale, href: { pathname: '/subscribe/' } }),
       languages: withDefault(
@@ -25,9 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ),
     },
     openGraph: {
-      title: 'Suscribe to the SlingSite Newsletter',
-      description:
-        'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
+      title: translation.title,
+      description: translation.description,
       url: getPathname({ locale, href: { pathname: '/subscribe/' } }),
       siteName: 'SlingSite',
       images: [
@@ -43,9 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary',
-      title: 'Suscribe to the SlingSite Newsletter',
-      description:
-        'Stay updated with the latest news, tips, and updates from SlingSite by subscribing to our newsletter. Join our community of web developers and designers who are optimizing their images for better performance and faster load times.',
+      title: translation.title,
+      description: translation.description,
       images: ['/favicon.ico'],
     },
   };
