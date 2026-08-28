@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { Locale } from '@/i18n/routing';
+import { usePathname } from 'next/navigation';
 
 interface BaseDatalayerProps {
   locale: Locale;
@@ -14,6 +15,8 @@ export default function BaseDatalayer({
   pageType,
   pageSubtype,
 }: BaseDatalayerProps) {
+  const pathName = usePathname();
+
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
 
@@ -23,7 +26,7 @@ export default function BaseDatalayer({
       pageSubtype,
       env: process.env.NODE_ENV || 'development',
     });
-  }, [locale, pageType, pageSubtype]); // Triggers whenever route OR props change
+  }, [locale, pageType, pageSubtype, pathName]); // Triggers whenever route OR props change
 
   return null;
 }
