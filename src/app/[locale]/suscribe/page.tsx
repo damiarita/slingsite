@@ -19,7 +19,7 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const dict = await getRedirectionDictionary(locale);
   return (
-    <Body locale={locale}>
+    <>
       <Redirecter
         href={{ pathname: '/subscribe/' }}
         locale={locale}
@@ -30,6 +30,6 @@ export default async function HomePage({ params }: Props) {
         pageType="redirect"
         pageSubtype="suscribe"
       />
-    </Body>
+    </>
   );
 }

@@ -52,13 +52,13 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const dict = await getRedirectionDictionary(locale);
   return (
-    <Body locale={locale}>
+    <>
       <Redirecter
         href={{ pathname: '/image/' }}
         locale={locale}
         redirecting={dict.redirecting}
       />
       <BaseDatalayer locale={locale} pageType="redirect" pageSubtype="root" />
-    </Body>
+    </>
   );
 }
