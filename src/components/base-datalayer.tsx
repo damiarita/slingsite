@@ -22,6 +22,7 @@ export default function BaseDatalayer({
 
     window.dataLayer.push({
       locale,
+      event: 'page_view',
       pageType,
       pageSubtype,
       env: process.env.NODE_ENV || 'development',
