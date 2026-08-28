@@ -17,6 +17,20 @@ export const Post = defineDocumentType(() => ({
     modificationDate: { type: 'date', required: true },
     locale: { type: 'enum', options: routing.locales, required: true },
     slug: { type: 'string', required: true },
+    articleType: {
+      type: 'enum',
+      options: [
+        'Article',
+        'AdvertiserContentArticle',
+        'NewsArticle',
+        'Report',
+        'SatiricalArticle',
+        'ScholarlyArticle',
+        'SocialMediaPosting',
+        'TechArticle',
+      ],
+      required: true,
+    },
     folder: { type: 'string', required: false },
   },
   computedFields: {

@@ -27,7 +27,7 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
   });
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'TechArticle',
+    '@type': post.articleType,
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': url,
