@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
         }),
       );
     }
+    // The multi-threaded AVIF encoder needs SharedArrayBuffer, which needs
+    // COOP/COEP headers GitHub Pages can't serve — so this path is dead
+    // code in production anyway, and its internal worker self-import is
+    // exactly what creates the circular chunk-runtime dependency. Redirect
+    // it to the single-threaded encoder, which has no nested worker at all.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      [require.resolve('@jsquash/avif/codec/enc/avif_enc_mt.js')]:
+        require.resolve('@jsquash/avif/codec/enc/avif_enc.js'),
+    };
     return config;
   },
 };
