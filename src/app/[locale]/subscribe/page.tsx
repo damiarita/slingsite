@@ -137,7 +137,7 @@ export default async function App({ params }: Props) {
             <form id="sib-form" method="POST" action="https://5004d848.sibforms.com/serve/MUIFAOBz8aFyqXQsKafpp1E5EXI2nNwYmPDY8NpOkaBf7qiTzQfXrtQvVJVHxJQ4zg2RIJFkd490i7rSJUNJGhSQDbf-40ybOHmk1rzknE8svW_g00PUyh9obSNUXvknFtWMf7ZiVPUqYvVyAKtX-tmy8EzhzGVQrXTPrnsLyAwUfbZaOBXyNFI3grVAp4mrHuW1mvw03QbgqbK2" data-type="subscription">
               <div style="padding: 8px 0;">
                 <div class="sib-form-block" style="font-size:32px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#3C4858; background-color:transparent; text-align:left">
-                  <p>Newsletter</p>
+                  <h1>Newsletter</h1>
                 </div>
               </div>
               <div style="padding: 8px 0;">
