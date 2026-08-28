@@ -3,8 +3,8 @@
 
 import { useState, useRef } from 'react';
 import { ImagePlus } from 'lucide-react';
-import { CompressionInput } from '@/types/compressor';
-import { UploadDictionary } from '@/i18n/type';
+import type { CompressionInput } from '@/types/compressor';
+import type { UploadDictionary } from '@/i18n/type';
 
 interface FileUploadProps {
   onFilesAdded: (files: File[]) => void;

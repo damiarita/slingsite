@@ -1,5 +1,4 @@
-import { Device } from '@/types/devices';
-import { Format as string } from '@/utils/formats';
+import type { Device } from '@/types/devices';
 
 export function getCompressedFileName(
   orginalName: string,

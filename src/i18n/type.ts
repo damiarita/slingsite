@@ -1,7 +1,7 @@
 // This file defines the strict type for our translation dictionaries,
 // ensuring type safety across the application.
-import { ConfigMode } from '@/types/config';
-import {
+import type { ConfigMode } from '@/types/config';
+import type {
   ConsentModalOptions,
   PreferencesModalOptions,
 } from 'vanilla-cookieconsent';

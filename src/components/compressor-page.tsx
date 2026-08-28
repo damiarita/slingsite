@@ -14,7 +14,7 @@ import type { Job, Task } from '@/types/job';
 import { createJob, jobIsIncomplete } from '@/utils/jobs';
 import type { Locale } from '@/i18n/routing';
 import type { CompressionInput } from '@/types/compressor';
-import {
+import type {
   CompressionPageSeoTranslations,
   ResultsDictionary,
   SettingsDictionary,

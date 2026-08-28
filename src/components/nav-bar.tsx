@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Logo } from './logo';
 import NavLink from './nav-link';
-import { Locale } from '@/i18n/routing';
-import { NavBarItem } from '@/types/nav-bar';
+import type { Locale } from '@/i18n/routing';
+import type { NavBarItem } from '@/types/nav-bar';
 import { Link } from '@/i18n/navigation';
 export default function NavBar({
   locale,

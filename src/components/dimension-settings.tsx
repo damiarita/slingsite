@@ -13,8 +13,8 @@ import {
   FilePlus,
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
-import { SettingsDictionary } from '@/i18n/type';
-import { ConfigMode } from '@/types/config';
+import type { SettingsDictionary } from '@/i18n/type';
+import type { ConfigMode } from '@/types/config';
 
 type DeviceConfig = {
   enabled: boolean;

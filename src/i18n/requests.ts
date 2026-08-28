@@ -1,7 +1,8 @@
 import { hasLocale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
-import { Locale, routing } from './routing';
-import { Device } from '@/types/devices';
+import { routing } from './routing';
+import type { Locale } from './routing';
+import type { Device } from '@/types/devices';
 import {
   CookieConsentTranslations,
   BlogTranslations,

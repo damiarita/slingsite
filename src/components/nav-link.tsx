@@ -2,7 +2,7 @@
 import { Locale } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
-import { AppHref } from '@/types/nav-bar';
+import type { AppHref } from '@/types/nav-bar';
 
 export default function NavLink({
   href,
