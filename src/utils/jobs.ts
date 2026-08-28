@@ -1,8 +1,8 @@
-import { DimensionsConfig } from '@/components/dimension-settings';
-import { Device } from '@/types/devices';
+import type { DimensionsConfig } from '@/components/dimension-settings';
+import type { Device } from '@/types/devices';
 import { Format, imageFormats, videoFormats } from '@/utils/formats';
-import { Job, Task } from '@/types/job';
-import { MediaDimensions } from '@/types/mediaDimensions';
+import type { Job, Task } from '@/types/job';
+import type { MediaDimensions } from '@/types/mediaDimensions';
 import { minDimension } from './mediaDimensions';
 
 export const createJob = (

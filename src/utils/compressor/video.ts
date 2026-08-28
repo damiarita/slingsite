@@ -1,6 +1,6 @@
-import { Device } from '@/types/devices';
-import { MediaDimensions } from '@/types/mediaDimensions';
-import { VideoFormat } from '@/utils/formats';
+import type { Device } from '@/types/devices';
+import type { MediaDimensions } from '@/types/mediaDimensions';
+import type { VideoFormat } from '@/utils/formats';
 import {
   getCompressedFileName,
   getFileNameWithExtensionAndSuffix,

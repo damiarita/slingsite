@@ -1,8 +1,8 @@
-import { Job, Task } from '@/types/job';
+import type { Job, Task } from '@/types/job';
 import { jobProportionOfDoneTasks } from '@/utils/jobs';
 import { FileItem } from './file-item';
-import { Device } from '@/types/devices';
-import { Format } from '@/utils/formats';
+import type { Device } from '@/types/devices';
+import type { Format } from '@/utils/formats';
 import { Package } from 'lucide-react';
 import { downloadAllFiles, downloadResultFile } from '@/utils/persistence';
 import { PrimaryButton } from './buttons';

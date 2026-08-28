@@ -1,5 +1,5 @@
-import { Device } from '@/types/devices';
-import { InputMessage } from '@/types/workers';
+import type { Device } from '@/types/devices';
+import type { InputMessage } from '@/types/workers';
 import { compressImage } from '@/utils/compressor/image';
 import { compressVideo, extractFirstFrame } from '@/utils/compressor/video';
 import {

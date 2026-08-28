@@ -1,6 +1,6 @@
-import { Format } from '../utils/formats';
-import { Device } from './devices';
-import { MediaDimensions } from './mediaDimensions';
+import type { Format } from '../utils/formats';
+import type { Device } from './devices';
+import type { MediaDimensions } from './mediaDimensions';
 
 export type Task =
   | { status: 'waiting' }

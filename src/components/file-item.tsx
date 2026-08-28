@@ -1,7 +1,7 @@
 import { FileIcon, Download, X, Clock, Package, Info } from 'lucide-react';
 import type { Format } from '@/utils/formats';
 import type { Device } from '@/types/devices';
-import { Job, Task } from '@/types/job';
+import type { Job, Task } from '@/types/job';
 import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
 import { GoogleDriveButton } from './google-drive-button';

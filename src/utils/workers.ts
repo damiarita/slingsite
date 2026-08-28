@@ -1,6 +1,6 @@
-import { Device } from '@/types/devices';
-import { OutputMessage } from '@/types/workers';
-import { Format } from './formats';
+import type { Device } from '@/types/devices';
+import type { OutputMessage } from '@/types/workers';
+import type { Format } from './formats';
 
 function sendMessage(message: OutputMessage): void {
   self.postMessage(message);

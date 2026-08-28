@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Format, isImageFormat } from '@/utils/formats';
-import { MediaDimensions } from '@/types/mediaDimensions';
-import { Device } from '@/types/devices';
-import { InputMessage, OutputMessage } from '@/types/workers';
-import { CompressionInput } from '@/types/compressor';
+import { isImageFormat } from '@/utils/formats';
+import type { Format } from '@/utils/formats';
+import type { MediaDimensions } from '@/types/mediaDimensions';
+import type { Device } from '@/types/devices';
+import type { InputMessage, OutputMessage } from '@/types/workers';
+import type { CompressionInput } from '@/types/compressor';
 
 export default function useCompressor(type: CompressionInput) {
   const workerRef = useRef<Worker>(null);

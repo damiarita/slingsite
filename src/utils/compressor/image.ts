@@ -1,6 +1,7 @@
-import { Device } from '@/types/devices';
-import { MediaDimensions } from '@/types/mediaDimensions';
-import { ImageFormat, imageFormats } from '@/utils/formats';
+import type { Device } from '@/types/devices';
+import type { MediaDimensions } from '@/types/mediaDimensions';
+import { imageFormats } from '@/utils/formats';
+import type { ImageFormat } from '@/utils/formats';
 
 import { encode as avif_encode } from '@jsquash/avif';
 import { encode as webp_encode } from '@jsquash/webp';

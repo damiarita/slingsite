@@ -1,6 +1,6 @@
-import { Device } from '@/types/devices';
-import { MediaDimensions } from '@/types/mediaDimensions';
-import { ImageFormat, isImageFormat } from '@/utils/formats';
+import type { Device } from '@/types/devices';
+import { isImageFormat } from '@/utils/formats';
+import type { ImageFormat } from '@/utils/formats';
 
 import {
   sendReadyMessage,
@@ -9,7 +9,7 @@ import {
   sendErrorMessage,
 } from '@/utils/workers';
 import { compressImage } from '@/utils/compressor/image';
-import { InputMessage } from '@/types/workers';
+import type { InputMessage } from '@/types/workers';
 
 self.onmessage = async (ev) => {
   const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;

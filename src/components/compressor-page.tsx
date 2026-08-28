@@ -5,15 +5,15 @@ import { FileUpload } from '@/components/file-upload';
 import { Results } from '@/components/results';
 import {
   DimensionsSettings,
-  DimensionsConfig,
+  type DimensionsConfig,
 } from '@/components/dimension-settings';
 import useCompressor from '@/hooks/use-compressor';
-import { Format } from '@/utils/formats';
-import { Device } from '@/types/devices';
-import { Job, Task } from '@/types/job';
+import type { Format } from '@/utils/formats';
+import type { Device } from '@/types/devices';
+import type { Job, Task } from '@/types/job';
 import { createJob, jobIsIncomplete } from '@/utils/jobs';
-import { Locale } from '@/i18n/routing';
-import { CompressionInput } from '@/types/compressor';
+import type { Locale } from '@/i18n/routing';
+import type { CompressionInput } from '@/types/compressor';
 import {
   CompressionPageSeoTranslations,
   ResultsDictionary,

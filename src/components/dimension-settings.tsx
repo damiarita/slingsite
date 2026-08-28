@@ -1,7 +1,7 @@
 // This component provides the UI for configuring the compression dimensions for each viewport.
 'use client';
 import { ReactElement } from 'react';
-import { Device } from '@/types/devices';
+import type { Device } from '@/types/devices';
 import {
   Smartphone,
   Tablet,
