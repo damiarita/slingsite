@@ -1,6 +1,5 @@
 import { FileIcon, Download, X, Clock, Package, Info } from 'lucide-react';
 import type { Format } from '@/utils/formats';
-import type { Device } from '@/types/devices';
 import type { Job, Task } from '@/types/job';
 import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
@@ -14,7 +13,6 @@ type FileItemProps = {
   onDownloadOne: (file: File) => void;
   job: Job;
   translation: ResultsDictionary;
-  devicesTranslation: Record<Device, string>;
 };
 
 export const FileItem = ({
@@ -23,7 +21,6 @@ export const FileItem = ({
   onDownloadOne,
   job,
   translation,
-  devicesTranslation,
 }: FileItemProps) => {
   const { originalFile, originalFileObjectURL, tasks } = job;
   const progress = jobProportionOfDoneTasks(job);
@@ -37,80 +34,76 @@ export const FileItem = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   };
 
-  const rendertTasks = (
-    tasks: Partial<Record<Device, Partial<Record<Format, Task>>>>,
-  ) => (
+  const rendertTasks = (tasks: Job['tasks']) => (
     <div className="space-y-2">
-      {(Object.entries(tasks) as [Device, Partial<Record<Format, Task>>][]).map(
-        ([device, formats]) => (
-          <div key={device}>
-            <p className="text-xs font-bold text-gray-500 capitalize mb-1 flex items-center">
-              {devicesTranslation[device]}
-              <span className="ml-2 font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full text-[10px]">
-                {job.requestedDimensions[device]?.width}x
-                {job.requestedDimensions[device]?.height}
-              </span>
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {(Object.entries(formats) as [Format, Task][]).map(
-                ([format, task]) => (
-                  <div
-                    key={format}
-                    className="flex items-center justify-between bg-gray-100 rounded-md py-1 px-2 flex-grow text-xs"
-                  >
-                    <div className="flex items-center">
-                      <FileIcon className="w-3 h-3 mr-1.5 text-gray-500" />
-                      <span className="font-mono uppercase">{format}</span>
-                      {task.status === 'waiting' && (
-                        <span className="text-gray-500 ml-2">
-                          {translation.waiting}
+      {Object.entries(tasks).map(([configName, formats]) => (
+        <div key={configName}>
+          <p className="text-xs font-bold text-gray-500 capitalize mb-1 flex items-center">
+            {configName}
+            <span className="ml-2 font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full text-[10px]">
+              {job.requestedDimensions[configName]?.width}x
+              {job.requestedDimensions[configName]?.height}
+            </span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(formats) as [Format, Task][]).map(
+              ([format, task]) => (
+                <div
+                  key={format}
+                  className="flex items-center justify-between bg-gray-100 rounded-md py-1 px-2 flex-grow text-xs"
+                >
+                  <div className="flex items-center">
+                    <FileIcon className="w-3 h-3 mr-1.5 text-gray-500" />
+                    <span className="font-mono uppercase">{format}</span>
+                    {task.status === 'waiting' && (
+                      <span className="text-gray-500 ml-2">
+                        {translation.waiting}
+                      </span>
+                    )}
+                    {task.status === 'running' && !!task.percentage && (
+                      <span className="text-gray-500 ml-2">
+                        {task.percentage}%
+                      </span>
+                    )}
+                    {task.status === 'running' && !task.percentage && (
+                      <span className="text-gray-500 ml-2">
+                        {translation.running}
+                      </span>
+                    )}
+                    {task.status === 'errored' && (
+                      <span className="ml-2 flex items-center gap-2">
+                        <span className="text-red-500">
+                          {translation.error}
                         </span>
-                      )}
-                      {task.status === 'running' && !!task.percentage && (
-                        <span className="text-gray-500 ml-2">
-                          {task.percentage}%
+                        <span
+                          title={task.errorMessage ?? translation.error}
+                          className="text-red-500 hover:text-gray-600"
+                          aria-hidden={false}
+                        >
+                          <Info className="w-3 h-3" />
                         </span>
-                      )}
-                      {task.status === 'running' && !task.percentage && (
-                        <span className="text-gray-500 ml-2">
-                          {translation.running}
-                        </span>
-                      )}
-                      {task.status === 'errored' && (
-                        <span className="ml-2 flex items-center gap-2">
-                          <span className="text-red-500">
-                            {translation.error}
-                          </span>
-                          <span
-                            title={task.errorMessage ?? translation.error}
-                            className="text-red-500 hover:text-gray-600"
-                            aria-hidden={false}
-                          >
-                            <Info className="w-3 h-3" />
-                          </span>
-                        </span>
-                      )}
-                      {task.status === 'completed' && (
-                        <span className="text-gray-500 ml-2">
-                          {formatBytes(task.result.size)}
-                        </span>
-                      )}
-                    </div>
+                      </span>
+                    )}
                     {task.status === 'completed' && (
-                      <button
-                        onClick={() => onDownloadOne(task.result)}
-                        className="p-0.5 rounded hover:bg-gray-200 text-gray-600"
-                      >
-                        <Download className="w-3 h-3" />
-                      </button>
+                      <span className="text-gray-500 ml-2">
+                        {formatBytes(task.result.size)}
+                      </span>
                     )}
                   </div>
-                ),
-              )}
-            </div>
+                  {task.status === 'completed' && (
+                    <button
+                      onClick={() => onDownloadOne(task.result)}
+                      className="p-0.5 rounded hover:bg-gray-200 text-gray-600"
+                    >
+                      <Download className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              ),
+            )}
           </div>
-        ),
-      )}
+        </div>
+      ))}
     </div>
   );
 

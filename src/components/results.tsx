@@ -1,7 +1,6 @@
 import type { Job, Task } from '@/types/job';
 import { jobProportionOfDoneTasks } from '@/utils/jobs';
 import { FileItem } from './file-item';
-import type { Device } from '@/types/devices';
 import type { Format } from '@/utils/formats';
 import { Package } from 'lucide-react';
 import { downloadAllFiles, downloadResultFile } from '@/utils/persistence';
@@ -20,7 +19,6 @@ type Props = {
   jobs: Job[];
   handleRemoveJob: (index: number) => void;
   translation: ResultsDictionary;
-  devicesTranslation: Record<Device, string>;
 };
 
 function getPersistenceJobs(
@@ -29,16 +27,13 @@ function getPersistenceJobs(
 ): FilePersistenceJob[] {
   const persistenceJobs: FilePersistenceJob[] = [];
   for (const job of jobs) {
-    for (const [device, formats] of Object.entries(job.tasks) as [
-      Device,
-      Partial<Record<Format, Task>>,
-    ][]) {
+    for (const [configName, formats] of Object.entries(job.tasks)) {
       for (const [format] of Object.entries(formats) as [Format, Task][]) {
-        const task = job.tasks[device]?.[format];
+        const task = job.tasks[configName]?.[format];
         if (task && task.status === 'completed' && task.result) {
           persistenceJobs.push({
             file: task.result,
-            id: `${job.id}-${device}-${format}`,
+            id: `${job.id}-${configName}-${format}`,
             type,
             status: { status: 'waiting' },
           });
@@ -63,12 +58,7 @@ function chagePersistanceJobStatus(
   });
 }
 
-export const Results = ({
-  jobs,
-  handleRemoveJob,
-  translation,
-  devicesTranslation,
-}: Props) => {
+export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
   const [persistenceJobs, setPersistenceJobs] = useState<FilePersistenceJob[]>(
     [],
   );
@@ -150,7 +140,6 @@ export const Results = ({
               }}
               job={job}
               translation={translation}
-              devicesTranslation={devicesTranslation}
             />
           ))}
         </div>

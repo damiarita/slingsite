@@ -1,4 +1,3 @@
-import type { Device } from '@/types/devices';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import { imageFormats } from '@/utils/formats';
 import type { ImageFormat } from '@/utils/formats';
@@ -29,18 +28,19 @@ const nativelySupportedEncodersPromise: Promise<Record<ImageFormat, boolean>> =
 export async function compressImage(
   file: File,
   formats: ImageFormat[],
-  mediaSizes: Partial<Record<Device, MediaDimensions>>,
-  onSuccess: (file: File, device: Device, format: ImageFormat) => void,
-  onError: (device: Device, format: ImageFormat, errorMessage: string) => void,
-  onBegin: (device: Device, format: ImageFormat) => void,
+  mediaSizes: Record<string, MediaDimensions>,
+  onSuccess: (file: File, configName: string, format: ImageFormat) => void,
+  onError: (
+    configName: string,
+    format: ImageFormat,
+    errorMessage: string,
+  ) => void,
+  onBegin: (configName: string, format: ImageFormat) => void,
 ): Promise<void> {
   const nativelySupportedEncoders = await nativelySupportedEncodersPromise;
   const imageBitmap = await createImageBitmap(file);
 
-  for (const [device, mediaSize] of Object.entries(mediaSizes) as [
-    Device,
-    MediaDimensions,
-  ][]) {
+  for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
     // Create canvas for resizing
     const canvas = new OffscreenCanvas(mediaSize.width, mediaSize.height);
     const ctx = canvas.getContext('2d', {
@@ -49,7 +49,7 @@ export async function compressImage(
     });
     if (!ctx) {
       for (const format of formats) {
-        onError(device, format, 'Failed to get canvas context');
+        onError(configName, format, 'Failed to get canvas context');
       }
       continue;
     }
@@ -60,7 +60,7 @@ export async function compressImage(
     // Draw resized image
     ctx.drawImage(imageBitmap, 0, 0, mediaSize.width, mediaSize.height);
     for (const format of formats) {
-      onBegin(device, format);
+      onBegin(configName, format);
       const outputMimeType = getMimeType(format);
       if (nativelySupportedEncoders[format]) {
         const blob = await canvas.convertToBlob({
@@ -69,10 +69,10 @@ export async function compressImage(
         });
         const compressedFile = new File(
           [blob],
-          getCompressedFileName(file.name, device, format),
+          getCompressedFileName(file.name, configName, format),
           { type: outputMimeType },
         );
-        onSuccess(compressedFile, device, format);
+        onSuccess(compressedFile, configName, format);
       } else {
         // Use WASM encoder
         const imageData = ctx.getImageData(
@@ -84,12 +84,12 @@ export async function compressImage(
         const arrayBuffer = await wasmEncoders[format](imageData);
         const compressedFile = new File(
           [arrayBuffer],
-          getCompressedFileName(file.name, device, format),
+          getCompressedFileName(file.name, configName, format),
           {
             type: outputMimeType,
           },
         );
-        onSuccess(compressedFile, device, format);
+        onSuccess(compressedFile, configName, format);
       }
     }
   }

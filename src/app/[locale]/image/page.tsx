@@ -3,7 +3,6 @@ import CompressorPage from '@/components/compressor-page';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
-  getDevicesDictionary,
   getImagePageMetadataDictionary,
   getImagePageSeoDictionary,
   getResultDictionary,
@@ -13,6 +12,7 @@ import {
 import { withDefault } from '@/utils/urls';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
+import { getDefaultCompressionConfig } from '@/utils/compressor/all';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -71,17 +71,16 @@ export default async function App({ params }: Props) {
   const uploadTranslation = await getUploadDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
   const resultTranslation = await getResultDictionary(locale);
-  const devicesTranslation = await getDevicesDictionary(locale);
+  const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
       <CompressorPage
-        locale={locale}
         compressorType="image"
         seoTranslation={seoTranslation}
         uploadTranslation={uploadTranslation}
         settingTranslation={settingTranslation}
         resultTranslation={resultTranslation}
-        devicesTranslation={devicesTranslation}
+        initialConfig={initialConfig}
       />
       <PageContent locale={locale} slug="image" />
       <BaseDatalayer locale={locale} pageType="tool" pageSubtype="image" />

@@ -2,7 +2,6 @@ import { hasLocale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
 import { routing } from './routing';
 import type { Locale } from './routing';
-import type { Device } from '@/types/devices';
 import {
   CookieConsentTranslations,
   BlogTranslations,
@@ -165,7 +164,7 @@ export const getResultDictionary = createDictionaryGetter<ResultsDictionary>({
   en: () => import('./dictioraries/result/en.json'),
 });
 export const getDevicesDictionary = createDictionaryGetter<
-  Record<Device, string>
+  Record<'mobile' | 'tablet' | 'desktop', string>
 >({
   ar: () => import('./dictioraries/devices/ar.json'),
   de: () => import('./dictioraries/devices/de.json'),

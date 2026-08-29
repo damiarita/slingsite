@@ -1,5 +1,4 @@
 import type { Format } from '../utils/formats';
-import type { Device } from './devices';
 import type { MediaDimensions } from './mediaDimensions';
 
 export type Task =
@@ -13,7 +12,7 @@ export type Job = {
   originalFile: File;
   originalFileObjectURL: string;
   originalDimensions: MediaDimensions;
-  requestedDimensions: Partial<Record<Device, MediaDimensions>>;
+  requestedDimensions: Record<string, MediaDimensions>;
   requestedFormats: Format[];
-  tasks: Partial<Record<Device, Partial<Record<Format, Task>>>>;
+  tasks: Record<string, Partial<Record<Format, Task>>>;
 };

@@ -1,9 +1,7 @@
-import type { Device } from '@/types/devices';
 import type { InputMessage } from '@/types/workers';
 import { compressImage } from '@/utils/compressor/image';
 import { compressVideo, extractFirstFrame } from '@/utils/compressor/video';
 import {
-  Format,
   ImageFormat,
   isImageFormat,
   isVideoFormat,
@@ -30,8 +28,8 @@ self.addEventListener('message', async (ev) => {
       (error.message || String(error));
     console.error(errorMessage);
     for (const format of imageFormats) {
-      for (const device of Object.keys(mediaSizes) as Device[]) {
-        sendErrorMessage(jobId, device, format, errorMessage);
+      for (const configName of Object.keys(mediaSizes)) {
+        sendErrorMessage(jobId, configName, format, errorMessage);
       }
     }
   });
@@ -40,14 +38,14 @@ self.addEventListener('message', async (ev) => {
     file,
     videFormats,
     mediaSizes,
-    (compressedFile: File, device: Device, format: VideoFormat) => {
-      sendResultMessage(jobId, device, format, compressedFile);
+    (compressedFile: File, configName: string, format: VideoFormat) => {
+      sendResultMessage(jobId, configName, format, compressedFile);
     },
-    (device: Device, format: VideoFormat, errorMessage: string) => {
-      sendErrorMessage(jobId, device, format, errorMessage);
+    (configName: string, format: VideoFormat, errorMessage: string) => {
+      sendErrorMessage(jobId, configName, format, errorMessage);
     },
-    (device: Device, format: VideoFormat, progress: number) => {
-      sendProgressMessage(jobId, device, format, progress);
+    (configName: string, format: VideoFormat, progress: number) => {
+      sendProgressMessage(jobId, configName, format, progress);
     },
   );
 
@@ -56,14 +54,14 @@ self.addEventListener('message', async (ev) => {
       thumbnail,
       imageFormats,
       mediaSizes,
-      (compressedFile: File, device: Device, format: ImageFormat) => {
-        sendResultMessage(jobId, device, format, compressedFile);
+      (compressedFile: File, configName: string, format: ImageFormat) => {
+        sendResultMessage(jobId, configName, format, compressedFile);
       },
-      (device: Device, format: ImageFormat, errorMessage: string) => {
-        sendErrorMessage(jobId, device, format, errorMessage);
+      (configName: string, format: ImageFormat, errorMessage: string) => {
+        sendErrorMessage(jobId, configName, format, errorMessage);
       },
-      (device: Device, format: ImageFormat) => {
-        sendProgressMessage(jobId, device, format);
+      (configName: string, format: ImageFormat) => {
+        sendProgressMessage(jobId, configName, format);
       },
     );
   }

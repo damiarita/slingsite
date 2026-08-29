@@ -1,12 +1,11 @@
 import type { Format } from '@/utils/formats';
-import type { Device } from './devices';
 import type { MediaDimensions } from './mediaDimensions';
 
 export interface InputMessage {
   jobId: string;
   file: File;
   formats: Format[];
-  mediaSizes: Partial<Record<Device, MediaDimensions>>;
+  mediaSizes: Record<string, MediaDimensions>;
 }
 
 interface BaseOutputMessage {
@@ -15,7 +14,7 @@ interface BaseOutputMessage {
 
 interface JobOutputMessage extends BaseOutputMessage {
   jobId: string;
-  device: Device;
+  configName: string;
   format: Format;
 }
 

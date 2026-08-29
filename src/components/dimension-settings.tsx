@@ -1,7 +1,6 @@
 // This component provides the UI for configuring the compression dimensions for each viewport.
 'use client';
 import { ReactElement } from 'react';
-import type { Device } from '@/types/devices';
 import {
   Smartphone,
   Tablet,
@@ -14,17 +13,7 @@ import {
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
 import type { SettingsDictionary } from '@/i18n/type';
-import type { ConfigMode } from '@/types/config';
-
-type DeviceConfig = {
-  enabled: boolean;
-  screenWidth: number;
-  sizingType: ConfigMode;
-  percentage: number;
-  width: number;
-  height: number;
-};
-export type DimensionsConfig = Record<Device, DeviceConfig>;
+import type { ConfigMode, SizingConfigs } from '@/types/config';
 
 const createPercentageFromColumns = (columns: number) => {
   if (columns <= 0) return 100;
@@ -32,25 +21,23 @@ const createPercentageFromColumns = (columns: number) => {
 };
 
 export const DimensionsSettings = ({
-  config,
+  configs,
   setConfig,
-  handleCompressClick,
+  handleProcessClick,
   files,
   handleRemoveFile,
-  handelClickAddMoreFiles,
+  handleClickAddMoreFiles,
   translation,
-  devicesTranslation,
 }: {
-  config: DimensionsConfig;
-  setConfig: React.Dispatch<React.SetStateAction<DimensionsConfig>>;
-  handleCompressClick: () => void;
+  configs: SizingConfigs;
+  setConfig: React.Dispatch<React.SetStateAction<SizingConfigs>>;
+  handleProcessClick: () => void;
   files: File[];
   handleRemoveFile: (index: number) => void;
-  handelClickAddMoreFiles: () => void;
+  handleClickAddMoreFiles: () => void;
   translation: SettingsDictionary;
-  devicesTranslation: Record<Device, string>;
 }) => {
-  const icons: Record<Device, ReactElement> = {
+  const icons: Record<string, ReactElement> = {
     mobile: <Smartphone className="w-5 h-5 mr-2" />,
     tablet: <Tablet className="w-5 h-5 mr-2" />,
     desktop: <Monitor className="w-5 h-5 mr-2" />,
@@ -63,32 +50,32 @@ export const DimensionsSettings = ({
     { label: '1/4', columns: 4 },
   ];
 
-  const handleToggle = (device: Device) => {
-    setConfig((prev: DimensionsConfig) => {
+  const handleToggle = (configName: string) => {
+    setConfig((prev: SizingConfigs) => {
       const newConfig = { ...prev };
-      newConfig[device] = {
-        ...newConfig[device],
-        enabled: !newConfig[device].enabled,
+      newConfig[configName] = {
+        ...newConfig[configName],
+        enabled: !newConfig[configName].enabled,
       };
       return newConfig;
     });
   };
-  const handleModeChange = (device: Device, mode: ConfigMode) => {
+  const handleModeChange = (configName: string, mode: ConfigMode) => {
     setConfig((prev) => {
       const newConfig = { ...prev };
-      const deviceConf = { ...newConfig[device], sizingType: mode };
-      newConfig[device] = deviceConf;
+      const deviceConf = { ...newConfig[configName], sizingType: mode };
+      newConfig[configName] = deviceConf;
       return newConfig;
     });
   };
   const handleInputChange = (
-    device: Device,
+    configName: string,
     field: 'width' | 'height' | 'percentage' | 'screenWidth',
     value: number,
   ) => {
     setConfig((prev) => {
       const newConfig = { ...prev };
-      const deviceConf = { ...newConfig[device], [field]: value };
+      const deviceConf = { ...newConfig[configName], [field]: value };
       if (field === 'width') {
         deviceConf.width = value;
         deviceConf.percentage = (100 * value) / deviceConf.screenWidth;
@@ -105,7 +92,7 @@ export const DimensionsSettings = ({
       if (field === 'height') {
         deviceConf.height = value;
       }
-      newConfig[device] = deviceConf;
+      newConfig[configName] = deviceConf;
       return newConfig;
     });
   };
@@ -145,7 +132,7 @@ export const DimensionsSettings = ({
         ))}
       </div>
       <div className="flex justify-end items-center mb-4">
-        <SecondaryButton onClick={handelClickAddMoreFiles}>
+        <SecondaryButton onClick={handleClickAddMoreFiles}>
           <FilePlus className="w-4 h-4 mr-2" />
           {translation.addMoreFiles}
         </SecondaryButton>
@@ -157,168 +144,173 @@ export const DimensionsSettings = ({
         </h3>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
-        {(Object.keys(config) as Device[]).map((device) => (
-          <div
-            key={device}
-            className={`rounded-lg transition-all duration-300 ${config[device].enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
-          >
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center font-semibold text-gray-700 capitalize">
-                {icons[device]}{' '}
-                <label htmlFor={device}>{devicesTranslation[device]}</label>
-              </div>
-              <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id={device}
-                  checked={config[device].enabled}
-                  onChange={() => handleToggle(device)}
-                  className="absolute inset-0 w-full h-full m-0 p-0 opacity-0 cursor-pointer peer z-10"
-                  aria-checked={config[device].enabled}
-                  role="switch"
-                />
-                {/* track */}
-                <div
-                  className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors"
-                  aria-hidden="true"
-                />
-                {/* knob */}
-                <div
-                  className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"
-                  aria-hidden="true"
-                />
-              </div>
-            </div>
+        {Object.entries(configs).map(([configName, config]) => {
+          const icon = config.iconType && icons[config.iconType];
+          return (
             <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${config[device].enabled ? 'max-h-[500px]' : 'max-h-0'}`}
+              key={configName}
+              className={`rounded-lg transition-all duration-300 ${config.enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
             >
-              <div className="px-4 pb-4 space-y-4">
-                {config[device].sizingType === 'percentage' && (
-                  <div>
-                    <label
-                      className="text-sm font-medium text-gray-600"
-                      htmlFor={`screen-width${device}`}
-                    >
-                      {translation.supportScreensUpTo}:
-                    </label>
-                    <div className="relative mt-1">
-                      <input
-                        id={`screen-width${device}`}
-                        type="number"
-                        value={config[device].screenWidth}
-                        onChange={function (e) {
-                          handleInputChange(
-                            device,
-                            'screenWidth',
-                            parseFloat(e.target.value),
-                          );
-                        }}
-                        className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
-                        px
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    {translation.configMode[config[device].sizingType]}
-                  </label>
-                  {config[device].sizingType === 'percentage' ? (
-                    <>
-                      <div className="grid grid-cols-4 gap-2 mt-1">
-                        {columnOptions.map((opt) => (
-                          <button
-                            key={opt.columns}
-                            onClick={() =>
-                              handleInputChange(
-                                device,
-                                'percentage',
-                                createPercentageFromColumns(opt.columns),
-                              )
-                            }
-                            className={`text-xs p-2 rounded-md transition-colors ${Math.round(createPercentageFromColumns(opt.columns)) === Math.round(config[device].percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="mt-2">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center font-semibold text-gray-700 capitalize">
+                  {icon}
+                  <label htmlFor={configName}>{configName}</label>
+                </div>
+                <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
+                  <input
+                    type="checkbox"
+                    id={configName}
+                    checked={config.enabled}
+                    onChange={() => handleToggle(configName)}
+                    className="absolute inset-0 w-full h-full m-0 p-0 opacity-0 cursor-pointer peer z-10"
+                    aria-checked={config.enabled}
+                    role="switch"
+                  />
+                  {/* track */}
+                  <div
+                    className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors"
+                    aria-hidden="true"
+                  />
+                  {/* knob */}
+                  <div
+                    className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+              <div
+                className={`transition-all duration-500 ease-in-out overflow-hidden ${config.enabled ? 'max-h-[500px]' : 'max-h-0'}`}
+              >
+                <div className="px-4 pb-4 space-y-4">
+                  {config.sizingType === 'percentage' && (
+                    <div>
+                      <label
+                        className="text-sm font-medium text-gray-600"
+                        htmlFor={`screen-width${configName}`}
+                      >
+                        {translation.supportScreensUpTo}:
+                      </label>
+                      <div className="relative mt-1">
                         <input
-                          type="range"
-                          min="1"
-                          max="100"
-                          value={config[device].percentage}
-                          onChange={(e) =>
+                          id={`screen-width${configName}`}
+                          type="number"
+                          value={config.screenWidth}
+                          onChange={function (e) {
                             handleInputChange(
-                              device,
-                              'percentage',
-                              parseInt(e.target.value),
-                            )
-                          }
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                              configName,
+                              'screenWidth',
+                              parseFloat(e.target.value),
+                            );
+                          }}
+                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <div className="text-center text-sm text-gray-600 mt-1">
-                          {Math.round(config[device].percentage)}
-                          {translation.percentWidth}
-                        </div>
+                        <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
+                          px
+                        </span>
                       </div>
-                    </>
-                  ) : (
-                    <div className="relative mt-1">
-                      <input
-                        type="number"
-                        placeholder={`e.g., ${config[device].sizingType === 'width' ? 800 : 600}`}
-                        value={config[device][config[device].sizingType]}
-                        onChange={(e) =>
-                          handleInputChange(
-                            device,
-                            config[device].sizingType,
-                            parseFloat(e.target.value),
-                          )
-                        }
-                        className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
-                        px
-                      </span>
                     </div>
                   )}
-                  <div className="flex space-x-2 mt-3 text-xs">
-                    {config[device].sizingType === 'percentage' || (
-                      <button
-                        onClick={() => handleModeChange(device, 'percentage')}
-                        className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                      >
-                        {translation.setPercentage}
-                      </button>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      {translation.configMode[config.sizingType]}
+                    </label>
+                    {config.sizingType === 'percentage' ? (
+                      <>
+                        <div className="grid grid-cols-4 gap-2 mt-1">
+                          {columnOptions.map((opt) => (
+                            <button
+                              key={opt.columns}
+                              onClick={() =>
+                                handleInputChange(
+                                  configName,
+                                  'percentage',
+                                  createPercentageFromColumns(opt.columns),
+                                )
+                              }
+                              className={`text-xs p-2 rounded-md transition-colors ${Math.round(createPercentageFromColumns(opt.columns)) === Math.round(config.percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="mt-2">
+                          <input
+                            type="range"
+                            min="1"
+                            max="100"
+                            value={config.percentage}
+                            onChange={(e) =>
+                              handleInputChange(
+                                configName,
+                                'percentage',
+                                parseInt(e.target.value),
+                              )
+                            }
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                          <div className="text-center text-sm text-gray-600 mt-1">
+                            {Math.round(config.percentage)}
+                            {translation.percentWidth}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative mt-1">
+                        <input
+                          type="number"
+                          placeholder={`e.g., ${config.sizingType === 'width' ? 800 : 600}`}
+                          value={config[config.sizingType]}
+                          onChange={(e) =>
+                            handleInputChange(
+                              configName,
+                              config.sizingType,
+                              parseFloat(e.target.value),
+                            )
+                          }
+                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
+                          px
+                        </span>
+                      </div>
                     )}
-                    {config[device].sizingType === 'width' || (
-                      <button
-                        onClick={() => handleModeChange(device, 'width')}
-                        className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                      >
-                        {translation.setWidth}
-                      </button>
-                    )}
-                    {config[device].sizingType === 'height' || (
-                      <button
-                        onClick={() => handleModeChange(device, 'height')}
-                        className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                      >
-                        {translation.setHeight}
-                      </button>
-                    )}
+                    <div className="flex space-x-2 mt-3 text-xs">
+                      {config.sizingType === 'percentage' || (
+                        <button
+                          onClick={() =>
+                            handleModeChange(configName, 'percentage')
+                          }
+                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
+                        >
+                          {translation.setPercentage}
+                        </button>
+                      )}
+                      {config.sizingType === 'width' || (
+                        <button
+                          onClick={() => handleModeChange(configName, 'width')}
+                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
+                        >
+                          {translation.setWidth}
+                        </button>
+                      )}
+                      {config.sizingType === 'height' || (
+                        <button
+                          onClick={() => handleModeChange(configName, 'height')}
+                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
+                        >
+                          {translation.setHeight}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="flex justify-end items-center mt-4">
-        <PrimaryButton onClick={handleCompressClick}>
+        <PrimaryButton onClick={handleProcessClick}>
           <Play className="w-4 h-4 mr-2" />
           {translation.startCompression}
         </PrimaryButton>
