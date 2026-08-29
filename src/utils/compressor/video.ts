@@ -1,4 +1,3 @@
-import type { Device } from '@/types/devices';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import type { VideoFormat } from '@/utils/formats';
 import {
@@ -33,19 +32,24 @@ const outputCodecs: Record<VideoFormat, VideoCodec> = {
 export async function compressVideo(
   file: File,
   formats: VideoFormat[],
-  mediaSizes: Partial<Record<Device, MediaDimensions>>,
-  onSuccess: (file: File, device: Device, format: VideoFormat) => void,
-  onError: (device: Device, format: VideoFormat, errorMessage: string) => void,
-  onProgress: (device: Device, format: VideoFormat, progress: number) => void,
+  mediaSizes: Record<string, MediaDimensions>,
+  onSuccess: (file: File, configName: string, format: VideoFormat) => void,
+  onError: (
+    configName: string,
+    format: VideoFormat,
+    errorMessage: string,
+  ) => void,
+  onProgress: (
+    configName: string,
+    format: VideoFormat,
+    progress: number,
+  ) => void,
 ): Promise<void> {
   const input = new Input({
     formats: ALL_FORMATS,
     source: new BlobSource(file),
   });
-  for (const [device, mediaSize] of Object.entries(mediaSizes) as [
-    Device,
-    MediaDimensions,
-  ][]) {
+  for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
     for (const format of formats) {
       const outputFormat = outputFormats[format];
       const outputCodec = outputCodecs[format];
@@ -77,28 +81,28 @@ export async function compressVideo(
           conversion.discardedTracks
             .map((t) => t.track.name + ': ' + t.reason)
             .join(', ');
-        onError(device, format, errorMessage);
+        onError(configName, format, errorMessage);
         continue;
       }
 
       conversion.onProgress = (progress: number) => {
-        onProgress(device, format, progress);
+        onProgress(configName, format, progress);
       };
 
       await conversion.execute();
 
       if (!output.target.buffer) {
-        onError(device, format, 'No output generated');
+        onError(configName, format, 'No output generated');
         continue;
       }
       const compressedFile = new File(
         [output.target.buffer],
-        getCompressedFileName(file.name, device, format),
+        getCompressedFileName(file.name, configName, format),
         {
           type: await output.getMimeType(),
         },
       );
-      onSuccess(compressedFile, device, format);
+      onSuccess(compressedFile, configName, format);
     }
   }
 }

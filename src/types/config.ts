@@ -7,4 +7,5 @@ export type SizingConfig = {
   percentage: number;
   width: number;
   height: number;
+  iconType?: string;
 };

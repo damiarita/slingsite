@@ -9,10 +9,8 @@ import {
 } from '@/components/dimension-settings';
 import useCompressor from '@/hooks/use-compressor';
 import type { Format } from '@/utils/formats';
-import type { Device } from '@/types/devices';
 import type { Job, Task } from '@/types/job';
 import { createJob, jobIsIncomplete } from '@/utils/jobs';
-import type { Locale } from '@/i18n/routing';
 import type { CompressionInput } from '@/types/compressor';
 import type {
   CompressionPageSeoTranslations,
@@ -25,7 +23,7 @@ import Script from 'next/script';
 function getJobWithUpdatedTask(
   jobs: Job[],
   jobId: string,
-  device: Device,
+  configName: string,
   format: Format,
   newTask: Task,
 ) {
@@ -35,8 +33,8 @@ function getJobWithUpdatedTask(
       ...currentJob,
       tasks: {
         ...currentJob.tasks,
-        [device]: {
-          ...(currentJob.tasks[device] || {}),
+        [configName]: {
+          ...(currentJob.tasks[configName] || {}),
           [format]: newTask,
         },
       },
@@ -48,19 +46,18 @@ type Focus = 'initial' | 'upload' | 'settings' | 'results';
 
 export default function App({
   compressorType,
+  initialConfig,
   seoTranslation,
   uploadTranslation,
   settingTranslation,
   resultTranslation,
-  devicesTranslation,
 }: {
-  locale: Locale;
   compressorType: CompressionInput;
+  initialConfig: DimensionsConfig;
   seoTranslation: CompressionPageSeoTranslations;
   uploadTranslation: UploadDictionary;
   settingTranslation: SettingsDictionary;
   resultTranslation: ResultsDictionary;
-  devicesTranslation: Record<Device, string>;
 }) {
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
@@ -70,32 +67,7 @@ export default function App({
   const settingsRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const [deviceConfig, setDeviceConfig] = useState<DimensionsConfig>({
-    mobile: {
-      enabled: true,
-      screenWidth: 450,
-      sizingType: 'percentage',
-      percentage: 100,
-      width: 450,
-      height: 100,
-    },
-    tablet: {
-      enabled: true,
-      screenWidth: 1050,
-      sizingType: 'percentage',
-      percentage: 50,
-      width: 525,
-      height: 100,
-    },
-    desktop: {
-      enabled: true,
-      screenWidth: 1950,
-      sizingType: 'percentage',
-      percentage: 33.33,
-      width: 650,
-      height: 100,
-    },
-  });
+  const [configs, setConfigs] = useState<DimensionsConfig>(initialConfig);
   const compressor = useCompressor(compressorType);
 
   const handleFilesAdded = (newFiles: File[]) => {
@@ -115,11 +87,11 @@ export default function App({
   };
 
   const handleCompressClick = () => {
-    const requestedDevices = Object.entries(deviceConfig)
+    const requestedConfignames = Object.entries(configs)
       .filter(([, config]) => config.enabled)
-      .map(([device]) => device) as Device[];
+      .map(([device]) => device);
     Promise.allSettled(
-      files.map((file) => createJob(file, requestedDevices, deviceConfig)),
+      files.map((file) => createJob(file, requestedConfignames, configs)),
     ).then((jobCreationResults) => {
       const fulfilledJobs = jobCreationResults
         .filter((result) => result.status === 'fulfilled')
@@ -158,25 +130,30 @@ export default function App({
       jobToRun.originalFile,
       jobToRun.requestedFormats,
       jobToRun.requestedDimensions,
-      (jobId: string, format: Format, device: Device, progress?: number) => {
+      (
+        jobId: string,
+        format: Format,
+        configName: string,
+        progress?: number,
+      ) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+          return getJobWithUpdatedTask(prevJobs, jobId, configName, format, {
             status: 'running',
             percentage: progress && Math.floor(progress * 100),
           });
         });
       },
-      (jobId: string, format: Format, device: Device, output: File) => {
+      (jobId: string, format: Format, configName: string, output: File) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+          return getJobWithUpdatedTask(prevJobs, jobId, configName, format, {
             status: 'completed',
             result: output,
           });
         });
       },
-      (jobId: string, format: Format, device: Device, message: string) => {
+      (jobId: string, format: Format, configName: string, message: string) => {
         setJobs((prevJobs) => {
-          return getJobWithUpdatedTask(prevJobs, jobId, device, format, {
+          return getJobWithUpdatedTask(prevJobs, jobId, configName, format, {
             status: 'errored',
             errorMessage: message,
           });
@@ -244,11 +221,10 @@ export default function App({
                 }}
                 handleRemoveFile={handleRemoveFile}
                 files={files}
-                config={deviceConfig}
-                setConfig={setDeviceConfig}
+                configs={configs}
+                setConfig={setConfigs}
                 handleCompressClick={handleCompressClick}
                 translation={settingTranslation}
-                devicesTranslation={devicesTranslation}
               />
             </div>
           )}
@@ -258,7 +234,6 @@ export default function App({
                 jobs={jobs}
                 handleRemoveJob={handleRemoveJob}
                 translation={resultTranslation}
-                devicesTranslation={devicesTranslation}
               />
             </div>
           )}

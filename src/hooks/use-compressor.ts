@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { isImageFormat } from '@/utils/formats';
 import type { Format } from '@/utils/formats';
 import type { MediaDimensions } from '@/types/mediaDimensions';
-import type { Device } from '@/types/devices';
 import type { InputMessage, OutputMessage } from '@/types/workers';
 import type { CompressionInput } from '@/types/compressor';
 
@@ -54,23 +53,23 @@ export default function useCompressor(type: CompressionInput) {
       jobId: string,
       file: File,
       formats: Format[],
-      mediaSizes: Partial<Record<Device, MediaDimensions>>,
+      mediaSizes: Record<string, MediaDimensions>,
       onProgress: (
         jobId: string,
         format: Format,
-        device: Device,
+        configName: string,
         progress?: number,
       ) => void,
       onResult: (
         jobId: string,
         format: Format,
-        device: Device,
+        configName: string,
         output: File,
       ) => void,
       onError: (
         jobId: string,
         format: Format,
-        device: Device,
+        configName: string,
         message: string,
       ) => void,
     ): void {
@@ -95,14 +94,14 @@ export default function useCompressor(type: CompressionInput) {
         if (ev.data.type === 'status' && ev.data.content === 'ready') {
           setProcessorStatus('ready');
         } else if (ev.data.type === 'result') {
-          const { jobId, device, format, content: output } = ev.data;
-          onResult(jobId, format, device, output);
+          const { jobId, configName, format, content: output } = ev.data;
+          onResult(jobId, format, configName, output);
         } else if (ev.data.type === 'progress') {
-          const { jobId, device, format, content: progress } = ev.data;
-          onProgress(jobId, format, device, progress);
+          const { jobId, configName, format, content: progress } = ev.data;
+          onProgress(jobId, format, configName, progress);
         } else if (ev.data.type === 'error') {
-          const { jobId, device, format, content: message } = ev.data;
-          onError(jobId, format, device, message);
+          const { jobId, configName, format, content: message } = ev.data;
+          onError(jobId, format, configName, message);
         } else {
           throw new Error('Unknown message type from worker:' + ev.data);
         }

@@ -1,4 +1,3 @@
-import type { Device } from '@/types/devices';
 import { isImageFormat } from '@/utils/formats';
 import type { ImageFormat } from '@/utils/formats';
 
@@ -25,14 +24,14 @@ self.onmessage = async (ev) => {
     file,
     imageFormats,
     mediaSizes,
-    (compressedFile: File, device: Device, format: ImageFormat) => {
-      sendResultMessage(jobId, device, format, compressedFile);
+    (compressedFile: File, configName: string, format: ImageFormat) => {
+      sendResultMessage(jobId, configName, format, compressedFile);
     },
-    (device: Device, format: ImageFormat, errorMessage: string) => {
-      sendErrorMessage(jobId, device, format, errorMessage);
+    (configName: string, format: ImageFormat, errorMessage: string) => {
+      sendErrorMessage(jobId, configName, format, errorMessage);
     },
-    (device: Device, format: ImageFormat) => {
-      sendProgressMessage(jobId, device, format);
+    (configName: string, format: ImageFormat) => {
+      sendProgressMessage(jobId, configName, format);
     },
   );
 

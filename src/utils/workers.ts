@@ -1,4 +1,3 @@
-import type { Device } from '@/types/devices';
 import type { OutputMessage } from '@/types/workers';
 import type { Format } from './formats';
 
@@ -12,27 +11,33 @@ export function sendReadyMessage() {
 
 export function sendProgressMessage(
   jobId: string,
-  device: Device,
+  configName: string,
   format: Format,
   progress?: number,
 ) {
-  sendMessage({ jobId, type: 'progress', device, format, content: progress });
+  sendMessage({
+    jobId,
+    type: 'progress',
+    configName,
+    format,
+    content: progress,
+  });
 }
 
 export function sendResultMessage(
   jobId: string,
-  device: Device,
+  configName: string,
   format: Format,
   file: File,
 ) {
-  sendMessage({ jobId, type: 'result', device, format, content: file });
+  sendMessage({ jobId, type: 'result', configName, format, content: file });
 }
 
 export function sendErrorMessage(
   jobId: string,
-  device: Device,
+  configName: string,
   format: Format,
   error: string,
 ) {
-  sendMessage({ jobId, type: 'error', device, format, content: error });
+  sendMessage({ jobId, type: 'error', configName, format, content: error });
 }

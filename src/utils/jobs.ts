@@ -1,5 +1,4 @@
 import type { DimensionsConfig } from '@/components/dimension-settings';
-import type { Device } from '@/types/devices';
 import { Format, imageFormats, videoFormats } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
@@ -7,14 +6,14 @@ import { minDimension } from './mediaDimensions';
 
 export const createJob = (
   file: File,
-  requestedDevices: Device[],
-  deviceConfig: DimensionsConfig,
+  requestedConfigNames: string[],
+  configs: DimensionsConfig,
 ): Promise<Job> => {
   return getMediumSize(file)
     .then((originalDimensions) => {
-      const requestedDimensions: Partial<Record<Device, MediaDimensions>> = {};
-      requestedDevices.forEach((device) => {
-        const config = deviceConfig[device];
+      const requestedDimensions: Record<string, MediaDimensions> = {};
+      requestedConfigNames.forEach((configName) => {
+        const config = configs[configName];
         let requestedDimension: MediaDimensions;
         if (config.sizingType === 'height') {
           requestedDimension = {
@@ -37,7 +36,7 @@ export const createJob = (
         }
         requestedDimension.width = Math.round(requestedDimension.width);
         requestedDimension.height = Math.round(requestedDimension.height);
-        requestedDimensions[device] = minDimension(
+        requestedDimensions[configName] = minDimension(
           originalDimensions,
           requestedDimension,
         );
@@ -45,11 +44,11 @@ export const createJob = (
       const requestedFormats: Format[] = file.type.startsWith('image/')
         ? [...imageFormats]
         : [...videoFormats, ...imageFormats];
-      const tasks: Partial<Record<Device, Partial<Record<Format, Task>>>> = {};
-      requestedDevices.forEach((device) => {
+      const tasks: Record<string, Partial<Record<Format, Task>>> = {};
+      requestedConfigNames.forEach((configName) => {
         requestedFormats.forEach((format) => {
-          if (!tasks[device]) tasks[device] = {};
-          tasks[device][format] = { status: 'waiting' };
+          if (!tasks[configName]) tasks[configName] = {};
+          tasks[configName][format] = { status: 'waiting' };
         });
       });
 
