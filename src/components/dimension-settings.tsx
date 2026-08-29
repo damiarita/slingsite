@@ -15,16 +15,9 @@ import {
 import { PrimaryButton, SecondaryButton } from './buttons';
 import type { SettingsDictionary } from '@/i18n/type';
 import type { ConfigMode } from '@/types/config';
+import type { SizingConfig } from '@/types/config';
 
-type DeviceConfig = {
-  enabled: boolean;
-  screenWidth: number;
-  sizingType: ConfigMode;
-  percentage: number;
-  width: number;
-  height: number;
-};
-export type DimensionsConfig = Record<Device, DeviceConfig>;
+export type DimensionsConfig = Record<Device, SizingConfig>;
 
 const createPercentageFromColumns = (columns: number) => {
   if (columns <= 0) return 100;
