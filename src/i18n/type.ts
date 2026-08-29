@@ -34,6 +34,9 @@ export interface CompressionPageSeoTranslations {
 export interface NavBarTranslations {
   imageCompressor: string;
   videoCompressor: string;
+  menu: string;
+  openMenu: string;
+  closeMenu: string;
 }
 
 export interface FooterTranslations {

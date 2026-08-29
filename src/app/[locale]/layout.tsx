@@ -48,9 +48,11 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={validatedLocale} messages={{}}>
       <Body locale={validatedLocale}>
         <div className="bg-gray-50 min-h-screen font-sans">
-          <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-            <NavBar locale={validatedLocale} items={navBarItems} />
-          </header>
+          <NavBar
+            locale={validatedLocale}
+            items={navBarItems}
+            translation={navBarTranslations}
+          />
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </main>

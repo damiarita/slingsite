@@ -1,4 +1,7 @@
 {
   "imageCompressor": "Bildkompressor",
-  "videoCompressor": "Videokompressor"
+  "videoCompressor": "Videokompressor",
+  "menu": "Menü",
+  "openMenu": "Menü öffnen",
+  "closeMenu": "Menü schließen"
 }

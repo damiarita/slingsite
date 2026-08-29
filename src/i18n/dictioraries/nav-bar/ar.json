@@ -1,4 +1,7 @@
 {
   "imageCompressor": "ضاغط الصور",
-  "videoCompressor": "ضاغط الفيديو"
+  "videoCompressor": "ضاغط الفيديو",
+  "menu": "القائمة",
+  "openMenu": "فتح القائمة",
+  "closeMenu": "إغلاق القائمة"
 }

@@ -1,4 +1,7 @@
 {
   "imageCompressor": "图像压缩器",
-  "videoCompressor": "视频压缩器"
+  "videoCompressor": "视频压缩器",
+  "menu": "菜单",
+  "openMenu": "打开菜单",
+  "closeMenu": "关闭菜单"
 }

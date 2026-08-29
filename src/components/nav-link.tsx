@@ -30,7 +30,11 @@ export default function NavLink({
       aria-current={isActive ? 'page' : undefined}
       aria-disabled={isActive ? 'true' : undefined}
       tabIndex={isActive ? -1 : undefined}
-      className={`text-sm transition-colors ${baseClass} ${isActive ? 'text-blue-800 font-semibold pointer-events-none cursor-default ' + mobile && 'bg-gray-50' : 'text-gray-700 hover:text-blue-800 ' + mobile && 'hover:bg-gray-50'} `}
+      className={`text-sm transition-colors ${baseClass} ${
+        isActive
+          ? `text-blue-800 font-semibold pointer-events-none cursor-default ${mobile ? 'bg-gray-50' : ''}`
+          : `text-gray-700 hover:text-blue-800 ${mobile ? 'hover:bg-gray-50' : ''}`
+      }`}
       onClick={() => {
         if (onLinkClick) onLinkClick();
       }}
