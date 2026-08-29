@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Locale, routing } from '@/i18n/routing';
 import { getPathname, usePathname } from '@/i18n/navigation';
 import { getFolderTranslations, getPost, getTranslations } from '@/content/lib';
@@ -16,7 +16,6 @@ export default function LanguageSelector({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
-
   const layoutSegments = useSelectedLayoutSegments();
 
   const languageNames: Record<Locale, string> = {
@@ -42,6 +41,7 @@ export default function LanguageSelector({
 
   function getUrls(
     pathname: ReturnType<typeof usePathname>,
+    layoutSegments: string[],
   ): Record<Locale, string> {
     switch (pathname) {
       case '/home/':
@@ -102,12 +102,18 @@ export default function LanguageSelector({
     }
   }
 
+  const urls = useMemo(
+    () => getUrls(pathname, layoutSegments),
+    [pathname, layoutSegments],
+  );
+
   return (
     <div className="relative inline-block" ref={ref}>
       <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-controls="language-selector-menu"
         onClick={() => setOpen((v) => !v)}
         className="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center gap-2"
       >
@@ -119,30 +125,40 @@ export default function LanguageSelector({
         )}
       </button>
 
-      {open && (
-        <div className="absolute left-0 mt-1 w-full bg-white rounded-md shadow-md z-50 border border-gray-300">
-          <ul className="py-1">
-            {(Object.entries(getUrls(pathname)) as [Locale, string][]).map(
-              ([locale, url]) => (
-                <li key={locale}>
-                  <Link
-                    href={url}
-                    hrefLang={locale}
-                    onClick={() => setOpen(false)}
-                    className={`block px-3 py-2 text-sm transition-colors ${
-                      locale === currentLocale
-                        ? 'text-gray-900 font-semibold bg-gray-100'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {languageNames[locale] || locale}
-                  </Link>
-                </li>
-              ),
-            )}
-          </ul>
-        </div>
-      )}
+      {/* Always rendered — even while "closed" — so every language link is
+         present in the static HTML for crawlers. Open/closed is expressed
+         with CSS (opacity/scale/pointer-events) plus aria-hidden/inert,
+         never by adding/removing the links from the DOM. */}
+      <div
+        id="language-selector-menu"
+        className={`absolute left-0 mt-1 w-full bg-white rounded-md shadow-md z-50 border border-gray-300 origin-top transition-all duration-150 ${
+          open
+            ? 'opacity-100 scale-100 pointer-events-auto'
+            : 'opacity-0 scale-95 pointer-events-none'
+        }`}
+        aria-hidden={!open}
+        inert={!open}
+      >
+        <ul className="py-1" role="menu">
+          {(Object.entries(urls) as [Locale, string][]).map(([locale, url]) => (
+            <li key={locale} role="none">
+              <Link
+                href={url}
+                hrefLang={locale}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className={`block px-3 py-2 text-sm transition-colors ${
+                  locale === currentLocale
+                    ? 'text-gray-900 font-semibold bg-gray-100'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {languageNames[locale] || locale}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
