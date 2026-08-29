@@ -1,4 +1,4 @@
-import type { DimensionsConfig } from '@/components/dimension-settings';
+import { SizingConfigs } from '@/types/config';
 import { Format, imageFormats, videoFormats } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
@@ -7,7 +7,7 @@ import { minDimension } from './mediaDimensions';
 export const createJob = (
   file: File,
   requestedConfigNames: string[],
-  configs: DimensionsConfig,
+  configs: SizingConfigs,
 ): Promise<Job> => {
   return getMediumSize(file)
     .then((originalDimensions) => {

@@ -1,6 +1,6 @@
-import { DimensionsConfig } from '@/components/dimension-settings';
 import { getDevicesDictionary } from '@/i18n/requests';
 import { Locale } from '@/i18n/routing';
+import { SizingConfigs } from '@/types/config';
 
 export function getCompressedFileName(
   orginalName: string,
@@ -28,7 +28,7 @@ export function getFileNameWithExtensionAndSuffix(
 
 export async function getDefaultCompressionConfig(
   locale: Locale,
-): Promise<DimensionsConfig> {
+): Promise<SizingConfigs> {
   return getDevicesDictionary(locale).then((devicesTranslation) => ({
     [devicesTranslation.mobile]: {
       enabled: true,
