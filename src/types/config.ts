@@ -9,3 +9,5 @@ export type SizingConfig = {
   height: number;
   iconType?: string;
 };
+
+export type SizingConfigs = Record<string, SizingConfig>;

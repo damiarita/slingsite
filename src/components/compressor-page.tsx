@@ -3,10 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FileUpload } from '@/components/file-upload';
 import { Results } from '@/components/results';
-import {
-  DimensionsSettings,
-  type DimensionsConfig,
-} from '@/components/dimension-settings';
+import { DimensionsSettings } from '@/components/dimension-settings';
 import useCompressor from '@/hooks/use-compressor';
 import type { Format } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
@@ -19,6 +16,7 @@ import type {
   UploadDictionary,
 } from '@/i18n/type';
 import Script from 'next/script';
+import { SizingConfigs } from '@/types/config';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -53,7 +51,7 @@ export default function App({
   resultTranslation,
 }: {
   compressorType: CompressionInput;
-  initialConfig: DimensionsConfig;
+  initialConfig: SizingConfigs;
   seoTranslation: CompressionPageSeoTranslations;
   uploadTranslation: UploadDictionary;
   settingTranslation: SettingsDictionary;
@@ -67,7 +65,7 @@ export default function App({
   const settingsRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const [configs, setConfigs] = useState<DimensionsConfig>(initialConfig);
+  const [configs, setConfigs] = useState<SizingConfigs>(initialConfig);
   const compressor = useCompressor(compressorType);
 
   const handleFilesAdded = (newFiles: File[]) => {
@@ -86,7 +84,7 @@ export default function App({
     });
   };
 
-  const handleCompressClick = () => {
+  const handleProcessClick = () => {
     const requestedConfignames = Object.entries(configs)
       .filter(([, config]) => config.enabled)
       .map(([device]) => device);
@@ -216,14 +214,14 @@ export default function App({
           {files.length > 0 && (
             <div ref={settingsRef} className="scroll-mt-20">
               <DimensionsSettings
-                handelClickAddMoreFiles={() => {
+                handleClickAddMoreFiles={() => {
                   setFocus('upload');
                 }}
                 handleRemoveFile={handleRemoveFile}
                 files={files}
                 configs={configs}
                 setConfig={setConfigs}
-                handleCompressClick={handleCompressClick}
+                handleProcessClick={handleProcessClick}
                 translation={settingTranslation}
               />
             </div>

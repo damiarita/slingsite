@@ -13,10 +13,7 @@ import {
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from './buttons';
 import type { SettingsDictionary } from '@/i18n/type';
-import type { ConfigMode } from '@/types/config';
-import type { SizingConfig } from '@/types/config';
-
-export type DimensionsConfig = Record<string, SizingConfig>;
+import type { ConfigMode, SizingConfigs } from '@/types/config';
 
 const createPercentageFromColumns = (columns: number) => {
   if (columns <= 0) return 100;
@@ -26,18 +23,18 @@ const createPercentageFromColumns = (columns: number) => {
 export const DimensionsSettings = ({
   configs,
   setConfig,
-  handleCompressClick,
+  handleProcessClick,
   files,
   handleRemoveFile,
-  handelClickAddMoreFiles,
+  handleClickAddMoreFiles,
   translation,
 }: {
-  configs: DimensionsConfig;
-  setConfig: React.Dispatch<React.SetStateAction<DimensionsConfig>>;
-  handleCompressClick: () => void;
+  configs: SizingConfigs;
+  setConfig: React.Dispatch<React.SetStateAction<SizingConfigs>>;
+  handleProcessClick: () => void;
   files: File[];
   handleRemoveFile: (index: number) => void;
-  handelClickAddMoreFiles: () => void;
+  handleClickAddMoreFiles: () => void;
   translation: SettingsDictionary;
 }) => {
   const icons: Record<string, ReactElement> = {
@@ -54,7 +51,7 @@ export const DimensionsSettings = ({
   ];
 
   const handleToggle = (configName: string) => {
-    setConfig((prev: DimensionsConfig) => {
+    setConfig((prev: SizingConfigs) => {
       const newConfig = { ...prev };
       newConfig[configName] = {
         ...newConfig[configName],
@@ -135,7 +132,7 @@ export const DimensionsSettings = ({
         ))}
       </div>
       <div className="flex justify-end items-center mb-4">
-        <SecondaryButton onClick={handelClickAddMoreFiles}>
+        <SecondaryButton onClick={handleClickAddMoreFiles}>
           <FilePlus className="w-4 h-4 mr-2" />
           {translation.addMoreFiles}
         </SecondaryButton>
@@ -313,7 +310,7 @@ export const DimensionsSettings = ({
         })}
       </div>
       <div className="flex justify-end items-center mt-4">
-        <PrimaryButton onClick={handleCompressClick}>
+        <PrimaryButton onClick={handleProcessClick}>
           <Play className="w-4 h-4 mr-2" />
           {translation.startCompression}
         </PrimaryButton>
