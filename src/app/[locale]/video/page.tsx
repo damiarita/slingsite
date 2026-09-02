@@ -83,7 +83,7 @@ export default async function App({ params }: Props) {
         initialConfig={initialConfig}
       />
       <PageContent locale={locale} slug="video" />
-      <BaseDatalayer locale={locale} pageType="tool" pageSubtype="video" />
+      <BaseDatalayer locale={locale} pageType="video" pageSubtype="optimize" />
     </>
   );
 }

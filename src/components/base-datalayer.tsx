@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 interface BaseDatalayerProps {
   locale: Locale;
   pageType: string;
-  pageSubtype?: string;
+  pageSubtype: string;
 }
 
 export default function BaseDatalayer({

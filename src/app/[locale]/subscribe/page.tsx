@@ -1019,7 +1019,11 @@ export default async function App({ params }: Props) {
       `,
         }}
       />
-      <BaseDatalayer locale={locale} pageType="subscribe" />
+      <BaseDatalayer
+        locale={locale}
+        pageType="subscribe"
+        pageSubtype="suscribe"
+      />
     </>
   );
 }

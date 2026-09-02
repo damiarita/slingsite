@@ -83,7 +83,7 @@ export default async function App({ params }: Props) {
         initialConfig={initialConfig}
       />
       <PageContent locale={locale} slug="image" />
-      <BaseDatalayer locale={locale} pageType="tool" pageSubtype="image" />
+      <BaseDatalayer locale={locale} pageType="image" pageSubtype="optimize" />
     </>
   );
 }

@@ -162,15 +162,21 @@ export default async function PostPageWrapper({
     if (posts.length === 0) notFound();
 
     const translations = await getBlogDictionary(locale);
+    const samplePost = posts[0];
+    const postTranslations = getTranslations(samplePost);
     return (
       <>
         <PostListing
           posts={posts}
           locale={locale}
-          title={posts[0].folder || ''}
+          title={samplePost.folder || ''}
           translations={translations}
         />
-        <BaseDatalayer locale={locale} pageType="postlisting" />
+        <BaseDatalayer
+          locale={locale}
+          pageType="postlisting"
+          pageSubtype={postTranslations[routing.defaultLocale].pathPrefix}
+        />
       </>
     );
   }
