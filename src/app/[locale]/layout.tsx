@@ -1,17 +1,7 @@
 import { routing, Locale } from '@/i18n/routing';
-import {
-  getNavBarDictionary,
-  getFooterDictionary,
-  getCookieDictionary,
-} from '@/i18n/requests';
 import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
-import '../globals.css';
-import CookieConsent from '@/components/cookie-consent';
-import NavBar from '@/components/nav-bar';
-import Footer from '@/components/footer';
-import Body from '@/components/body';
-import { NextIntlClientProvider } from 'next-intl';
+import Layout from '@/components/layout';
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
@@ -34,30 +24,6 @@ export default async function LocaleLayout({
   }
 
   const validatedLocale = locale as Locale;
-  const cookieTransalations = await getCookieDictionary(validatedLocale);
-  const navBarTranslations = await getNavBarDictionary(validatedLocale);
-  const footerTranslations = await getFooterDictionary(validatedLocale);
 
-  return (
-    <NextIntlClientProvider locale={validatedLocale} messages={{}}>
-      <Body locale={validatedLocale}>
-        <div className="bg-gray-50 min-h-screen font-sans">
-          <NavBar locale={validatedLocale} translation={navBarTranslations} />
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {children}
-          </main>
-          <footer className="bg-white border-t border-gray-200 mt-12">
-            <Footer
-              translations={footerTranslations}
-              locale={validatedLocale}
-            />
-          </footer>
-          <CookieConsent
-            translations={cookieTransalations}
-            locale={validatedLocale}
-          />
-        </div>
-      </Body>
-    </NextIntlClientProvider>
-  );
+  return <Layout locale={validatedLocale}>{children}</Layout>;
 }
