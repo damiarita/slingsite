@@ -1,7 +1,6 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import Body from '@/components/body';
 import { Redirecter } from '@/components/redirecter';
-import { Locale, routing } from '@/i18n/routing';
+import { Locale } from '@/i18n/routing';
 import {
   getImagePageMetadataDictionary,
   getRedirectionDictionary,
