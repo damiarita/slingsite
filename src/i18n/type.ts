@@ -88,3 +88,8 @@ export interface ResultsDictionary {
   inQueue: string;
   compressedFiles: string;
 }
+
+export interface NotFoundTranslations {
+  heading: string;
+  subtitle: string;
+}

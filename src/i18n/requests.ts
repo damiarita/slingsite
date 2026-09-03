@@ -13,6 +13,7 @@ import {
   UploadDictionary,
   SettingsDictionary,
   ResultsDictionary,
+  NotFoundTranslations,
 } from './type';
 
 // Avoid using `requestLocale` here because it can read request headers under the hood
@@ -122,6 +123,17 @@ export const getNavBarDictionary = createDictionaryGetter<NavBarTranslations>({
   zh: () => import('./dictioraries/nav-bar/zh.json'),
   en: () => import('./dictioraries/nav-bar/en.json'),
 });
+
+export const getNotFoundDictionary =
+  createDictionaryGetter<NotFoundTranslations>({
+    ar: () => import('./dictioraries/not-found/ar.json'),
+    de: () => import('./dictioraries/not-found/de.json'),
+    es: () => import('./dictioraries/not-found/es.json'),
+    fr: () => import('./dictioraries/not-found/fr.json'),
+    it: () => import('./dictioraries/not-found/it.json'),
+    zh: () => import('./dictioraries/not-found/zh.json'),
+    en: () => import('./dictioraries/not-found/en.json'),
+  });
 
 export const getFooterDictionary = createDictionaryGetter<FooterTranslations>({
   ar: () => import('./dictioraries/footer/ar.json'),
