@@ -1,7 +1,6 @@
 'use client';
 import { Locale } from '@/i18n/routing';
-import { usePathname } from 'next/navigation';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { ComponentProps } from 'react';
 
 export type AppHref = ComponentProps<typeof Link>['href'];
@@ -19,7 +18,7 @@ export default function NavLink({
   onLinkClick?: () => void;
   mobile?: boolean;
 }) {
-  const currentPath = usePathname() || '';
+  const currentPath = usePathname();
   const isActive = currentPath === href;
   const baseClass = mobile
     ? 'block w-full text-left px-4 py-2'
