@@ -3,20 +3,21 @@
 import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Logo } from './logo';
-import NavLink from './nav-link';
+import NavLink, { type AppHref } from './nav-link';
 import type { Locale } from '@/i18n/routing';
-import type { NavBarItem } from '@/types/nav-bar';
 import type { NavBarTranslations } from '@/i18n/type';
 import { Link } from '@/i18n/navigation';
 export default function NavBar({
   locale,
-  items,
   translation,
 }: {
   locale: Locale;
-  items: NavBarItem[];
   translation: NavBarTranslations;
 }) {
+  const items: { href: AppHref; label: string }[] = [
+    { href: '/image/', label: translation.imageCompressor },
+    { href: '/video/', label: translation.videoCompressor },
+  ];
   const [open, setOpen] = useState(false);
 
   // Lock background scroll while the drawer is open.

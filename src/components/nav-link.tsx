@@ -2,7 +2,9 @@
 import { Locale } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
-import type { AppHref } from '@/types/nav-bar';
+import { ComponentProps } from 'react';
+
+export type AppHref = ComponentProps<typeof Link>['href'];
 
 export default function NavLink({
   href,

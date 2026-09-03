@@ -10,7 +10,6 @@ import '../globals.css';
 import CookieConsent from '@/components/cookie-consent';
 import NavBar from '@/components/nav-bar';
 import Footer from '@/components/footer';
-import { NavBarItem } from '@/types/nav-bar';
 import Body from '@/components/body';
 import { NextIntlClientProvider } from 'next-intl';
 
@@ -39,20 +38,11 @@ export default async function LocaleLayout({
   const navBarTranslations = await getNavBarDictionary(validatedLocale);
   const footerTranslations = await getFooterDictionary(validatedLocale);
 
-  const navBarItems: NavBarItem[] = [
-    { href: '/image/', label: navBarTranslations.imageCompressor },
-    { href: '/video/', label: navBarTranslations.videoCompressor },
-  ];
-
   return (
     <NextIntlClientProvider locale={validatedLocale} messages={{}}>
       <Body locale={validatedLocale}>
         <div className="bg-gray-50 min-h-screen font-sans">
-          <NavBar
-            locale={validatedLocale}
-            items={navBarItems}
-            translation={navBarTranslations}
-          />
+          <NavBar locale={validatedLocale} translation={navBarTranslations} />
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </main>
