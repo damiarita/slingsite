@@ -24,7 +24,7 @@ export default function Footer({
         </div>
         <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">
-            <div className="mt-12 md:mt-0">
+            <div>
               <Link
                 locale={locale}
                 href={{
@@ -139,7 +139,7 @@ export default function Footer({
                 </li>
               </ul>
             </div>
-            <div>
+            <div className="mt-12 md:mt-0">
               <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
                 {translations.headings.connect}
               </h2>
@@ -165,9 +165,7 @@ export default function Footer({
                   </a>
                 </li>
               </ul>
-            </div>
-            <div className="mt-12 md:mt-0">
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
+              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase mt-12">
                 {translations.headings.languages}
               </h2>
               <ul className="mt-4 space-y-4">
