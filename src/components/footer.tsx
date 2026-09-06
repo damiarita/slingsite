@@ -25,6 +25,56 @@ export default function Footer({
         <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">
             <div className="mt-12 md:mt-0">
+              <Link
+                locale={locale}
+                href={{
+                  pathname: '/content/[...slugs]',
+                  params: { slugs: [translations.comparisonsSlug] },
+                }}
+              >
+                <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
+                  {translations.headings.comparisons}
+                </h2>
+              </Link>
+              <ul className="mt-4 space-y-4">
+                <li>
+                  <BlogLink
+                    postId="kraken.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+                <li>
+                  <BlogLink
+                    postId="tiny-png.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+                <li>
+                  <BlogLink
+                    postId="squoosh.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+                <li>
+                  <BlogLink
+                    postId="shortpixel.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+                <li>
+                  <BlogLink
+                    postId="cloudinary.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+              </ul>
+            </div>
+            <div className="mt-12 md:mt-0">
               <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
                 {translations.headings.legal}
               </h2>
@@ -113,54 +163,6 @@ export default function Footer({
                   >
                     {translations.contactUs}
                   </a>
-                </li>
-              </ul>
-              <Link
-                locale={locale}
-                href={{
-                  pathname: '/content/[...slugs]',
-                  params: { slugs: [translations.comparisonsSlug] },
-                }}
-              >
-                <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                  {translations.headings.comparisons}
-                </h2>
-              </Link>
-              <ul className="mt-4 space-y-4">
-                <li>
-                  <BlogLink
-                    postId="kraken.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="tiny-png.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="squoosh.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="shortpixel.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="cloudinary.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
                 </li>
               </ul>
             </div>
