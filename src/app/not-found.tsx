@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Body from '@/components/body';
 import NotFoundContent from '@/components/not-found-content';
 import { routing } from '@/i18n/routing';
 import BaseDatalayer from '@/components/base-datalayer';
@@ -18,15 +17,13 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <Body locale={routing.defaultLocale}>
-      <Layout locale={routing.defaultLocale}>
-        <NotFoundContent />
-        <BaseDatalayer
-          locale={routing.defaultLocale}
-          pageType="404"
-          pageSubtype="404"
-        />
-      </Layout>
-    </Body>
+    <Layout locale={routing.defaultLocale}>
+      <NotFoundContent />
+      <BaseDatalayer
+        locale={routing.defaultLocale}
+        pageType="404"
+        pageSubtype="404"
+      />
+    </Layout>
   );
 }

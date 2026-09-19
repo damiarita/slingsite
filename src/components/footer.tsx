@@ -25,31 +25,6 @@ export default function Footer({
         <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                {translations.headings.connect}
-              </h2>
-              <ul className="mt-4 mb-4 space-y-4">
-                <li>
-                  <Link
-                    locale={locale}
-                    href="/subscribe/"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                  >
-                    {translations.subscribe}
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/damiarita/slingsite/issues"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    title="Issues · damiarita/slingsite"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {translations.contactUs}
-                  </a>
-                </li>
-              </ul>
               <Link
                 locale={locale}
                 href={{
@@ -86,6 +61,13 @@ export default function Footer({
                 <li>
                   <BlogLink
                     postId="shortpixel.mdx"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    locale={locale}
+                  />
+                </li>
+                <li>
+                  <BlogLink
+                    postId="cloudinary.mdx"
                     className="text-base text-gray-500 hover:text-gray-900"
                     locale={locale}
                   />
@@ -159,6 +141,31 @@ export default function Footer({
             </div>
             <div className="mt-12 md:mt-0">
               <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
+                {translations.headings.connect}
+              </h2>
+              <ul className="mt-4 mb-4 space-y-4">
+                <li>
+                  <Link
+                    locale={locale}
+                    href="/subscribe/"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                  >
+                    {translations.subscribe}
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/damiarita/slingsite/issues"
+                    className="text-base text-gray-500 hover:text-gray-900"
+                    title="Issues · damiarita/slingsite"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {translations.contactUs}
+                  </a>
+                </li>
+              </ul>
+              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase mt-12">
                 {translations.headings.languages}
               </h2>
               <ul className="mt-4 space-y-4">
