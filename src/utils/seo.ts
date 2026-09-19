@@ -1,5 +1,13 @@
 import { Locale, routing } from '@/i18n/routing';
 
+export const siteUrl = new URL(
+  process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://slingsite.github.io/',
+);
+
+export function toAbsoluteUrl(pathname: string): string {
+  return new URL(pathname, siteUrl).toString();
+}
+
 export function withDefault(
   urlsByLocale: Record<Locale, string>,
 ): Record<Locale | 'x-default', string> {

@@ -3,7 +3,7 @@ import { getBlogDictionary } from '@/i18n/requests';
 import { getAllPosts, getPost, getTranslations } from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { withDefault } from '@/utils/urls';
+import { withDefault } from '@/utils/seo';
 import { PostPageContent } from '@/components/post-page';
 
 type Props = { slug2: string; slug1: string; locale: Locale };

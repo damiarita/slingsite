@@ -8,7 +8,7 @@ import {
 } from '@/content/lib';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { withDefault } from '@/utils/urls';
+import { withDefault } from '@/utils/seo';
 import { PostPageContent } from '@/components/post-page';
 import { PostListing } from '@/components/post-listing';
 import BaseDatalayer from '@/components/base-datalayer';

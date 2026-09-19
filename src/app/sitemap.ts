@@ -5,7 +5,7 @@ import {
 } from '@/content/lib';
 import { getPathname } from '@/i18n/navigation';
 import { routing, Locale } from '@/i18n/routing';
-import { withDefault } from '@/utils/urls';
+import { toAbsoluteUrl, withDefault } from '@/utils/seo';
 import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
@@ -108,9 +108,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return urlSets.flatMap(function (urlSet) {
     return routing.locales.map(function (locale) {
       return {
-        url: urlSet.urls[locale],
+        url: toAbsoluteUrl(urlSet.urls[locale]),
         lastModified: urlSet.lastModified,
-        alternates: { languages: withDefault(urlSet.urls) },
+        alternates: {
+          languages: Object.fromEntries(
+            Object.entries(withDefault(urlSet.urls)).map(([k, v]) => [
+              k,
+              toAbsoluteUrl(v),
+            ]),
+          ),
+        },
       };
     });
   });

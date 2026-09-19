@@ -2,7 +2,7 @@ import BaseDatalayer from '@/components/base-datalayer';
 import { getPathname } from '@/i18n/navigation';
 import { Locale, routing } from '@/i18n/routing';
 import { getSubscribePageMetadataDictionary } from '@/i18n/requests';
-import { withDefault } from '@/utils/urls';
+import { withDefault } from '@/utils/seo';
 import { Metadata } from 'next';
 
 type Props = { params: Promise<{ locale: Locale }> };

@@ -1,5 +1,7 @@
+import { siteUrl } from '@/utils/seo';
+
 export const metadata = {
-  metadataBase: new URL('https://slingsite.github.io'),
+  metadataBase: siteUrl,
 };
 
 export default function RootLayout({
