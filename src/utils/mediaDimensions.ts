@@ -50,7 +50,8 @@ export function getMediumSize(file: File): Promise<MediaDimensions> {
       img.src = url;
     });
   }
-  if (file.type.startsWith('video/')) {
+  // MOV/MKV files often have an empty MIME type
+  if (file.type.startsWith('video/') || /\.(mov|mkv)$/i.test(file.name)) {
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
       video.preload = 'metadata';

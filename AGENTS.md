@@ -79,6 +79,8 @@ Path alias: `@/*` → `src/*`; `contentlayer/generated` → `.contentlayer/gener
 ```
 content/
   page-content/<locale>/{image,video}.mdx   SEO copy + <FAQ> blocks under each compressor
+  page-content/<locale>/{image,video}-format-<slug>.mdx
+                                            Conversion pages: copy in frontmatter (title, description, heading, subheading) + article
   posts/<locale>/<folder>/<file>.mdx        Articles (vs/…, legal/…)
 contentlayer.config.ts                      Post + PageContent document types
 next.config.ts                              Static export, webpack tweaks, next-intl plugin
@@ -93,7 +95,7 @@ src/
     [locale]/image/page.tsx                 Image compressor page
     [locale]/video/page.tsx                 Video compressor page
     [locale]/{image,video}/format/[[...slugs]]/page.tsx
-                                            Format converter pages (only the base page is generated for now)
+                                            Format converter pages: base page + one page per conversion (to-webp, jpg-to-webp…)
     [locale]/subscribe/page.tsx             Brevo newsletter form (raw HTML via dangerouslySetInnerHTML)
     [locale]/suscribe/page.tsx              Legacy typo URL → redirect to /subscribe/
     [locale]/[slug1]/page.tsx               Root post OR folder listing
@@ -110,7 +112,7 @@ src/
   types/                                    Shared types (job, config, workers, persistence…)
   utils/
     formats.ts                              Format lists + type guards
-    format-pages.ts                         Which format pages exist (getFormatPageSlugs), slug parsing, formats per page
+    format-pages.ts                         Input/output format lists, which format pages exist (getFormatPages), URL slugs, labels
     jobs.ts                                 Job creators (createDimensionsJob/createFormatJob), config validity, job helpers
     mediaDimensions.ts                      getMediumSize (reads original size), scaleToWidth/Height (never upscale)
     compressor/{all,image,video}.ts         Encoding logic (runs inside workers) + default configs
@@ -171,7 +173,8 @@ src/
      format does it call `extractFirstFrame()` (mediabunny `CanvasSink`) and
      run `compressImage()` on the poster frame.
 7. Output filenames: `<name>-compressed-<configName>.<format>`
-   (`getCompressedFileName`).
+   (`getCompressedFileName`). When the browser can't encode a video codec
+   (typically HEVC), the task errors with a readable message.
 
 Sizing (`types/config.ts`): each `SizingConfig` has `sizingType`
 `percentage` (screenWidth × percentage, the default), `width`, or `height`.
@@ -286,11 +289,24 @@ with `withDefault`, OG/Twitter) and a `<BaseDatalayer>`, then handle it in
 `sitemap.ts` and `language-selector.tsx` (`getUrls`). The exhaustive switches
 will flag the places you missed.
 
-**Add a format child page (e.g. jpg → webp):** add its slugs
-(`[destination, source]`) to `getFormatPageSlugs` in `utils/format-pages.ts`.
-`generateStaticParams`, `parseFormatSlugs` and the sitemap all read from it.
-The page already preselects `destinationFormat`. Give it its own copy (the
-metadata/SEO getters currently ignore the slugs).
+**Conversion pages (format children):** `getFormatPages(type)` in
+`utils/format-pages.ts` is the single source of truth. It returns the base
+page, one `to-<output>` page per output format and one
+`<source>-to-<output>` page per input × output pair (never a format to
+itself). Inputs come from `inputFormats` (also shown in the upload box);
+outputs are named by `outputFormatSlugs` (`avc.mp4` → `mp4`, `hevc.mp4` →
+`hevc`, `vp9.webm` → `webm`). Static params, the sitemap and
+`FormatPageLinks` (the links block under the base format pages only) all read from
+it. Each conversion page **requires** a
+`content/page-content/<locale>/<type>-format-<slug>.mdx` in every locale: its
+frontmatter `title`/`description`/`heading`/`subheading` feed the metadata
+and H1, and the build throws if one is missing. So adding an input or output
+format means writing those MDX files for all 7 locales. The base pages keep
+using the `format/*` dictionaries. Copy must match real behavior: JPG output
+fills transparency with white, GIFs keep only the first frame, and HEVC
+encoding depends on the browser and hardware. Product decision: the copy does
+**not** mention that video outputs drop the audio track (but must never claim
+it is kept).
 
 **Add an output format:** extend `imageFormats`/`videoFormats` in
 `utils/formats.ts`, then the encoder maps in `utils/compressor/image.ts`
@@ -309,6 +325,10 @@ group is a `NavDropdown` (opens on hover or click). In the mobile drawer it's
 a heading with its links. As with the language selector, the dropdown links
 are always in the DOM (hidden with CSS + `inert`) so crawlers see them. Both
 active checks compare `usePathname()` with `hrefPathname(href)` (`nav-link.tsx`).
+
+Image encoding flattens JPG output onto white (`compressImage`), because
+JPG encoders turn transparent pixels black. `getMediumSize` treats `.mov`/`.mkv`
+files with an empty MIME type as video.
 
 ## Gotchas
 
@@ -367,14 +387,11 @@ active checks compare `usePathname()` with `hrefPathname(href)` (`nav-link.tsx`)
 12. Format pages: output files are still named
     `<name>-compressed-<configName>.<ext>` (e.g. `photo-compressed-Converted.webp`),
     and the results panel still says "Compressed files". `PageContent` slugs
-    `image-format`/`video-format` have no MDX yet, so nothing renders under
-    the converters.
+    `image-format`/`video-format` (the base pages) have no MDX article yet.
 
 ## Next steps (planned)
 
-1. **Format child pages**, one per conversion (jpg → webp, webm → mp4…), with
-   their own SEO copy and the config preloaded. See "Add a format child page".
-2. **Resize pages**, the same as the format pages but with `ResizeSettings` as
+1. **Resize pages**, the same as the format pages but with `ResizeSettings` as
    the main section and `FormatPicker` behind "more settings".
 
 ## Changelog
@@ -393,3 +410,13 @@ active checks compare `usePathname()` with `hrefPathname(href)` (`nav-link.tsx`)
   (`jobProgress`).
 - 2026-10-24: `NavDropdown` aligns its menu to the end edge (so it stays on
   screen) and ignores the click that lands right after a hover opened it.
+- 2026-10-25: Conversion pages: `/<type>/format/to-<output>/` and
+  `/<type>/format/<source>-to-<output>/` (28 pages × 7 locales) with the output
+  preselected, specialized copy in PageContent MDX frontmatter + article, and a
+  links block (`FormatPageLinks`) on every format page. Unified input format
+  list (upload box now lists AVIF, MOV, MKV). JPG output is flattened onto
+  white instead of black. Readable error when a video codec can't be encoded.
+- 2026-10-25: Removed every mention of audio being stripped from the
+  conversion pages copy and `llms.txt` (replaced by a resize FAQ where needed).
+- 2026-10-25: The conversion links block is shown only on the base
+  `/<type>/format/` pages, not on the conversion pages.

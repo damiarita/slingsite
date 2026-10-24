@@ -36,8 +36,18 @@ Convert images at [/en/image/format/](/en/image/format/)
 Convert videos at [/en/video/format/](/en/video/format/)
 
 - Upload video files and pick the output formats: MP4 (H.264/AVC), MP4 (H.265/HEVC) and/or WEBM (VP9)
-- Audio is discarded; no cover images are generated on this page
 - Optional resizing under "Advanced settings": by percentage of the original, exact width or exact height
+
+## Conversion pages
+
+Every conversion has its own page with the output format preselected. Same tool, same privacy (everything runs in the browser), optional resizing.
+
+- Images, any to one format: [/en/image/format/to-jpg/](/en/image/format/to-jpg/), [/en/image/format/to-webp/](/en/image/format/to-webp/), [/en/image/format/to-avif/](/en/image/format/to-avif/)
+- Images, by source: /en/image/format/<source>-to-<output>/ with source jpg, png, webp, gif or avif and output jpg, webp or avif (e.g. [/en/image/format/png-to-webp/](/en/image/format/png-to-webp/), [/en/image/format/webp-to-jpg/](/en/image/format/webp-to-jpg/))
+- Videos, any to one format: [/en/video/format/to-mp4/](/en/video/format/to-mp4/) (H.264), [/en/video/format/to-hevc/](/en/video/format/to-hevc/) (H.265), [/en/video/format/to-webm/](/en/video/format/to-webm/) (VP9)
+- Videos, by source: /en/video/format/<source>-to-<output>/ with source mp4, webm, mov or mkv and output mp4, hevc or webm (e.g. [/en/video/format/mov-to-mp4/](/en/video/format/mov-to-mp4/), [/en/video/format/webm-to-mp4/](/en/video/format/webm-to-mp4/))
+- Limits to mention: JPG output fills transparency with white; animated GIFs keep only the first frame; HEVC encoding needs browser/hardware support (Safari, or Chrome/Edge on supported devices)
+- All pages exist in en, es, ar, de, fr, it and zh (replace /en/)
 
 ## Interaction with LLMs
 

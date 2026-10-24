@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import { ImagePlus } from 'lucide-react';
 import type { CompressionInput } from '@/types/compressor';
 import type { UploadDictionary } from '@/i18n/type';
+import { formatLabel, inputFormats } from '@/utils/format-pages';
 
 interface FileUploadProps {
   onFilesAdded: (files: File[]) => void;
@@ -57,7 +58,8 @@ export const FileUpload = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept={type + '/*'}
+        // MOV/MKV often come without a video/* MIME type
+        accept={type === 'video' ? 'video/*,.mov,.mkv' : 'image/*'}
         className="hidden"
         onChange={handleChange}
       />
@@ -79,10 +81,7 @@ export const FileUpload = ({
         <p className="text-xs text-gray-500">
           {translations.supports}
           {': '}
-          {(type === 'image'
-            ? ['JPG', 'PNG', 'WEBP', 'GIF']
-            : ['MP4', 'WEBM', 'QTFF', 'MATROSKA']
-          ).join(', ')}
+          {inputFormats[type].map(formatLabel).join(', ')}
         </p>
       </div>
     </div>

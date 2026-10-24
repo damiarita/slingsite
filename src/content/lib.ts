@@ -1,5 +1,5 @@
 import { Locale } from '@/i18n/routing';
-import { allPosts, Post } from 'contentlayer/generated';
+import { allPageContents, allPosts, Post } from 'contentlayer/generated';
 
 const sortPosts = (posts: Post[]) => {
   return posts.toSorted((a, b) =>
@@ -62,4 +62,10 @@ export function getFolderTranslations(
   });
 
   return translations;
+}
+
+export function getPageContent(slug: string, locale: Locale) {
+  return allPageContents.find(
+    (page) => page.slug === slug && page.locale === locale,
+  );
 }

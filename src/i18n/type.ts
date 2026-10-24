@@ -102,6 +102,14 @@ export interface FormatSettingsDictionary {
   startConversion: string;
 }
 
+export interface FormatLinksDictionary {
+  imageHeading: string;
+  videoHeading: string;
+  anyImageTo: string; // {to}
+  anyVideoTo: string; // {to}
+  fromTo: string; // {from}, {to}
+}
+
 export interface ResultsDictionary {
   yourFiles: string;
   downloadAllFiles: string;

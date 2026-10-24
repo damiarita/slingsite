@@ -62,11 +62,24 @@ export async function compressImage(
 
     // Draw resized image
     ctx.drawImage(imageBitmap, 0, 0, mediaSize.width, mediaSize.height);
+    // JPG has no alpha channel: encoders turn transparent pixels black, so
+    // flatten onto white first (PNG/GIF/WEBP/AVIF sources can be transparent).
+    let flattenedCanvas: OffscreenCanvas | undefined;
+    const getFlattenedCanvas = () => {
+      if (flattenedCanvas) return flattenedCanvas;
+      flattenedCanvas = new OffscreenCanvas(mediaSize.width, mediaSize.height);
+      const flattenedCtx = flattenedCanvas.getContext('2d')!;
+      flattenedCtx.fillStyle = '#ffffff';
+      flattenedCtx.fillRect(0, 0, mediaSize.width, mediaSize.height);
+      flattenedCtx.drawImage(canvas, 0, 0);
+      return flattenedCanvas;
+    };
     for (const format of formats) {
+      const sourceCanvas = format === 'jpg' ? getFlattenedCanvas() : canvas;
       onBegin(configName, format);
       const outputMimeType = getMimeType(format);
       if (nativelySupportedEncoders[format]) {
-        const blob = await canvas.convertToBlob({
+        const blob = await sourceCanvas.convertToBlob({
           type: outputMimeType,
           quality: 0.8,
         });
@@ -78,12 +91,9 @@ export async function compressImage(
         onSuccess(compressedFile, configName, format);
       } else {
         // Use WASM encoder
-        const imageData = ctx.getImageData(
-          0,
-          0,
-          mediaSize.width,
-          mediaSize.height,
-        );
+        const imageData = sourceCanvas
+          .getContext('2d')!
+          .getImageData(0, 0, mediaSize.width, mediaSize.height);
         const arrayBuffer = await wasmEncoders[format](imageData);
         const compressedFile = new File(
           [arrayBuffer],

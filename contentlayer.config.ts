@@ -85,6 +85,12 @@ export const PageContent = defineDocumentType(() => ({
     locale: { type: 'enum', options: routing.locales, required: true },
     slug: { type: 'string', required: true },
     modificationDate: { type: 'date', required: false },
+    // Optional page copy; pages that have it (format conversion pages) use it
+    // for their metadata and heading instead of a dictionary.
+    title: { type: 'string', required: false },
+    description: { type: 'string', required: false },
+    heading: { type: 'string', required: false },
+    subheading: { type: 'string', required: false },
   },
   computedFields: {
     faqs: {

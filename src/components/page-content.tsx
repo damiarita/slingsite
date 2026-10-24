@@ -1,4 +1,4 @@
-import { allPageContents } from 'contentlayer/generated';
+import { getPageContent } from '@/content/lib';
 import { MDXRemote } from 'next-mdx-remote/rsc'; // Keep this
 import { FAQ } from '@/components/faq'; // Import your new component
 import { Locale } from '@/i18n/routing';
@@ -13,9 +13,7 @@ export default function PageContent({
   locale: Locale;
   slug: string;
 }) {
-  const pageContent = allPageContents.find(
-    (page) => page.slug === slug && page.locale === locale,
-  );
+  const pageContent = getPageContent(slug, locale);
 
   if (!pageContent) {
     return null;

@@ -13,6 +13,7 @@ import {
   UploadDictionary,
   SettingsDictionary,
   FormatSettingsDictionary,
+  FormatLinksDictionary,
   ResultsDictionary,
   NotFoundTranslations,
 } from './type';
@@ -228,6 +229,16 @@ export const getVideoFormatPageSeoDictionary =
     it: () => import('./dictioraries/format/video/seo/it.json'),
     zh: () => import('./dictioraries/format/video/seo/zh.json'),
     en: () => import('./dictioraries/format/video/seo/en.json'),
+  });
+export const getFormatLinksDictionary =
+  createDictionaryGetter<FormatLinksDictionary>({
+    ar: () => import('./dictioraries/format-links/ar.json'),
+    de: () => import('./dictioraries/format-links/de.json'),
+    es: () => import('./dictioraries/format-links/es.json'),
+    fr: () => import('./dictioraries/format-links/fr.json'),
+    it: () => import('./dictioraries/format-links/it.json'),
+    zh: () => import('./dictioraries/format-links/zh.json'),
+    en: () => import('./dictioraries/format-links/en.json'),
   });
 export const getResultDictionary = createDictionaryGetter<ResultsDictionary>({
   ar: () => import('./dictioraries/result/ar.json'),

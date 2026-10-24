@@ -77,11 +77,12 @@ export async function compressVideo(
       if (!conversion.isValid) {
         // Conversion is invalid and cannot be executed without error.
         // This field gives reasons for why tracks were discarded:
-        const errorMessage =
-          'Reasons the conversion was no possible:' +
-          conversion.discardedTracks
-            .map((t) => t.track.name + ': ' + t.reason)
-            .join(', ');
+        const errorMessage = conversion.discardedTracks.some(
+          (t) => t.reason === 'no_encodable_target_codec',
+        )
+          ? `This browser cannot encode ${outputCodec.toUpperCase()} on this device. Try another browser or output format.`
+          : 'The conversion was not possible: ' +
+            conversion.discardedTracks.map((t) => t.reason).join(', ');
         onError(configName, format, errorMessage);
         continue;
       }
