@@ -8,6 +8,7 @@ import {
   getUploadDictionary,
   getSettingsDictionary,
   getResultDictionary,
+  getAudioSettingsDictionary,
 } from '@/i18n/requests';
 import { withDefault } from '@/utils/seo';
 import { Metadata } from 'next';
@@ -72,6 +73,7 @@ export default async function App({ params }: Props) {
   const uploadTranslation = await getUploadDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
   const resultTranslation = await getResultDictionary(locale);
+  const audioTranslation = await getAudioSettingsDictionary(locale);
   const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
@@ -82,6 +84,7 @@ export default async function App({ params }: Props) {
           uploadTranslation={uploadTranslation}
           settingTranslation={settingTranslation}
           resultTranslation={resultTranslation}
+          audioTranslation={audioTranslation}
         />
       </CompressorPage>
       <PageContent locale={locale} slug="video" />

@@ -16,12 +16,14 @@ of tool page share the same app:
 - **Compress pages** (`/image/`, `/video/`): the user picks target sizes (by
   default Mobile/Tablet/Desktop) and gets every size in every format:
   - **Images** → `jpg`, `webp`, `avif`
-  - **Videos** → `avc.mp4`, `hevc.mp4`, `vp9.webm` (no audio), plus a poster
-    frame in the three image formats
+  - **Videos** → `avc.mp4`, `hevc.mp4`, `vp9.webm`, plus a poster frame in
+    the three image formats. Audio is removed by default (web videos usually
+    play muted); "Advanced settings" has a "Keep audio" switch.
 - **Format pages** (`/image/format/`, `/video/format/`): the user picks the
   output formats (images: the 3 image formats; videos: the 3 video formats,
   no poster). Files keep their original size unless resizing is turned on
-  under "Advanced settings".
+  under "Advanced settings". Videos keep their audio by default (same
+  switch, also under "Advanced settings").
 
 Results can be downloaded or uploaded to Google Drive. The site also hosts
 multilingual MDX content (comparison articles, legal pages) for SEO.
@@ -132,8 +134,9 @@ src/
    config, then renders `CompressorPage` (server: H1, subtitle, JSON-LD) with a
    **client wrapper** as children:
    - `DimensionsCompressorPage` (compress pages): `DimensionsSettings` +
-     `createDimensionsJob` + `dimensionsConfigIsValid`, config `SizingConfigs`
-     from `getDefaultCompressionConfig`.
+     `createDimensionsJob` + `dimensionsConfigIsValid`, config
+     `DimensionsConfig` (`{sizes: SizingConfigs, keepAudio}`) from
+     `getDefaultCompressionConfig`.
    - `FormatCompressorPage` (format pages): `FormatSettings` +
      `createFormatJob` + `formatConfigIsValid`, config `FormatConfig` from
      `getDefaultFormatConfig`.
@@ -156,11 +159,15 @@ src/
    - `createFormatJob`: with resizing off, one entry named
      `format-settings.converted` at the original size; otherwise one per
      `FormatConfig.versions[]` entry. Every entry gets `config.formats`.
+
+   Both copy `config.keepAudio` onto the job (`Job.keepAudio`).
+
 4. A `useEffect` in `CompressorApp` runs **one job at a time**: the first
    incomplete job is sent through `useCompressor().compress()`. If a different
    job is running, it aborts (terminates and recreates the worker).
 5. `useCompressor` posts an `InputMessage` to the worker (`formats` is a
-   `Record<configName, Format[]>`). The worker replies with `OutputMessage`s
+   `Record<configName, Format[]>`, plus `keepAudio`, which the image worker
+   ignores). The worker replies with `OutputMessage`s
    (`types/workers.ts`): `progress`, `result`, `error`, and `status: ready`
    once it has finished (and once at startup).
 6. Workers:
@@ -168,10 +175,13 @@ src/
      `OffscreenCanvas` resize → native `convertToBlob` if the browser supports
      the MIME type (probed once at load), otherwise the @jsquash WASM encoder.
      Quality 0.8 for the native path. Configs with no formats are skipped.
-   - `video-compressor.ts` → `compressVideo()` (mediabunny `Conversion`, audio
-     discarded, `fit: 'contain'`). Only if some config asks for an image
-     format does it call `extractFirstFrame()` (mediabunny `CanvasSink`) and
-     run `compressImage()` on the poster frame.
+   - `video-compressor.ts` → `compressVideo()` (mediabunny `Conversion`,
+     `fit: 'contain'`, audio discarded unless `keepAudio`; when kept,
+     mediabunny copies the packets if it can and transcodes otherwise, e.g.
+     AAC → Opus for webm). If a kept audio track can't be read or encoded,
+     the task errors instead of silently producing a mute file. Only if some
+     config asks for an image format does it call `extractFirstFrame()`
+     (mediabunny `CanvasSink`) and run `compressImage()` on the poster frame.
 7. Output filenames: `<name>-compressed-<configName>.<format>`
    (`getCompressedFileName`). When the browser can't encode a video codec
    (typically HEVC), the task errors with a readable message.
@@ -185,8 +195,18 @@ The other dimension always keeps the aspect ratio, and nothing is upscaled.
 `ResizeSettings` (resize switch + one card per `versions[]` entry, with a
 "More sizes" button). Version names are output config names, so they must
 stay unique: new ones are `<resized>-2`, `<resized>-3`….
-`FormatSettings` shows the picker first and puts `ResizeSettings` behind a
-collapsible "Advanced settings". Future resize pages are meant to swap the two.
+`FormatSettings` shows the picker first and puts `ResizeSettings` (and, for
+videos, `AudioSettings`) behind a collapsible "Advanced settings". Future
+resize pages are meant to swap the first two.
+
+Shared settings pieces: `switch.tsx` (the toggle), `advanced-settings.tsx`
+(the collapsible; `activeLabels` are badges for settings that differ from
+the page defaults, shown while collapsed, and open it on mount) and
+`audio-settings.tsx` (`AudioSettings` card + `getAudioActiveLabels`). Both
+settings components take an optional `audio` prop (`defaultKeepAudio` =
+`initialConfig.keepAudio`, plus the `audio-settings` dictionary); only the
+video pages pass it, so image pages show no audio toggle (and `/image/` has
+no advanced section at all).
 
 **Config names are the translated device labels** (from
 `dictioraries/devices`). They are the keys of `SizingConfigs`, they are shown
@@ -304,9 +324,10 @@ and H1, and the build throws if one is missing. So adding an input or output
 format means writing those MDX files for all 7 locales. The base pages keep
 using the `format/*` dictionaries. Copy must match real behavior: JPG output
 fills transparency with white, GIFs keep only the first frame, and HEVC
-encoding depends on the browser and hardware. Product decision: the copy does
-**not** mention that video outputs drop the audio track (but must never claim
-it is kept).
+encoding depends on the browser and hardware. Format pages keep the audio
+by default (it can be turned off), so the copy may say so, but it must not
+promise audio is kept in every case (an unreadable audio codec makes the
+conversion fail with a message).
 
 **Add an output format:** extend `imageFormats`/`videoFormats` in
 `utils/formats.ts`, then the encoder maps in `utils/compressor/image.ts`
@@ -422,3 +443,9 @@ files with an empty MIME type as video.
   `/<type>/format/` pages, not on the conversion pages.
 - 2026-10-25: Restyled `FormatPageLinks`: gradient cards for the `to-<output>`
   pages and one card per source format with chips per target.
+- 2026-10-25: Audio removal is now optional (`keepAudio` in
+  `DimensionsConfig`/`FormatConfig`, carried on `Job` and `InputMessage`).
+  "Keep audio" switch under "Advanced settings" on the video pages: off by
+  default on `/video/`, on by default on the video format pages. New
+  `audio-settings` dictionary and `settings.advancedSettings`. Extracted
+  `Switch` and `AdvancedSettings` into their own components.

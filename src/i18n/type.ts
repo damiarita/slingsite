@@ -71,6 +71,7 @@ export interface SettingsDictionary {
   filesToCompress: string;
   addMoreFiles: string;
   compressionSettings: string;
+  advancedSettings: string;
   supportScreensUpTo: string;
   removeFile: string;
   percentWidth: string;
@@ -100,6 +101,12 @@ export interface FormatSettingsDictionary {
   setHeight: string;
   configMode: Record<ConfigMode, string>;
   startConversion: string;
+}
+
+export interface AudioSettingsDictionary {
+  keepAudio: string;
+  keepAudioDescription: string;
+  noAudio: string;
 }
 
 export interface FormatLinksDictionary {

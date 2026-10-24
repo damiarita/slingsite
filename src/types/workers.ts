@@ -6,6 +6,7 @@ export interface InputMessage {
   file: File;
   formats: Record<string, Format[]>;
   mediaSizes: Record<string, MediaDimensions>;
+  keepAudio: boolean;
 }
 
 interface BaseOutputMessage {

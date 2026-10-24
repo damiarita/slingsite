@@ -1,0 +1,5 @@
+{
+  "keepAudio": "Keep Audio",
+  "keepAudioDescription": "Off removes the audio track, for smaller files.",
+  "noAudio": "No Audio"
+}

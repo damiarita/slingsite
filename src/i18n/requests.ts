@@ -13,6 +13,7 @@ import {
   UploadDictionary,
   SettingsDictionary,
   FormatSettingsDictionary,
+  AudioSettingsDictionary,
   FormatLinksDictionary,
   ResultsDictionary,
   NotFoundTranslations,
@@ -178,6 +179,16 @@ export const getFormatSettingsDictionary =
     it: () => import('./dictioraries/format-settings/it.json'),
     zh: () => import('./dictioraries/format-settings/zh.json'),
     en: () => import('./dictioraries/format-settings/en.json'),
+  });
+export const getAudioSettingsDictionary =
+  createDictionaryGetter<AudioSettingsDictionary>({
+    ar: () => import('./dictioraries/audio-settings/ar.json'),
+    de: () => import('./dictioraries/audio-settings/de.json'),
+    es: () => import('./dictioraries/audio-settings/es.json'),
+    fr: () => import('./dictioraries/audio-settings/fr.json'),
+    it: () => import('./dictioraries/audio-settings/it.json'),
+    zh: () => import('./dictioraries/audio-settings/zh.json'),
+    en: () => import('./dictioraries/audio-settings/en.json'),
   });
 export const getFormatsDictionary = createDictionaryGetter<
   Record<Format, string>

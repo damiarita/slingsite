@@ -15,7 +15,8 @@ import {
 } from '@/utils/workers';
 
 self.addEventListener('message', async (ev) => {
-  const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;
+  const { jobId, file, formats, mediaSizes, keepAudio } =
+    ev.data as InputMessage;
 
   const videoFormatsByConfig: Record<string, VideoFormat[]> = {};
   const imageFormatsByConfig: Record<string, ImageFormat[]> = {};
@@ -55,6 +56,7 @@ self.addEventListener('message', async (ev) => {
     file,
     videoFormatsByConfig,
     mediaSizes,
+    keepAudio,
     (compressedFile: File, configName: string, format: VideoFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
     },

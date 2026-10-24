@@ -11,6 +11,7 @@ import {
   getFormatSettingsDictionary,
   getFormatsDictionary,
   getResultDictionary,
+  getAudioSettingsDictionary,
   getUploadDictionary,
 } from '@/i18n/requests';
 import { getPageContent } from '@/content/lib';
@@ -120,6 +121,7 @@ export default async function App({ params }: Props) {
   const formatSettingTranslation = await getFormatSettingsDictionary(locale);
   const formatsTranslation = await getFormatsDictionary(locale);
   const resultTranslation = await getResultDictionary(locale);
+  const audioTranslation = await getAudioSettingsDictionary(locale);
   const formatLinksTranslation = await getFormatLinksDictionary(locale);
   const initialConfig = getDefaultFormatConfig(
     page.destination ? [page.destination] : availableFormats,
@@ -136,6 +138,7 @@ export default async function App({ params }: Props) {
           formatSettingTranslation={formatSettingTranslation}
           formatsTranslation={formatsTranslation}
           resultTranslation={resultTranslation}
+          audioTranslation={audioTranslation}
         />
       </CompressorPage>
       {/* Only the base page links to the conversion pages */}

@@ -3,6 +3,7 @@
 import CompressorApp from './compressor-app';
 import { FormatSettings } from './format-settings';
 import type {
+  AudioSettingsDictionary,
   FormatSettingsDictionary,
   ResultsDictionary,
   UploadDictionary,
@@ -13,7 +14,7 @@ import type { Format } from '@/utils/formats';
 import { createFormatJob, formatConfigIsValid } from '@/utils/jobs';
 
 // Format pages (/image/format/, /video/format/): pick the output formats,
-// resizing is optional (behind "advanced settings").
+// resizing (and audio, for videos) is optional, behind "advanced settings".
 export default function FormatCompressorPage({
   compressorType,
   initialConfig,
@@ -22,6 +23,7 @@ export default function FormatCompressorPage({
   formatSettingTranslation,
   formatsTranslation,
   resultTranslation,
+  audioTranslation,
 }: {
   compressorType: CompressionInput;
   initialConfig: FormatConfig;
@@ -30,6 +32,8 @@ export default function FormatCompressorPage({
   formatSettingTranslation: FormatSettingsDictionary;
   formatsTranslation: Record<Format, string>;
   resultTranslation: ResultsDictionary;
+  // Videos only: shows the audio toggle.
+  audioTranslation?: AudioSettingsDictionary;
 }) {
   return (
     <CompressorApp<FormatConfig>
@@ -49,6 +53,12 @@ export default function FormatCompressorPage({
           availableFormats={availableFormats}
           translation={formatSettingTranslation}
           formatsTranslation={formatsTranslation}
+          audio={
+            audioTranslation && {
+              defaultKeepAudio: initialConfig.keepAudio,
+              translation: audioTranslation,
+            }
+          }
         />
       )}
       configIsValid={formatConfigIsValid}

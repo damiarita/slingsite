@@ -3,12 +3,13 @@
 import CompressorApp from './compressor-app';
 import { DimensionsSettings } from './dimension-settings';
 import type {
+  AudioSettingsDictionary,
   ResultsDictionary,
   SettingsDictionary,
   UploadDictionary,
 } from '@/i18n/type';
 import type { CompressionInput } from '@/types/compressor';
-import type { SizingConfigs } from '@/types/config';
+import type { DimensionsConfig } from '@/types/config';
 import { createDimensionsJob, dimensionsConfigIsValid } from '@/utils/jobs';
 
 // Compress pages (/image/, /video/): one output per device size.
@@ -18,15 +19,18 @@ export default function DimensionsCompressorPage({
   uploadTranslation,
   settingTranslation,
   resultTranslation,
+  audioTranslation,
 }: {
   compressorType: CompressionInput;
-  initialConfig: SizingConfigs;
+  initialConfig: DimensionsConfig;
   uploadTranslation: UploadDictionary;
   settingTranslation: SettingsDictionary;
   resultTranslation: ResultsDictionary;
+  // Videos only: shows the audio toggle.
+  audioTranslation?: AudioSettingsDictionary;
 }) {
   return (
-    <CompressorApp<SizingConfigs>
+    <CompressorApp<DimensionsConfig>
       compressorType={compressorType}
       initialConfig={initialConfig}
       translation={{
@@ -38,7 +42,16 @@ export default function DimensionsCompressorPage({
       uploadTranslation={uploadTranslation}
       resultTranslation={resultTranslation}
       renderSettings={(props) => (
-        <DimensionsSettings {...props} translation={settingTranslation} />
+        <DimensionsSettings
+          {...props}
+          translation={settingTranslation}
+          audio={
+            audioTranslation && {
+              defaultKeepAudio: initialConfig.keepAudio,
+              translation: audioTranslation,
+            }
+          }
+        />
       )}
       configIsValid={dimensionsConfigIsValid}
       createJob={createDimensionsJob}

@@ -1,20 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  ChevronDown,
-  ChevronUp,
-  FileImage,
-  FileVideo,
-  Plus,
-  Settings,
-  X,
-} from 'lucide-react';
+import { FileImage, FileVideo, Plus, Settings, X } from 'lucide-react';
 import { SecondaryButton } from './buttons';
+import { Switch } from './switch';
+import { AdvancedSettings } from './advanced-settings';
+import { AudioSettings, getAudioActiveLabels } from './audio-settings';
 import type { ConfigMode, FormatConfig } from '@/types/config';
 import type { Format } from '@/utils/formats';
 import { isVideoFormat } from '@/utils/formats';
-import type { FormatSettingsDictionary } from '@/i18n/type';
+import type {
+  AudioSettingsDictionary,
+  FormatSettingsDictionary,
+} from '@/i18n/type';
 
 const percentagePresets = [
   { label: '100%', value: 100 },
@@ -28,40 +25,6 @@ type Props = {
   setConfig: (config: FormatConfig) => void;
   translation: FormatSettingsDictionary;
 };
-
-function Switch({
-  id,
-  checked,
-  onChange,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <div className="relative inline-block w-12 h-6 align-middle select-none">
-      <input
-        type="checkbox"
-        id={id}
-        checked={checked}
-        onChange={onChange}
-        className="absolute inset-0 w-full h-full m-0 p-0 opacity-0 cursor-pointer peer z-10"
-        aria-checked={checked}
-        role="switch"
-      />
-      {/* track */}
-      <div
-        className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors"
-        aria-hidden="true"
-      />
-      {/* knob */}
-      <div
-        className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"
-        aria-hidden="true"
-      />
-    </div>
-  );
-}
 
 export const FormatPicker = ({
   config,
@@ -324,17 +287,21 @@ export const ResizeSettings = ({ config, setConfig, translation }: Props) => {
   );
 };
 
-// Format pages: formats first, resizing behind "advanced settings". Resize
-// pages will swap the two (ResizeSettings first, FormatPicker behind).
+// Format pages: formats first, resizing (and audio, for videos) behind
+// "advanced settings". Resize pages will swap the first two (ResizeSettings
+// first, FormatPicker behind).
 export const FormatSettings = (
   props: Props & {
     availableFormats: Format[];
     formatsTranslation: Record<Format, string>;
+    // Only for videos. Without it there is no audio toggle.
+    audio?: {
+      defaultKeepAudio: boolean;
+      translation: AudioSettingsDictionary;
+    };
   },
 ) => {
-  const { config, translation } = props;
-  const [showAdvanced, setShowAdvanced] = useState(config.resize);
-  const Chevron = showAdvanced ? ChevronUp : ChevronDown;
+  const { config, setConfig, translation, audio } = props;
 
   return (
     <>
@@ -345,31 +312,32 @@ export const FormatSettings = (
         </h3>
       </div>
       <FormatPicker {...props} />
-      <button
-        type="button"
-        onClick={() => setShowAdvanced((v) => !v)}
-        aria-expanded={showAdvanced}
-        aria-controls="advanced-settings"
-        className="flex items-center mt-4 mb-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+      <AdvancedSettings
+        label={translation.advancedSettings}
+        activeLabels={[
+          ...(config.resize ? [translation.resize] : []),
+          ...(audio
+            ? getAudioActiveLabels(
+                config.keepAudio,
+                audio.defaultKeepAudio,
+                audio.translation,
+              )
+            : []),
+        ]}
       >
-        <Chevron className="w-4 h-4 mr-1" />
-        {translation.advancedSettings}
-        {/* Collapsing doesn't turn resizing off, so keep it visible. */}
-        {!showAdvanced && config.resize && (
-          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
-            {translation.resize}
-          </span>
-        )}
-      </button>
-      {showAdvanced && (
-        <div id="advanced-settings">
-          <ResizeSettings
-            config={config}
-            setConfig={props.setConfig}
-            translation={translation}
+        <ResizeSettings
+          config={config}
+          setConfig={setConfig}
+          translation={translation}
+        />
+        {audio && (
+          <AudioSettings
+            keepAudio={config.keepAudio}
+            setKeepAudio={(keepAudio) => setConfig({ ...config, keepAudio })}
+            translation={audio.translation}
           />
-        </div>
-      )}
+        )}
+      </AdvancedSettings>
     </>
   );
 };

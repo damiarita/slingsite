@@ -1,4 +1,8 @@
-import type { FormatConfig, SizingConfigs } from '@/types/config';
+import type {
+  DimensionsConfig,
+  FormatConfig,
+  SizingConfigs,
+} from '@/types/config';
 import type { Job, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import { Format, imageFormats, videoFormats } from '@/utils/formats';
@@ -13,8 +17,8 @@ const getEnabledConfigNames = (configs: SizingConfigs): string[] =>
     .filter(([, config]) => config.enabled)
     .map(([configName]) => configName);
 
-export const dimensionsConfigIsValid = (configs: SizingConfigs): boolean =>
-  getEnabledConfigNames(configs).length > 0;
+export const dimensionsConfigIsValid = (config: DimensionsConfig): boolean =>
+  getEnabledConfigNames(config.sizes).length > 0;
 
 export const formatConfigIsValid = (config: FormatConfig): boolean =>
   config.formats.length > 0 &&
@@ -26,30 +30,31 @@ export const formatConfigIsValid = (config: FormatConfig): boolean =>
 // are fixed by the file type (videos also get a poster in every image format).
 export const createDimensionsJob = (
   file: File,
-  configs: SizingConfigs,
+  config: DimensionsConfig,
 ): Promise<Job> =>
-  createJob(file, (originalDimensions) => {
+  createJob(file, config.keepAudio, (originalDimensions) => {
+    const configs = config.sizes;
     const requestedFormats: Format[] = file.type.startsWith('image/')
       ? [...imageFormats]
       : [...videoFormats, ...imageFormats];
     const requestedDimensions: Record<string, MediaDimensions> = {};
     const formatsByConfig: Record<string, Format[]> = {};
     getEnabledConfigNames(configs).forEach((configName) => {
-      const config = configs[configName];
-      if (config.sizingType === 'height') {
+      const sizing = configs[configName];
+      if (sizing.sizingType === 'height') {
         requestedDimensions[configName] = scaleToHeight(
           originalDimensions,
-          config.height,
+          sizing.height,
         );
-      } else if (config.sizingType === 'width') {
+      } else if (sizing.sizingType === 'width') {
         requestedDimensions[configName] = scaleToWidth(
           originalDimensions,
-          config.width,
+          sizing.width,
         );
       } else {
         requestedDimensions[configName] = scaleToWidth(
           originalDimensions,
-          config.screenWidth * (config.percentage / 100),
+          sizing.screenWidth * (sizing.percentage / 100),
         );
       }
       formatsByConfig[configName] = requestedFormats;
@@ -64,7 +69,7 @@ export const createFormatJob = (
   config: FormatConfig,
   unresizedName: string,
 ): Promise<Job> =>
-  createJob(file, (originalDimensions) => {
+  createJob(file, config.keepAudio, (originalDimensions) => {
     const requestedDimensions: Record<string, MediaDimensions> = {};
     const formatsByConfig: Record<string, Format[]> = {};
     if (!config.resize) {
@@ -96,6 +101,7 @@ export const createFormatJob = (
 
 async function createJob(
   file: File,
+  keepAudio: boolean,
   plan: (originalDimensions: MediaDimensions) => {
     requestedDimensions: Record<string, MediaDimensions>;
     requestedFormats: Record<string, Format[]>;
@@ -118,6 +124,7 @@ async function createJob(
       originalDimensions,
       requestedDimensions,
       requestedFormats,
+      keepAudio,
       tasks,
     };
   } catch (error) {

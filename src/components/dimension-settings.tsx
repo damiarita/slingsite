@@ -2,8 +2,14 @@
 'use client';
 import { ReactElement } from 'react';
 import { Smartphone, Tablet, Monitor, Settings } from 'lucide-react';
-import type { SettingsDictionary } from '@/i18n/type';
-import type { ConfigMode, SizingConfigs } from '@/types/config';
+import { AdvancedSettings } from './advanced-settings';
+import { AudioSettings, getAudioActiveLabels } from './audio-settings';
+import type { AudioSettingsDictionary, SettingsDictionary } from '@/i18n/type';
+import type {
+  ConfigMode,
+  DimensionsConfig,
+  SizingConfigs,
+} from '@/types/config';
 
 const createPercentageFromColumns = (columns: number) => {
   if (columns <= 0) return 100;
@@ -11,14 +17,24 @@ const createPercentageFromColumns = (columns: number) => {
 };
 
 export const DimensionsSettings = ({
-  config,
-  setConfig,
+  config: dimensionsConfig,
+  setConfig: setDimensionsConfig,
   translation,
+  audio,
 }: {
-  config: SizingConfigs;
-  setConfig: (config: SizingConfigs) => void;
+  config: DimensionsConfig;
+  setConfig: (config: DimensionsConfig) => void;
   translation: SettingsDictionary;
+  // Only for videos. Without it there are no advanced settings.
+  audio?: {
+    defaultKeepAudio: boolean;
+    translation: AudioSettingsDictionary;
+  };
 }) => {
+  const config = dimensionsConfig.sizes;
+  const setConfig = (sizes: SizingConfigs) =>
+    setDimensionsConfig({ ...dimensionsConfig, sizes });
+
   const icons: Record<string, ReactElement> = {
     mobile: <Smartphone className="w-5 h-5 mr-2" />,
     tablet: <Tablet className="w-5 h-5 mr-2" />,
@@ -248,6 +264,24 @@ export const DimensionsSettings = ({
           );
         })}
       </div>
+      {audio && (
+        <AdvancedSettings
+          label={translation.advancedSettings}
+          activeLabels={getAudioActiveLabels(
+            dimensionsConfig.keepAudio,
+            audio.defaultKeepAudio,
+            audio.translation,
+          )}
+        >
+          <AudioSettings
+            keepAudio={dimensionsConfig.keepAudio}
+            setKeepAudio={(keepAudio) =>
+              setDimensionsConfig({ ...dimensionsConfig, keepAudio })
+            }
+            translation={audio.translation}
+          />
+        </AdvancedSettings>
+      )}
     </>
   );
 };

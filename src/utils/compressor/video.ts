@@ -33,6 +33,7 @@ export async function compressVideo(
   file: File,
   formatsByConfig: Record<string, VideoFormat[]>,
   mediaSizes: Record<string, MediaDimensions>,
+  keepAudio: boolean,
   onSuccess: (file: File, configName: string, format: VideoFormat) => void,
   onError: (
     configName: string,
@@ -69,11 +70,30 @@ export async function compressVideo(
           fit: 'contain',
           codec: outputCodec,
         },
-        audio: {
-          discard: true,
-        },
+        // When kept, mediabunny copies the audio packets if it can (the
+        // container accepts the codec and nothing needs resampling) and
+        // transcodes them otherwise.
+        audio: { discard: !keepAudio },
         tags: {},
       });
+      // A track that can't be encoded is discarded and the conversion stays
+      // valid, so a kept audio track could silently disappear.
+      const discardedAudio = conversion.discardedTracks.find(
+        (t) => t.track.type === 'audio' && t.reason !== 'discarded_by_user',
+      );
+      if (keepAudio && discardedAudio) {
+        onError(
+          configName,
+          format,
+          discardedAudio.reason === 'no_encodable_target_codec'
+            ? `This browser cannot encode the audio for ${format} on this device. Try another browser or output format, or turn off "keep audio".`
+            : discardedAudio.reason === 'undecodable_source_codec' ||
+                discardedAudio.reason === 'unknown_source_codec'
+              ? `This browser cannot read the audio of this file. Try another browser, or turn off "keep audio".`
+              : 'The audio could not be kept: ' + discardedAudio.reason,
+        );
+        continue;
+      }
       if (!conversion.isValid) {
         // Conversion is invalid and cannot be executed without error.
         // This field gives reasons for why tracks were discarded:

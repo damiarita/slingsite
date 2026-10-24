@@ -1,0 +1,5 @@
+{
+  "keepAudio": "Conserver l’Audio",
+  "keepAudioDescription": "Désactivé, la piste audio est supprimée pour des fichiers plus légers.",
+  "noAudio": "Sans Audio"
+}

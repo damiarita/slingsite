@@ -1,6 +1,6 @@
 import { getDevicesDictionary } from '@/i18n/requests';
 import { Locale } from '@/i18n/routing';
-import type { FormatConfig, SizingConfigs } from '@/types/config';
+import type { DimensionsConfig, FormatConfig } from '@/types/config';
 import type { Format } from '@/utils/formats';
 
 export function getCompressedFileName(
@@ -27,36 +27,41 @@ export function getFileNameWithExtensionAndSuffix(
   return fileNamePieces.join('.');
 }
 
+// The compress pages optimize videos for websites, where they usually play
+// muted, so the audio is dropped by default.
 export async function getDefaultCompressionConfig(
   locale: Locale,
-): Promise<SizingConfigs> {
+): Promise<DimensionsConfig> {
   return getDevicesDictionary(locale).then((devicesTranslation) => ({
-    [devicesTranslation.mobile]: {
-      enabled: true,
-      screenWidth: 450,
-      sizingType: 'percentage',
-      percentage: 100,
-      width: 450,
-      height: 100,
-      iconType: 'mobile',
-    },
-    [devicesTranslation.tablet]: {
-      enabled: true,
-      screenWidth: 1050,
-      sizingType: 'percentage',
-      percentage: 50,
-      width: 525,
-      height: 100,
-      iconType: 'tablet',
-    },
-    [devicesTranslation.desktop]: {
-      enabled: true,
-      screenWidth: 1950,
-      sizingType: 'percentage',
-      percentage: 33.33,
-      width: 650,
-      height: 100,
-      iconType: 'desktop',
+    keepAudio: false,
+    sizes: {
+      [devicesTranslation.mobile]: {
+        enabled: true,
+        screenWidth: 450,
+        sizingType: 'percentage',
+        percentage: 100,
+        width: 450,
+        height: 100,
+        iconType: 'mobile',
+      },
+      [devicesTranslation.tablet]: {
+        enabled: true,
+        screenWidth: 1050,
+        sizingType: 'percentage',
+        percentage: 50,
+        width: 525,
+        height: 100,
+        iconType: 'tablet',
+      },
+      [devicesTranslation.desktop]: {
+        enabled: true,
+        screenWidth: 1950,
+        sizingType: 'percentage',
+        percentage: 33.33,
+        width: 650,
+        height: 100,
+        iconType: 'desktop',
+      },
     },
   }));
 }
@@ -67,6 +72,7 @@ export function getDefaultFormatConfig(
 ): FormatConfig {
   return {
     formats: [...formats],
+    keepAudio: true,
     resize: false,
     versions: [
       {

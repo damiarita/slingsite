@@ -54,6 +54,7 @@ export default function useCompressor(type: CompressionInput) {
       file: File,
       formats: Record<string, Format[]>,
       mediaSizes: Record<string, MediaDimensions>,
+      keepAudio: boolean,
       onProgress: (
         jobId: string,
         format: Format,
@@ -113,7 +114,13 @@ export default function useCompressor(type: CompressionInput) {
         throw new Error('Worker error: ' + ev.message);
       };
       setProcessorStatus('working');
-      const message: InputMessage = { jobId, file, formats, mediaSizes };
+      const message: InputMessage = {
+        jobId,
+        file,
+        formats,
+        mediaSizes,
+        keepAudio,
+      };
       worker.postMessage(message);
     },
   };
