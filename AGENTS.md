@@ -9,13 +9,19 @@ Guide for AI agents (and humans) working on SlingSite. Read this first.
 
 ## What the project is
 
-SlingSite (https://slingsite.github.io) resizes and compresses images and
-videos **entirely in the browser**. There is no backend. The user picks target
-sizes (by default Mobile/Tablet/Desktop) and gets every size in every format:
+SlingSite (https://slingsite.github.io) resizes, compresses and converts
+images and videos **entirely in the browser**. There is no backend. Two kinds
+of tool page share the same app:
 
-- **Images** → `jpg`, `webp`, `avif`
-- **Videos** → `avc.mp4`, `hevc.mp4`, `vp9.webm` (no audio), plus a poster
-  frame in the three image formats
+- **Compress pages** (`/image/`, `/video/`): the user picks target sizes (by
+  default Mobile/Tablet/Desktop) and gets every size in every format:
+  - **Images** → `jpg`, `webp`, `avif`
+  - **Videos** → `avc.mp4`, `hevc.mp4`, `vp9.webm` (no audio), plus a poster
+    frame in the three image formats
+- **Format pages** (`/image/format/`, `/video/format/`): the user picks the
+  output formats (images: the 3 image formats; videos: the 3 video formats,
+  no poster). Files keep their original size unless resizing is turned on
+  under "Advanced settings".
 
 Results can be downloaded or uploaded to Google Drive. The site also hosts
 multilingual MDX content (comparison articles, legal pages) for SEO.
@@ -33,6 +39,14 @@ multilingual MDX content (comparison articles, legal pages) for SEO.
 
 There are no tests. Verify changes with `npx tsc --noEmit` and
 `npm run build`, then check in `npm run dev`.
+
+Browser checks can be scripted with Playwright's Chromium (not a project
+dependency; use it from a scratch folder). In the Flatpak VS Code setup, its
+browsers live in `$XDG_CACHE_HOME/ms-playwright`
+(`~/.var/app/com.visualstudio.code/cache/`). Playwright's Chromium can encode
+VP9 and H.264 but not HEVC, so `hevc.mp4` needs real Chrome. Converting a VP9
+webm to `vp9.webm` at the same size skips re-encoding, so to see real
+progress, resize it or change the codec.
 
 Env vars (in `.env.local`, git-ignored): `NEXT_PUBLIC_GOOGLE_CLIENT_ID`,
 `NEXT_PUBLIC_GOOGLE_API_KEY` (Google Drive), and optionally
@@ -78,6 +92,8 @@ src/
     [locale]/page.tsx                       → redirect to /<locale>/image/
     [locale]/image/page.tsx                 Image compressor page
     [locale]/video/page.tsx                 Video compressor page
+    [locale]/{image,video}/format/[[...slugs]]/page.tsx
+                                            Format converter pages (only the base page is generated for now)
     [locale]/subscribe/page.tsx             Brevo newsletter form (raw HTML via dangerouslySetInnerHTML)
     [locale]/suscribe/page.tsx              Legacy typo URL → redirect to /subscribe/
     [locale]/[slug1]/page.tsx               Root post OR folder listing
@@ -94,7 +110,9 @@ src/
   types/                                    Shared types (job, config, workers, persistence…)
   utils/
     formats.ts                              Format lists + type guards
-    jobs.ts                                 Job creation (target dimensions, task matrix) + helpers
+    format-pages.ts                         Which format pages exist (getFormatPageSlugs), slug parsing, formats per page
+    jobs.ts                                 Job creators (createDimensionsJob/createFormatJob), config validity, job helpers
+    mediaDimensions.ts                      getMediumSize (reads original size), scaleToWidth/Height (never upscale)
     compressor/{all,image,video}.ts         Encoding logic (runs inside workers) + default configs
     workers.ts                              Typed postMessage helpers used by workers
     persistence.ts                          Download helpers
@@ -107,37 +125,65 @@ src/
 
 ### Compressor pipeline
 
-1. `app/[locale]/{image,video}/page.tsx` (server) loads dictionaries and the
-   default sizing configs (`getDefaultCompressionConfig`), then renders
-   `CompressorPage` (server: title + JSON-LD) → `CompressorApp` (client).
-2. `CompressorApp` holds state: `files` (picked, not started), `jobs`, and
-   `configs` (`SizingConfigs`). UI steps: `FileUpload` → `DimensionsSettings`
-   → `Results`/`FileItem`.
-3. "Start" → `createJob()` (`utils/jobs.ts`) per file: reads the original
-   dimensions (via `<img>`/`<video>`), computes `requestedDimensions` per
-   enabled config (never upscales: `minDimension`), picks formats (images:
-   image formats; videos: video formats + image formats for the poster), and
-   builds `tasks[configName][format] = {status:'waiting'}`.
+1. The server page (`app/[locale]/{image,video}/page.tsx` or
+   `.../format/[[...slugs]]/page.tsx`) loads dictionaries and the initial
+   config, then renders `CompressorPage` (server: H1, subtitle, JSON-LD) with a
+   **client wrapper** as children:
+   - `DimensionsCompressorPage` (compress pages): `DimensionsSettings` +
+     `createDimensionsJob` + `dimensionsConfigIsValid`, config `SizingConfigs`
+     from `getDefaultCompressionConfig`.
+   - `FormatCompressorPage` (format pages): `FormatSettings` +
+     `createFormatJob` + `formatConfigIsValid`, config `FormatConfig` from
+     `getDefaultFormatConfig`.
+
+   The wrappers exist because the settings component and job creator are
+   functions, which can't be passed from a server component.
+
+2. Both wrappers render the generic `CompressorApp<Config>` (client). It owns
+   the state (`files` picked but not started, `jobs`, `config`) and the shell:
+   `FileUpload` → files grid + `renderSettings({config, setConfig})` + Start
+   button (disabled while `configIsValid(config)` is false) →
+   `Results`/`FileItem`. Settings come in as a **render prop**, not a
+   component, so wrappers can define them inline without remounting them.
+3. "Start" → `createJob(file, config)` per file (`utils/jobs.ts`). Both
+   creators read the original dimensions with `getMediumSize`, compute
+   `requestedDimensions` and `requestedFormats` **per config name**, and build
+   `tasks[configName][format] = {status:'waiting'}`:
+   - `createDimensionsJob`: one entry per enabled device; formats come from the
+     file type (image → image formats; video → video + image formats).
+   - `createFormatJob`: with resizing off, one entry named
+     `format-settings.converted` at the original size; otherwise one per
+     `FormatConfig.versions[]` entry. Every entry gets `config.formats`.
 4. A `useEffect` in `CompressorApp` runs **one job at a time**: the first
    incomplete job is sent through `useCompressor().compress()`. If a different
    job is running, it aborts (terminates and recreates the worker).
-5. `useCompressor` posts an `InputMessage` to the worker. The worker replies
-   with `OutputMessage`s (`types/workers.ts`): `progress`, `result`, `error`,
-   and `status: ready` once it has finished (and once at startup).
+5. `useCompressor` posts an `InputMessage` to the worker (`formats` is a
+   `Record<configName, Format[]>`). The worker replies with `OutputMessage`s
+   (`types/workers.ts`): `progress`, `result`, `error`, and `status: ready`
+   once it has finished (and once at startup).
 6. Workers:
    - `image-compressor.ts` → `compressImage()`: `createImageBitmap` →
      `OffscreenCanvas` resize → native `convertToBlob` if the browser supports
      the MIME type (probed once at load), otherwise the @jsquash WASM encoder.
-     Quality 0.8 for the native path.
-   - `video-compressor.ts` → `extractFirstFrame()` (mediabunny `CanvasSink`) +
-     `compressVideo()` (mediabunny `Conversion`, audio discarded,
-     `fit: 'contain'`), then runs `compressImage()` on the poster frame.
+     Quality 0.8 for the native path. Configs with no formats are skipped.
+   - `video-compressor.ts` → `compressVideo()` (mediabunny `Conversion`, audio
+     discarded, `fit: 'contain'`). Only if some config asks for an image
+     format does it call `extractFirstFrame()` (mediabunny `CanvasSink`) and
+     run `compressImage()` on the poster frame.
 7. Output filenames: `<name>-compressed-<configName>.<format>`
    (`getCompressedFileName`).
 
-Sizing (`types/config.ts`): each config has `sizingType` `percentage`
-(screenWidth × percentage, the default), `width`, or `height`. The other
-dimension keeps the aspect ratio.
+Sizing (`types/config.ts`): each `SizingConfig` has `sizingType`
+`percentage` (screenWidth × percentage, the default), `width`, or `height`.
+In a `FormatConfig` version, `percentage` is a percentage **of the original**.
+The other dimension always keeps the aspect ratio, and nothing is upscaled.
+
+`format-settings.tsx` exports `FormatPicker` (format toggles) and
+`ResizeSettings` (resize switch + one card per `versions[]` entry, with a
+"More sizes" button). Version names are output config names, so they must
+stay unique: new ones are `<resized>-2`, `<resized>-3`….
+`FormatSettings` shows the picker first and puts `ResizeSettings` behind a
+collapsible "Advanced settings". Future resize pages are meant to swap the two.
 
 **Config names are the translated device labels** (from
 `dictioraries/devices`). They are the keys of `SizingConfigs`, they are shown
@@ -156,7 +202,8 @@ in the UI, and they appear in output filenames. `iconType` (`mobile` |
 - Translations are plain JSON loaded by server components through getters in
   `i18n/requests.ts` and passed to client components as props.
 - Typed pathnames (`routing.pathnames`): `/home/`, `/image/`, `/video/`,
-  `/subscribe/`, `/content/[...slugs]`. `/content/[...slugs]` is a _logical_
+  `/image/format/[[...slugs]]`, `/video/format/[[...slugs]]`, `/subscribe/`,
+  `/content/[...slugs]`. `/content/[...slugs]` is a _logical_
   name mapped to `/[...slugs]`. The physical routes are `[slug1]` and
   `[slug1]/[slug2]`.
 - Always use `Link` from `@/i18n/navigation`, which **requires** a `locale`
@@ -239,10 +286,29 @@ with `withDefault`, OG/Twitter) and a `<BaseDatalayer>`, then handle it in
 `sitemap.ts` and `language-selector.tsx` (`getUrls`). The exhaustive switches
 will flag the places you missed.
 
+**Add a format child page (e.g. jpg → webp):** add its slugs
+(`[destination, source]`) to `getFormatPageSlugs` in `utils/format-pages.ts`.
+`generateStaticParams`, `parseFormatSlugs` and the sitemap all read from it.
+The page already preselects `destinationFormat`. Give it its own copy (the
+metadata/SEO getters currently ignore the slugs).
+
 **Add an output format:** extend `imageFormats`/`videoFormats` in
 `utils/formats.ts`, then the encoder maps in `utils/compressor/image.ts`
 (`wasmEncoders`, `getMimeType`, `calculateSupportedEncoders`) or `video.ts`
 (`outputFormats`, `outputCodecs`).
+
+Progress: `jobProportionOfDoneTasks` counts finished tasks only (it gates
+"download all" and the "in queue" state). The progress bar in `FileItem`
+uses `jobProgress`, which also counts running tasks by their `percentage`.
+Video outputs report it (mediabunny `onProgress`); images don't.
+
+### Navigation
+
+`nav-bar.tsx` groups pages into `NavGroup`s (Images, Videos). On desktop each
+group is a `NavDropdown` (opens on hover or click). In the mobile drawer it's
+a heading with its links. As with the language selector, the dropdown links
+are always in the DOM (hidden with CSS + `inert`) so crawlers see them. Both
+active checks compare `usePathname()` with `hrefPathname(href)` (`nav-link.tsx`).
 
 ## Gotchas
 
@@ -256,6 +322,13 @@ will flag the places you missed.
 - `.contentlayer/` is generated (by `dev`/`build`). Imports from
   `contentlayer/generated` fail until it exists.
 - `public/ffmpeg` and `static/ffmpeg` are build outputs (CopyPlugin), not source.
+- With static export, the base page of an optional catch-all is generated
+  from `{ slugs: [] }`. Links to it use
+  `{ pathname: '/image/format/[[...slugs]]', params: { slugs: [] } }`.
+  `usePathname()` returns the route template, so active checks use
+  `hrefPathname(href)`.
+- The language selector reads catch-all slugs with `useParams()` for the
+  format pages: `useSelectedLayoutSegments` doesn't split catch-alls.
 - The subscribe page embeds raw Brevo HTML/JS (with reCAPTCHA `hl=es`).
   Edit it as an opaque blob.
 
@@ -269,40 +342,54 @@ will flag the places you missed.
 2. `hooks/use-compressor.ts` `createWorker()` instantiates **both** workers
    and uses only one. The other is never terminated (it leaks, and loads its
    codecs for nothing).
-3. `getDefaultCompressionConfig` (`utils/compressor/all.ts`): the desktop
-   entry uses `icon: 'desktop'` instead of `iconType`, so no desktop icon is
-   shown.
-4. `utils/google-drive.ts`: `uploadSingleFileToGoogleDrive` returns `false`
+3. `utils/google-drive.ts`: `uploadSingleFileToGoogleDrive` returns `false`
    after the last retry instead of throwing, so failed uploads are shown as
    "completed". The auth callback also lacks a `return` after `reject`.
-5. Errors thrown inside `compressImage`/`compressVideo` (e.g. a WASM encoder
+4. Errors thrown inside `compressImage`/`compressVideo` (e.g. a WASM encoder
    failure, or `conversion.execute()` rejecting) aren't caught per task. The
    worker never sends `ready`, so the compressor stays `working` forever.
    `extractFirstFrame` doesn't propagate rejections from its nested promises,
    so it can hang.
-6. `app/[locale]/[slug1]/page.tsx` `generateMetadata` builds post hreflang
+5. `app/[locale]/[slug1]/page.tsx` `generateMetadata` builds post hreflang
    URLs with `slugs: [translation.slugPath]` (an array inside an array). It
    should be `slugs: translation.slugPath`.
-7. `components/language-selector.tsx` is a client component importing
+6. `components/language-selector.tsx` is a client component importing
    `@/content/lib`, which bundles every post (`allPosts`) into the client JS.
-8. `@ffmpeg/*` is installed and copied by CopyPlugin, but nothing imports it
+7. `@ffmpeg/*` is installed and copied by CopyPlugin, but nothing imports it
    (video uses mediabunny). It's dead weight.
-9. Object URLs leak: `DimensionsSettings` calls `URL.createObjectURL` on every
-   render, and `Job.originalFileObjectURL` is never revoked.
-10. The upload-status panel strings in `components/results.tsx` are hard-coded
-    English.
-11. The video page's Twitter card uses `/screenshots/image.jpg` (OpenGraph
-    correctly uses `video.jpg`).
-12. `README.md` describes only the image flow (3 formats × 3 sizes).
+8. Object URLs leak: the files grid in `CompressorApp` calls
+   `URL.createObjectURL` on every render, and `Job.originalFileObjectURL` is never revoked.
+9. The upload-status panel strings in `components/results.tsx` are hard-coded
+   English.
+10. `README.md` describes only the image flow (3 formats × 3 sizes).
+11. `dictioraries/compression/image/metadata/ar.json`: the Arabic description
+    has a fragment of the video description pasted into it.
+12. Format pages: output files are still named
+    `<name>-compressed-<configName>.<ext>` (e.g. `photo-compressed-Converted.webp`),
+    and the results panel still says "Compressed files". `PageContent` slugs
+    `image-format`/`video-format` have no MDX yet, so nothing renders under
+    the converters.
 
-## In-progress work
+## Next steps (planned)
 
-- `stash@{0}` (from branch `feat/format`) holds a "format" feature: format-only
-  compressor pages (`app/[locale]/{image,video}/format/`),
-  `format-compressor-page.tsx`, `format-settings.tsx`,
-  `dimensions-compressor-page.tsx`, and new `formats`/`format-settings`
-  dictionaries. When it lands, document it here.
+1. **Format child pages**, one per conversion (jpg → webp, webm → mp4…), with
+   their own SEO copy and the config preloaded. See "Add a format child page".
+2. **Resize pages**, the same as the format pages but with `ResizeSettings` as
+   the main section and `FormatPicker` behind "more settings".
 
 ## Changelog
 
 - 2026-10-24: Created AGENTS.md from a full code review of `master` (`8fb2556`).
+- 2026-10-24: Added the format converter pages (`/image/format/`,
+  `/video/format/`). `CompressorApp` is now generic over the config, with
+  client wrappers (`DimensionsCompressorPage`, `FormatCompressorPage`) and job
+  creators in `utils/jobs.ts`. Jobs carry per-config formats. Added nav links,
+  sitemap and language-selector support, new `format/*`, `format-settings` and
+  `formats` dictionaries. Fixed the missing desktop icon, the video page's
+  Twitter image and the English "Compress All" label.
+- 2026-10-24: Grouped the nav into Images/Videos dropdowns (`nav-dropdown.tsx`).
+  The format pages' resize settings support several sizes ("More sizes"). The
+  file progress bar now counts running video outputs by their percentage
+  (`jobProgress`).
+- 2026-10-24: `NavDropdown` aligns its menu to the end edge (so it stays on
+  screen) and ignores the click that lands right after a hover opened it.

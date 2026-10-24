@@ -1,28 +1,16 @@
-import type { CompressionInput } from '@/types/compressor';
-import type {
-  CompressionPageSeoTranslations,
-  ResultsDictionary,
-  SettingsDictionary,
-  UploadDictionary,
-} from '@/i18n/type';
+import type { CompressionPageSeoTranslations } from '@/i18n/type';
 import Script from 'next/script';
-import { SizingConfigs } from '@/types/config';
-import CompressorApp from './compressor-app';
 
-export default function App({
-  compressorType,
-  initialConfig,
+// Server shell shared by every compressor page: heading, copy and JSON-LD.
+// The interactive part (a client wrapper around CompressorApp) comes in as
+// children, because the settings component and job creation are functions
+// and can't be passed from a server component.
+export default function CompressorPage({
   seoTranslation,
-  uploadTranslation,
-  settingTranslation,
-  resultTranslation,
+  children,
 }: {
-  compressorType: CompressionInput;
-  initialConfig: SizingConfigs;
   seoTranslation: CompressionPageSeoTranslations;
-  uploadTranslation: UploadDictionary;
-  settingTranslation: SettingsDictionary;
-  resultTranslation: ResultsDictionary;
+  children: React.ReactNode;
 }) {
   const schema = {
     '@context': 'https://schema.org',
@@ -51,15 +39,7 @@ export default function App({
             {seoTranslation.subtitle}
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-8 items-start">
-          <CompressorApp
-            compressorType={compressorType}
-            initialConfig={initialConfig}
-            uploadTranslation={uploadTranslation}
-            settingTranslation={settingTranslation}
-            resultTranslation={resultTranslation}
-          />
-        </div>
+        <div className="grid grid-cols-1 gap-8 items-start">{children}</div>
       </div>
     </>
   );

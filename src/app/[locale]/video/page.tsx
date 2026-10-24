@@ -13,6 +13,7 @@ import { withDefault } from '@/utils/seo';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
 import { getDefaultCompressionConfig } from '@/utils/compressor/all';
+import DimensionsCompressorPage from '@/components/dimensions-compressor-page';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: translations.title,
       description: translations.description,
-      images: ['/screenshots/image.jpg', '/favicon.ico'],
+      images: ['/screenshots/video.jpg', '/favicon.ico'],
     },
   };
 }
@@ -74,14 +75,15 @@ export default async function App({ params }: Props) {
   const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
-      <CompressorPage
-        compressorType="video"
-        seoTranslation={seoTranslation}
-        uploadTranslation={uploadTranslation}
-        settingTranslation={settingTranslation}
-        resultTranslation={resultTranslation}
-        initialConfig={initialConfig}
-      />
+      <CompressorPage seoTranslation={seoTranslation}>
+        <DimensionsCompressorPage
+          compressorType="video"
+          initialConfig={initialConfig}
+          uploadTranslation={uploadTranslation}
+          settingTranslation={settingTranslation}
+          resultTranslation={resultTranslation}
+        />
+      </CompressorPage>
       <PageContent locale={locale} slug="video" />
       <BaseDatalayer locale={locale} pageType="video" pageSubtype="optimize" />
     </>

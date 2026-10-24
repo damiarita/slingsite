@@ -12,9 +12,11 @@ import {
   FooterTranslations,
   UploadDictionary,
   SettingsDictionary,
+  FormatSettingsDictionary,
   ResultsDictionary,
   NotFoundTranslations,
 } from './type';
+import type { Format } from '@/utils/formats';
 
 // Avoid using `requestLocale` here because it can read request headers under the hood
 // (via `headers()`) and that forces routes to be dynamic during prerendering.
@@ -166,6 +168,67 @@ export const getSettingsDictionary = createDictionaryGetter<SettingsDictionary>(
     en: () => import('./dictioraries/settings/en.json'),
   },
 );
+export const getFormatSettingsDictionary =
+  createDictionaryGetter<FormatSettingsDictionary>({
+    ar: () => import('./dictioraries/format-settings/ar.json'),
+    de: () => import('./dictioraries/format-settings/de.json'),
+    es: () => import('./dictioraries/format-settings/es.json'),
+    fr: () => import('./dictioraries/format-settings/fr.json'),
+    it: () => import('./dictioraries/format-settings/it.json'),
+    zh: () => import('./dictioraries/format-settings/zh.json'),
+    en: () => import('./dictioraries/format-settings/en.json'),
+  });
+export const getFormatsDictionary = createDictionaryGetter<
+  Record<Format, string>
+>({
+  ar: () => import('./dictioraries/formats/ar.json'),
+  de: () => import('./dictioraries/formats/de.json'),
+  es: () => import('./dictioraries/formats/es.json'),
+  fr: () => import('./dictioraries/formats/fr.json'),
+  it: () => import('./dictioraries/formats/it.json'),
+  zh: () => import('./dictioraries/formats/zh.json'),
+  en: () => import('./dictioraries/formats/en.json'),
+});
+export const getImageFormatPageMetadataDictionary =
+  createDictionaryGetter<PageMetadata>({
+    ar: () => import('./dictioraries/format/image/metadata/ar.json'),
+    de: () => import('./dictioraries/format/image/metadata/de.json'),
+    es: () => import('./dictioraries/format/image/metadata/es.json'),
+    fr: () => import('./dictioraries/format/image/metadata/fr.json'),
+    it: () => import('./dictioraries/format/image/metadata/it.json'),
+    zh: () => import('./dictioraries/format/image/metadata/zh.json'),
+    en: () => import('./dictioraries/format/image/metadata/en.json'),
+  });
+export const getImageFormatPageSeoDictionary =
+  createDictionaryGetter<CompressionPageSeoTranslations>({
+    ar: () => import('./dictioraries/format/image/seo/ar.json'),
+    de: () => import('./dictioraries/format/image/seo/de.json'),
+    es: () => import('./dictioraries/format/image/seo/es.json'),
+    fr: () => import('./dictioraries/format/image/seo/fr.json'),
+    it: () => import('./dictioraries/format/image/seo/it.json'),
+    zh: () => import('./dictioraries/format/image/seo/zh.json'),
+    en: () => import('./dictioraries/format/image/seo/en.json'),
+  });
+export const getVideoFormatPageMetadataDictionary =
+  createDictionaryGetter<PageMetadata>({
+    ar: () => import('./dictioraries/format/video/metadata/ar.json'),
+    de: () => import('./dictioraries/format/video/metadata/de.json'),
+    es: () => import('./dictioraries/format/video/metadata/es.json'),
+    fr: () => import('./dictioraries/format/video/metadata/fr.json'),
+    it: () => import('./dictioraries/format/video/metadata/it.json'),
+    zh: () => import('./dictioraries/format/video/metadata/zh.json'),
+    en: () => import('./dictioraries/format/video/metadata/en.json'),
+  });
+export const getVideoFormatPageSeoDictionary =
+  createDictionaryGetter<CompressionPageSeoTranslations>({
+    ar: () => import('./dictioraries/format/video/seo/ar.json'),
+    de: () => import('./dictioraries/format/video/seo/de.json'),
+    es: () => import('./dictioraries/format/video/seo/es.json'),
+    fr: () => import('./dictioraries/format/video/seo/fr.json'),
+    it: () => import('./dictioraries/format/video/seo/it.json'),
+    zh: () => import('./dictioraries/format/video/seo/zh.json'),
+    en: () => import('./dictioraries/format/video/seo/en.json'),
+  });
 export const getResultDictionary = createDictionaryGetter<ResultsDictionary>({
   ar: () => import('./dictioraries/result/ar.json'),
   de: () => import('./dictioraries/result/de.json'),

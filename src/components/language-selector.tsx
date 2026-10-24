@@ -6,7 +6,7 @@ import { getPathname, usePathname } from '@/i18n/navigation';
 import { getFolderTranslations, getPost, getTranslations } from '@/content/lib';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
-import { useSelectedLayoutSegments } from 'next/navigation';
+import { useParams, useSelectedLayoutSegments } from 'next/navigation';
 
 export default function LanguageSelector({
   currentLocale,
@@ -17,6 +17,7 @@ export default function LanguageSelector({
   const ref = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const layoutSegments = useSelectedLayoutSegments();
+  const params = useParams<{ slugs?: string[] }>();
 
   const languageNames: Record<Locale, string> = {
     en: 'English',
@@ -66,7 +67,7 @@ export default function LanguageSelector({
               if (translation) {
                 acc[locale] = getPathname({
                   href: {
-                    pathname: '/content/[...slugs]',
+                    pathname,
                     params: { slugs: translation.slugPath },
                   },
                   locale: locale,
@@ -84,12 +85,27 @@ export default function LanguageSelector({
             if (translation) {
               acc[locale] = getPathname({
                 href: {
-                  pathname: '/content/[...slugs]',
+                  pathname,
                   params: { slugs: [translation] },
                 },
                 locale: locale,
               });
             }
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        );
+      }
+      case '/image/format/[[...slugs]]':
+      case '/video/format/[[...slugs]]': {
+        // Format slugs are format names, the same in every locale.
+        const slugs = params.slugs ?? [];
+        return routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({
+              href: { pathname, params: { slugs } },
+              locale: locale,
+            });
             return acc;
           },
           {} as Record<Locale, string>,
@@ -104,7 +120,7 @@ export default function LanguageSelector({
 
   const urls = useMemo(
     () => getUrls(pathname, layoutSegments),
-    [pathname, layoutSegments],
+    [pathname, layoutSegments, params],
   );
 
   return (

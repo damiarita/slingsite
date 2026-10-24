@@ -16,7 +16,9 @@ export const routing = defineRouting({
   pathnames: {
     '/home/': '/',
     '/image/': '/image/',
+    '/image/format/[[...slugs]]': '/image/format/[[...slugs]]',
     '/video/': '/video/',
+    '/video/format/[[...slugs]]': '/video/format/[[...slugs]]',
     '/subscribe/': '/subscribe/',
     '/content/[...slugs]': '/[...slugs]',
   },

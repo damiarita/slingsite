@@ -32,8 +32,12 @@ export interface CompressionPageSeoTranslations {
   subtitle: string;
 }
 export interface NavBarTranslations {
+  images: string;
+  videos: string;
   imageCompressor: string;
   videoCompressor: string;
+  imageConverter: string;
+  videoConverter: string;
   menu: string;
   openMenu: string;
   closeMenu: string;
@@ -75,6 +79,27 @@ export interface SettingsDictionary {
   setHeight: string;
   configMode: Record<ConfigMode, string>;
   startCompression: string;
+}
+
+export interface FormatSettingsDictionary {
+  filesToConvert: string;
+  addMoreFiles: string;
+  removeFile: string;
+  outputFormats: string;
+  advancedSettings: string;
+  resize: string;
+  resized: string;
+  converted: string;
+  resizeDescription: string;
+  moreSizes: string;
+  removeSize: string;
+  selectFormatFirst: string;
+  percentWidth: string;
+  setPercentage: string;
+  setWidth: string;
+  setHeight: string;
+  configMode: Record<ConfigMode, string>;
+  startConversion: string;
 }
 
 export interface ResultsDictionary {

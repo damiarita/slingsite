@@ -7,14 +7,16 @@ import { getPathname } from '@/i18n/navigation';
 import { routing, Locale } from '@/i18n/routing';
 import { toAbsoluteUrl, withDefault } from '@/utils/seo';
 import type { MetadataRoute } from 'next';
+import { formatPagePathnames, getFormatPageSlugs } from '@/utils/format-pages';
+import type { CompressionInput } from '@/types/compressor';
 
 export const dynamic = 'force-static';
-const sitemapPathnames = [
-  '/image/',
-  '/video/',
-  '/subscribe/',
-  '/content/[...slugs]',
-] as const satisfies readonly Omit<keyof typeof routing.pathnames, '/home/'>[];
+const sitemapPathnames = (
+  Object.keys(routing.pathnames) as Array<keyof typeof routing.pathnames>
+).filter(
+  (pathname): pathname is Exclude<keyof typeof routing.pathnames, '/home/'> =>
+    pathname !== '/home/',
+);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const urlSets: { urls: Record<Locale, string>; lastModified: Date }[] =
@@ -99,6 +101,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
             };
           });
           return [...postsUrls, ...foldersUrls];
+        }
+        case '/image/format/[[...slugs]]':
+        case '/video/format/[[...slugs]]': {
+          const type: CompressionInput =
+            pathname === formatPagePathnames.image ? 'image' : 'video';
+          return getFormatPageSlugs(type).map((slugs) => ({
+            lastModified: new Date(),
+            urls: routing.locales.reduce(
+              (acc, locale) => {
+                acc[locale] = getPathname({
+                  href: { pathname, params: { slugs } },
+                  locale: locale,
+                });
+                return acc;
+              },
+              {} as Record<Locale, string>,
+            ),
+          }));
         }
         default:
           const _exhaustiveCheck: never = pathname;

@@ -1,6 +1,10 @@
 {
+  "images": "Images",
+  "videos": "Videos",
   "imageCompressor": "Image Compressor",
   "videoCompressor": "Video Compressor",
+  "imageConverter": "Image Converter",
+  "videoConverter": "Video Converter",
   "menu": "Menu",
   "openMenu": "Open menu",
   "closeMenu": "Close menu"

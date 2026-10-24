@@ -52,7 +52,7 @@ export default function useCompressor(type: CompressionInput) {
     compress: function (
       jobId: string,
       file: File,
-      formats: Format[],
+      formats: Record<string, Format[]>,
       mediaSizes: Record<string, MediaDimensions>,
       onProgress: (
         jobId: string,
@@ -79,9 +79,11 @@ export default function useCompressor(type: CompressionInput) {
         );
       }
       const worker = workerRef.current;
-      for (const format of formats) {
-        if (type === 'image' && !isImageFormat(format)) {
-          throw new Error('Images can only be converted to Image formats');
+      for (const configFormats of Object.values(formats)) {
+        for (const format of configFormats) {
+          if (type === 'image' && !isImageFormat(format)) {
+            throw new Error('Images can only be converted to Image formats');
+          }
         }
       }
       if (processorStatus !== 'ready') {

@@ -13,6 +13,6 @@ export type Job = {
   originalFileObjectURL: string;
   originalDimensions: MediaDimensions;
   requestedDimensions: Record<string, MediaDimensions>;
-  requestedFormats: Format[];
+  requestedFormats: Record<string, Format[]>;
   tasks: Record<string, Partial<Record<Format, Task>>>;
 };

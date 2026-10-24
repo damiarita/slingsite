@@ -1,21 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactElement } from 'react';
+import { Files, X, FilePlus, Play } from 'lucide-react';
 import { FileUpload } from '@/components/file-upload';
 import { Results } from '@/components/results';
-import { DimensionsSettings } from '@/components/dimension-settings';
+import { PrimaryButton, SecondaryButton } from '@/components/buttons';
 import useCompressor from '@/hooks/use-compressor';
 import type { Format } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
-import { createJob, jobIsIncomplete } from '@/utils/jobs';
+import { jobIsIncomplete } from '@/utils/jobs';
 import type { CompressionInput } from '@/types/compressor';
-import type {
-  CompressionPageSeoTranslations,
-  ResultsDictionary,
-  SettingsDictionary,
-  UploadDictionary,
-} from '@/i18n/type';
-import { SizingConfigs } from '@/types/config';
+import type { ResultsDictionary, UploadDictionary } from '@/i18n/type';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -41,28 +36,53 @@ function getJobWithUpdatedTask(
 
 type Focus = 'initial' | 'upload' | 'settings' | 'results';
 
-export default function CompressorApp({
+export type SettingsComponentProps<Config> = {
+  config: Config;
+  setConfig: (newConfig: Config) => void;
+};
+
+// Strings of the shell around the settings component. Each page maps them
+// from its own settings dictionary ("compress" vs "convert" wording).
+export type CompressorAppTranslation = {
+  filesTitle: string;
+  addMoreFiles: string;
+  removeFile: string;
+  start: string;
+};
+
+// Shared by every compressor page. Only the settings component, the job
+// creation and the config validation change between pages.
+export default function CompressorApp<Config>({
   compressorType,
   initialConfig,
+  translation,
   uploadTranslation,
-  settingTranslation,
   resultTranslation,
+  renderSettings,
+  configIsValid,
+  createJob,
 }: {
   compressorType: CompressionInput;
-  initialConfig: SizingConfigs;
+  initialConfig: Config;
+  translation: CompressorAppTranslation;
   uploadTranslation: UploadDictionary;
-  settingTranslation: SettingsDictionary;
   resultTranslation: ResultsDictionary;
+  // A render prop rather than a component, so the wrappers can define it
+  // inline without remounting the settings (and losing their state) on
+  // every render.
+  renderSettings: (props: SettingsComponentProps<Config>) => ReactElement;
+  configIsValid: (config: Config) => boolean;
+  createJob: (file: File, config: Config) => Promise<Job>;
 }) {
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<File[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [config, setConfig] = useState<Config>(initialConfig);
 
   const uploadRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const [configs, setConfigs] = useState<SizingConfigs>(initialConfig);
   const compressor = useCompressor(compressorType);
 
   const handleFilesAdded = (newFiles: File[]) => {
@@ -82,19 +102,16 @@ export default function CompressorApp({
   };
 
   const handleProcessClick = () => {
-    const requestedConfignames = Object.entries(configs)
-      .filter(([, config]) => config.enabled)
-      .map(([device]) => device);
-    Promise.allSettled(
-      files.map((file) => createJob(file, requestedConfignames, configs)),
-    ).then((jobCreationResults) => {
-      const fulfilledJobs = jobCreationResults
-        .filter((result) => result.status === 'fulfilled')
-        .map((result) => result.value);
-      setJobs((prev) => [...prev, ...fulfilledJobs]);
-      setFiles([]);
-      setFocus('results');
-    });
+    Promise.allSettled(files.map((file) => createJob(file, config))).then(
+      (jobCreationResults) => {
+        const fulfilledJobs = jobCreationResults
+          .filter((result) => result.status === 'fulfilled')
+          .map((result) => result.value);
+        setJobs((prev) => [...prev, ...fulfilledJobs]);
+        setFiles([]);
+        setFocus('results');
+      },
+    );
   };
 
   const handleRemoveJob = (index: number) => {
@@ -184,17 +201,56 @@ export default function CompressorApp({
       </div>
       {files.length > 0 && (
         <div ref={settingsRef} className="scroll-mt-20">
-          <DimensionsSettings
-            handleClickAddMoreFiles={() => {
-              setFocus('upload');
-            }}
-            handleRemoveFile={handleRemoveFile}
-            files={files}
-            configs={configs}
-            setConfig={setConfigs}
-            handleProcessClick={handleProcessClick}
-            translation={settingTranslation}
-          />
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center mb-4">
+              <Files className="w-6 h-6 text-gray-600 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-800">
+                {translation.filesTitle}
+              </h3>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+              {files.map((file, index) => (
+                <div key={file.name} className="relative group aspect-square">
+                  {file.type.startsWith('video/') ? (
+                    <video
+                      src={URL.createObjectURL(file)}
+                      className="w-full h-full object-cover rounded-md shadow-sm"
+                      disablePictureInPicture
+                    />
+                  ) : (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      className="w-full h-full object-cover rounded-md shadow-sm"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md" />
+                  <button
+                    onClick={() => handleRemoveFile(index)}
+                    className="absolute top-1 right-1 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    aria-label={translation.removeFile}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end items-center mb-4">
+              <SecondaryButton onClick={() => setFocus('upload')}>
+                <FilePlus className="w-4 h-4 mr-2" />
+                {translation.addMoreFiles}
+              </SecondaryButton>
+            </div>
+            {renderSettings({ config, setConfig })}
+            <div className="flex justify-end items-center mt-4">
+              <PrimaryButton
+                onClick={handleProcessClick}
+                disabled={!configIsValid(config)}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                {translation.start}
+              </PrimaryButton>
+            </div>
+          </div>
         </div>
       )}
       {jobs.length > 0 && (

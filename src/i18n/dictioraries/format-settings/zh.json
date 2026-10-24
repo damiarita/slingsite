@@ -1,0 +1,24 @@
+{
+  "filesToConvert": "待转换文件",
+  "addMoreFiles": "添加更多文件",
+  "removeFile": "移除文件",
+  "outputFormats": "输出格式",
+  "advancedSettings": "高级设置",
+  "resize": "调整大小",
+  "resized": "已调整大小",
+  "converted": "已转换",
+  "resizeDescription": "关闭时，每个文件都保留原始分辨率。",
+  "moreSizes": "更多尺寸",
+  "removeSize": "移除尺寸",
+  "selectFormatFirst": "请先在上方至少选择一种格式。",
+  "percentWidth": "占原图的百分比",
+  "setPercentage": "设置百分比",
+  "setWidth": "设置宽度",
+  "setHeight": "设置高度",
+  "configMode": {
+    "percentage": "占原图百分比",
+    "width": "自定义宽度",
+    "height": "自定义高度"
+  },
+  "startConversion": "开始转换"
+}

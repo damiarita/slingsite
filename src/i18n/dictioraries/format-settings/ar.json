@@ -1,0 +1,24 @@
+{
+  "filesToConvert": "ملفات للتحويل",
+  "addMoreFiles": "إضافة المزيد من الملفات",
+  "removeFile": "إزالة الملف",
+  "outputFormats": "صيغ الإخراج",
+  "advancedSettings": "إعدادات متقدمة",
+  "resize": "تغيير الحجم",
+  "resized": "تم تغيير الحجم",
+  "converted": "محوّل",
+  "resizeDescription": "عند الإيقاف، يحتفظ كل ملف بدقته الأصلية.",
+  "moreSizes": "أحجام إضافية",
+  "removeSize": "إزالة الحجم",
+  "selectFormatFirst": "اختر صيغة واحدة على الأقل أعلاه.",
+  "percentWidth": "% من الأصل",
+  "setPercentage": "تعيين النسبة المئوية",
+  "setWidth": "تعيين العرض",
+  "setHeight": "تعيين الارتفاع",
+  "configMode": {
+    "percentage": "نسبة من الأصل",
+    "width": "عرض مخصص",
+    "height": "ارتفاع مخصص"
+  },
+  "startConversion": "بدء التحويل"
+}

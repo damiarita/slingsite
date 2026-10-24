@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Logo } from './logo';
-import NavLink, { type AppHref } from './nav-link';
+import NavLink from './nav-link';
+import NavDropdown, { type NavGroup } from './nav-dropdown';
 import type { Locale } from '@/i18n/routing';
 import type { NavBarTranslations } from '@/i18n/type';
 import { Link } from '@/i18n/navigation';
@@ -14,9 +15,33 @@ export default function NavBar({
   locale: Locale;
   translation: NavBarTranslations;
 }) {
-  const items: { href: AppHref; label: string }[] = [
-    { href: '/image/', label: translation.imageCompressor },
-    { href: '/video/', label: translation.videoCompressor },
+  const groups: NavGroup[] = [
+    {
+      label: translation.images,
+      items: [
+        { href: '/image/', label: translation.imageCompressor },
+        {
+          href: {
+            pathname: '/image/format/[[...slugs]]',
+            params: { slugs: [] },
+          },
+          label: translation.imageConverter,
+        },
+      ],
+    },
+    {
+      label: translation.videos,
+      items: [
+        { href: '/video/', label: translation.videoCompressor },
+        {
+          href: {
+            pathname: '/video/format/[[...slugs]]',
+            params: { slugs: [] },
+          },
+          label: translation.videoConverter,
+        },
+      ],
+    },
   ];
   const [open, setOpen] = useState(false);
 
@@ -58,15 +83,8 @@ export default function NavBar({
 
             {/* Desktop nav */}
             <nav className="hidden sm:flex space-x-6 text-sm font-medium">
-              {items.map((item, i) => (
-                <NavLink
-                  key={i}
-                  locale={locale}
-                  href={item.href}
-                  onLinkClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </NavLink>
+              {groups.map((group) => (
+                <NavDropdown key={group.label} group={group} locale={locale} />
               ))}
             </nav>
 
@@ -127,16 +145,23 @@ export default function NavBar({
           </button>
         </div>
         <nav className="py-2">
-          {items.map((item, i) => (
-            <NavLink
-              key={i}
-              locale={locale}
-              href={item.href}
-              onLinkClick={() => setOpen(false)}
-              mobile
-            >
-              <div className="px-4 py-2">{item.label}</div>
-            </NavLink>
+          {groups.map((group) => (
+            <div key={group.label} className="pb-2">
+              <p className="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {group.label}
+              </p>
+              {group.items.map((item, i) => (
+                <NavLink
+                  key={i}
+                  locale={locale}
+                  href={item.href}
+                  onLinkClick={() => setOpen(false)}
+                  mobile
+                >
+                  <div className="px-4 py-2">{item.label}</div>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
       </div>

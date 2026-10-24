@@ -31,7 +31,7 @@ const outputCodecs: Record<VideoFormat, VideoCodec> = {
 
 export async function compressVideo(
   file: File,
-  formats: VideoFormat[],
+  formatsByConfig: Record<string, VideoFormat[]>,
   mediaSizes: Record<string, MediaDimensions>,
   onSuccess: (file: File, configName: string, format: VideoFormat) => void,
   onError: (
@@ -50,6 +50,7 @@ export async function compressVideo(
     source: new BlobSource(file),
   });
   for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
+    const formats = formatsByConfig[configName] || [];
     for (const format of formats) {
       const outputFormat = outputFormats[format];
       const outputCodec = outputCodecs[format];

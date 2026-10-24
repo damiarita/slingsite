@@ -1,7 +1,11 @@
 import { FileIcon, Download, X, Clock, Package, Info } from 'lucide-react';
 import type { Format } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
-import { jobIsRunning, jobProportionOfDoneTasks } from '@/utils/jobs';
+import {
+  jobIsRunning,
+  jobProgress,
+  jobProportionOfDoneTasks,
+} from '@/utils/jobs';
 import { SecondaryButton } from './buttons';
 import { GoogleDriveButton } from './google-drive-button';
 import { ResultsDictionary } from '@/i18n/type';
@@ -24,7 +28,7 @@ export const FileItem = ({
 }: FileItemProps) => {
   const { originalFile, originalFileObjectURL, tasks } = job;
   const progress = jobProportionOfDoneTasks(job);
-  const progressPercentage = `${Math.round(progress * 100)}%`;
+  const progressPercentage = `${Math.floor(jobProgress(job) * 100)}%`;
   const formatBytes = (bytes: number, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;

@@ -27,7 +27,7 @@ const nativelySupportedEncodersPromise: Promise<Record<ImageFormat, boolean>> =
 
 export async function compressImage(
   file: File,
-  formats: ImageFormat[],
+  formatsByConfig: Record<string, ImageFormat[]>,
   mediaSizes: Record<string, MediaDimensions>,
   onSuccess: (file: File, configName: string, format: ImageFormat) => void,
   onError: (
@@ -41,6 +41,9 @@ export async function compressImage(
   const imageBitmap = await createImageBitmap(file);
 
   for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
+    const formats = formatsByConfig[configName] || [];
+    if (formats.length === 0) continue; // Nothing requested for this config.
+
     // Create canvas for resizing
     const canvas = new OffscreenCanvas(mediaSize.width, mediaSize.height);
     const ctx = canvas.getContext('2d', {

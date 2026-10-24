@@ -4,7 +4,7 @@ import type { MediaDimensions } from './mediaDimensions';
 export interface InputMessage {
   jobId: string;
   file: File;
-  formats: Format[];
+  formats: Record<string, Format[]>;
   mediaSizes: Record<string, MediaDimensions>;
 }
 

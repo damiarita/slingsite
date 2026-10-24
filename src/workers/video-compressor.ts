@@ -17,26 +17,43 @@ import {
 self.addEventListener('message', async (ev) => {
   const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;
 
-  const videFormats = formats.filter(isVideoFormat) as VideoFormat[];
-  const imageFormats = formats.filter(isImageFormat) as ImageFormat[];
+  const videoFormatsByConfig: Record<string, VideoFormat[]> = {};
+  const imageFormatsByConfig: Record<string, ImageFormat[]> = {};
+  for (const [configName, configFormats] of Object.entries(formats)) {
+    videoFormatsByConfig[configName] = configFormats.filter(
+      isVideoFormat,
+    ) as VideoFormat[];
+    imageFormatsByConfig[configName] = configFormats.filter(
+      isImageFormat,
+    ) as ImageFormat[];
+  }
 
-  const thumbnail = await extractFirstFrame(file).catch((error) => {
-    const errorMessage =
-      'Failed to extract thumbnail from video ' +
-      file.name +
-      ': ' +
-      (error.message || String(error));
-    console.error(errorMessage);
-    for (const format of imageFormats) {
-      for (const configName of Object.keys(mediaSizes)) {
-        sendErrorMessage(jobId, configName, format, errorMessage);
-      }
-    }
-  });
+  const anyImageFormatsRequested = Object.values(imageFormatsByConfig).some(
+    (configFormats) => configFormats.length > 0,
+  );
+
+  const thumbnail = anyImageFormatsRequested
+    ? await extractFirstFrame(file).catch((error) => {
+        const errorMessage =
+          'Failed to extract thumbnail from video ' +
+          file.name +
+          ': ' +
+          (error.message || String(error));
+        console.error(errorMessage);
+        for (const [configName, configFormats] of Object.entries(
+          imageFormatsByConfig,
+        )) {
+          for (const format of configFormats) {
+            sendErrorMessage(jobId, configName, format, errorMessage);
+          }
+        }
+        return undefined;
+      })
+    : undefined;
 
   await compressVideo(
     file,
-    videFormats,
+    videoFormatsByConfig,
     mediaSizes,
     (compressedFile: File, configName: string, format: VideoFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
@@ -52,7 +69,7 @@ self.addEventListener('message', async (ev) => {
   if (thumbnail) {
     await compressImage(
       thumbnail,
-      imageFormats,
+      imageFormatsByConfig,
       mediaSizes,
       (compressedFile: File, configName: string, format: ImageFormat) => {
         sendResultMessage(jobId, configName, format, compressedFile);

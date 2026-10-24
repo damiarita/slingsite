@@ -1,6 +1,10 @@
 {
+  "images": "الصور",
+  "videos": "الفيديو",
   "imageCompressor": "ضاغط الصور",
   "videoCompressor": "ضاغط الفيديو",
+  "imageConverter": "محوّل الصور",
+  "videoConverter": "محوّل الفيديو",
   "menu": "القائمة",
   "openMenu": "فتح القائمة",
   "closeMenu": "إغلاق القائمة"

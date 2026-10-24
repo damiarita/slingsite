@@ -13,16 +13,22 @@ import type { InputMessage } from '@/types/workers';
 self.onmessage = async (ev) => {
   const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;
 
-  const notImageFormats = formats.filter((format) => !isImageFormat(format));
-  const imageFormats = formats.filter(isImageFormat) as ImageFormat[];
-
-  if (notImageFormats.length > 0) {
-    console.warn('Non-image formats found:', notImageFormats);
+  const imageFormatsByConfig: Record<string, ImageFormat[]> = {};
+  for (const [configName, configFormats] of Object.entries(formats)) {
+    const notImageFormats = configFormats.filter(
+      (format) => !isImageFormat(format),
+    );
+    if (notImageFormats.length > 0) {
+      console.warn('Non-image formats found:', notImageFormats);
+    }
+    imageFormatsByConfig[configName] = configFormats.filter(
+      isImageFormat,
+    ) as ImageFormat[];
   }
 
   await compressImage(
     file,
-    imageFormats,
+    imageFormatsByConfig,
     mediaSizes,
     (compressedFile: File, configName: string, format: ImageFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);

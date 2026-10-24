@@ -13,6 +13,7 @@ import { withDefault } from '@/utils/seo';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
 import { getDefaultCompressionConfig } from '@/utils/compressor/all';
+import DimensionsCompressorPage from '@/components/dimensions-compressor-page';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -74,14 +75,15 @@ export default async function App({ params }: Props) {
   const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
-      <CompressorPage
-        compressorType="image"
-        seoTranslation={seoTranslation}
-        uploadTranslation={uploadTranslation}
-        settingTranslation={settingTranslation}
-        resultTranslation={resultTranslation}
-        initialConfig={initialConfig}
-      />
+      <CompressorPage seoTranslation={seoTranslation}>
+        <DimensionsCompressorPage
+          compressorType="image"
+          initialConfig={initialConfig}
+          uploadTranslation={uploadTranslation}
+          settingTranslation={settingTranslation}
+          resultTranslation={resultTranslation}
+        />
+      </CompressorPage>
       <PageContent locale={locale} slug="image" />
       <BaseDatalayer locale={locale} pageType="image" pageSubtype="optimize" />
     </>

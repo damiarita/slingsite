@@ -1,0 +1,24 @@
+{
+  "filesToConvert": "Dateien zum Konvertieren",
+  "addMoreFiles": "Weitere Dateien hinzufügen",
+  "removeFile": "Datei entfernen",
+  "outputFormats": "Ausgabeformate",
+  "advancedSettings": "Erweiterte Einstellungen",
+  "resize": "Größe ändern",
+  "resized": "Größe geändert",
+  "converted": "Konvertiert",
+  "resizeDescription": "Deaktiviert: jede Datei behält ihre ursprüngliche Auflösung.",
+  "moreSizes": "Weitere Größen",
+  "removeSize": "Größe entfernen",
+  "selectFormatFirst": "Wähle oben mindestens ein Format aus.",
+  "percentWidth": "% des Originals",
+  "setPercentage": "Prozentsatz festlegen",
+  "setWidth": "Breite festlegen",
+  "setHeight": "Höhe festlegen",
+  "configMode": {
+    "percentage": "Prozent des Originals",
+    "width": "Benutzerdefinierte Breite",
+    "height": "Benutzerdefinierte Höhe"
+  },
+  "startConversion": "Konvertierung starten"
+}

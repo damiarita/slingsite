@@ -5,6 +5,11 @@ import { ComponentProps } from 'react';
 
 export type AppHref = ComponentProps<typeof Link>['href'];
 
+// usePathname returns the route template (e.g. '/image/format/[[...slugs]]'),
+// so active checks compare against the template of object hrefs too.
+export const hrefPathname = (href: AppHref) =>
+  typeof href === 'string' ? href : href.pathname;
+
 export default function NavLink({
   href,
   locale,
@@ -19,7 +24,7 @@ export default function NavLink({
   mobile?: boolean;
 }) {
   const currentPath = usePathname();
-  const isActive = currentPath === href;
+  const isActive = currentPath === hrefPathname(href);
   const baseClass = mobile
     ? 'block w-full text-left px-4 py-2'
     : 'inline-flex items-center px-2 py-1';

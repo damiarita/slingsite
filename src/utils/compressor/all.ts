@@ -1,6 +1,7 @@
 import { getDevicesDictionary } from '@/i18n/requests';
 import { Locale } from '@/i18n/routing';
-import { SizingConfigs } from '@/types/config';
+import type { FormatConfig, SizingConfigs } from '@/types/config';
+import type { Format } from '@/utils/formats';
 
 export function getCompressedFileName(
   orginalName: string,
@@ -55,7 +56,24 @@ export async function getDefaultCompressionConfig(
       percentage: 33.33,
       width: 650,
       height: 100,
-      icon: 'desktop',
+      iconType: 'desktop',
     },
   }));
+}
+
+export function getDefaultFormatConfig(
+  formats: Format[],
+  versionName: string,
+): FormatConfig {
+  return {
+    formats: [...formats],
+    resize: false,
+    versions: [
+      {
+        name: versionName,
+        type: 'percentage',
+        value: { percentage: 100, width: 1920, height: 1080 },
+      },
+    ],
+  };
 }
