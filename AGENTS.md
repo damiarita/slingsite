@@ -420,3 +420,5 @@ files with an empty MIME type as video.
   conversion pages copy and `llms.txt` (replaced by a resize FAQ where needed).
 - 2026-10-25: The conversion links block is shown only on the base
   `/<type>/format/` pages, not on the conversion pages.
+- 2026-10-25: Restyled `FormatPageLinks`: gradient cards for the `to-<output>`
+  pages and one card per source format with chips per target.
