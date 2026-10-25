@@ -17,7 +17,7 @@ slug: 'video'
 我们自动将你的视频转码为现代、防弹网络体验所需的三个关键格式：
 
 - WebM（VP9编解码器）：Google标准。高度压缩和晶莹剔透。由Chrome、Android和Firefox偏好。通常比标准MP4小30-50%
-- MP4（HEVC编解码器 aka H.265）：Apple标准。在iPhones、iPads和Safari（macOS）上获得高效率视频的唯一方式。
+- MP4（HEVC编解码器 aka H.265）：Apple标准。借助硬件解码，在 iPhone、iPad 和 Safari（macOS）上效率最高的选择。
 - MP4（AVC编解码器 aka H.264）：通用后备。“安全网”，适用于过去15年中创建的几乎每个设备。
 
 </FAQ>
@@ -37,7 +37,7 @@ slug: 'video'
 你需要3个视频格式以确保浏览器可以选择它本地支持的（节省电池和数据），你需要3个图像格式以便浏览器可以立即加载最轻的“预览”图像。似乎很多文件，但用户的浏览器只会下载一个视频和一个图像。
 </FAQ>
 <FAQ question="这如何帮助Apple设备？">
-iPhones和Macs针对HEVC（H.265）优化。如果你为它们提供标准MP4，它们必须更努力解码。如果你为它们提供VP9 WebM，它们可能根本不播放。通过提供HEVC版本，你确保Apple用户获得最高质量和最少电池消耗。
+iPhones和Macs针对HEVC（H.265）优化。如果你为它们提供标准MP4，它们必须更努力解码。较新版本的 Safari 也能播放 VP9 WebM，但 Apple 硬件解码 HEVC 的效率高得多，因此请把 HEVC 源放在第一位，Apple 设备就会选择它。通过提供HEVC版本，你确保Apple用户获得最高质量和最少电池消耗。
 </FAQ>
 <FAQ question="我如何在我的网站上编码这个？">
 在React中实现响应式视频可能很棘手，因为标准的HTML `<video>`标签不支持像 `<picture>`标签那样的媒体查询来源。
@@ -56,9 +56,11 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 1080,
         mediaQuery: '(min-width: 1200px)', // 桌面
         videoSources: [
-          { url: 'desktop.webm', format: 'video/webm' }, // VP9
-          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
-          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+          // HEVC first, with its codec: "video/mp4" alone can't tell it
+          // from AVC, so browsers without HEVC would pick it and fail.
+          { url: 'desktop-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'desktop.webm', format: 'video/webm; codecs="vp9"' },
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC, plays everywhere
         ],
         posterSources: [
           { url: 'desktop-poster.avif', format: 'image/avif' },
@@ -71,8 +73,8 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 800,
         mediaQuery: '(max-width: 768px)', // 移动端
         videoSources: [
-          { url: 'mobile.webm', format: 'video/webm' },
-          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'mobile.webm', format: 'video/webm; codecs="vp9"' },
           { url: 'mobile.mp4', format: 'video/mp4' }
         ],
         posterSources: [

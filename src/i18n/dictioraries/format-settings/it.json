@@ -20,5 +20,19 @@
     "width": "Larghezza Personalizzata",
     "height": "Altezza Personalizzata"
   },
-  "startConversion": "Avvia Conversione"
+  "startConversion": "Avvia Conversione",
+  "outputSizes": "Dimensioni di Output",
+  "originalFormat": "Formato Originale",
+  "originalFormatDescription": "Ogni file mantiene il suo formato. Quelli che non possiamo creare (GIF, MOV, MKV…) diventano WebP o MP4.",
+  "filesToResize": "File da Ridimensionare",
+  "startResize": "Avvia Ridimensionamento",
+  "thumbnail": "Miniatura",
+  "startThumbnail": "Estrai Miniature",
+  "videosForThumbnails": "Video",
+  "convertedFiles": "File Convertiti",
+  "resizedFiles": "File Ridimensionati",
+  "extractedThumbnails": "Miniature",
+  "converting": "Conversione in corso...",
+  "resizing": "Ridimensionamento in corso...",
+  "extracting": "Estrazione in corso..."
 }

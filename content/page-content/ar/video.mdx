@@ -17,7 +17,7 @@ slug: 'video'
 نحن نعيد ترميز فيديوك تلقائياً إلى التنسيقات الثلاثة الحرجة المطلوبة لتجربة ويب حديثة ومضادة للرصاص:
 
 - WebM (codec VP9): معيار Google. مضغوط بشدة وواضح كريستالي. مفضل من قبل Chrome، Android، وFirefox. عادةً 30-50% أصغر من MP4 قياسي
-- MP4 (codec HEVC aka H.265): معيار Apple. الطريقة الوحيدة للحصول على فيديو كفاءة عالية على iPhones، iPads، وSafari (macOS).
+- MP4 (codec HEVC aka H.265): معيار Apple. الخيار الأكثر كفاءة على iPhones وiPads وSafari (macOS)، بفضل فك الترميز بالعتاد.
 - MP4 (codec AVC aka H.264): الاحتياطي العالمي. "شبكة الأمان" التي تعمل على كل جهاز تم إنشاؤه في الـ15 عاماً الماضية تقريباً.
 
 </FAQ>
@@ -37,7 +37,7 @@ slug: 'video'
 تحتاج إلى 3 تنسيقات فيديو لضمان أن المتصفح يمكنه اختيار الذي يدعمه محلياً (توفير البطارية والبيانات)، وتحتاج إلى 3 تنسيقات صور ليتمكن المتصفح من تحميل "صورة المعاينة" الأخف وزناً فوراً. يبدو أنه الكثير من الملفات، لكن متصفح المستخدم سيحمل فيديو واحد وصورة واحدة فقط.
 </FAQ>
 <FAQ question="كيف يساعد ذلك مع أجهزة Apple؟">
-iPhones وMacs محسنة لـHEVC (H.265). إذا قدمت لها MP4 قياسي، يجب عليها العمل أكثر لفك التشفير. إذا قدمت لها WebM VP9، قد لا تعمل على الإطلاق. من خلال تقديم نسخة HEVC، تضمن أن مستخدمي Apple يحصلون على أعلى جودة مع أقل استهلاك بطارية.
+iPhones وMacs محسنة لـHEVC (H.265). إذا قدمت لها MP4 قياسي، يجب عليها العمل أكثر لفك التشفير. تشغّل الإصدارات الحديثة من Safari أيضًا WebM VP9، لكن عتاد Apple يفك ترميز HEVC بكفاءة أعلى بكثير، لذا ضع مصدر HEVC أولًا وستختاره أجهزة Apple. من خلال تقديم نسخة HEVC، تضمن أن مستخدمي Apple يحصلون على أعلى جودة مع أقل استهلاك بطارية.
 </FAQ>
 <FAQ question="كيف أكتب الكود على موقعي؟">
 تنفيذ فيديو متجاوب في React يمكن أن يكون معقداً لأن علامات HTML `<video>` القياسية لا تدعم استعلامات الوسائط للمصادر مثل علامات `<picture>`.
@@ -56,9 +56,11 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 1080,
         mediaQuery: '(min-width: 1200px)', // سطح المكتب
         videoSources: [
-          { url: 'desktop.webm', format: 'video/webm' }, // VP9
-          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
-          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+          // HEVC first, with its codec: "video/mp4" alone can't tell it
+          // from AVC, so browsers without HEVC would pick it and fail.
+          { url: 'desktop-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'desktop.webm', format: 'video/webm; codecs="vp9"' },
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC, plays everywhere
         ],
         posterSources: [
           { url: 'desktop-poster.avif', format: 'image/avif' },
@@ -71,8 +73,8 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 800,
         mediaQuery: '(max-width: 768px)', // موبايل
         videoSources: [
-          { url: 'mobile.webm', format: 'video/webm' },
-          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'mobile.webm', format: 'video/webm; codecs="vp9"' },
           { url: 'mobile.mp4', format: 'video/mp4' }
         ],
         posterSources: [

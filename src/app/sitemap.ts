@@ -7,21 +7,18 @@ import { getPathname } from '@/i18n/navigation';
 import { routing, Locale } from '@/i18n/routing';
 import { toAbsoluteUrl, withDefault } from '@/utils/seo';
 import type { MetadataRoute } from 'next';
-import { formatPagePathnames, getFormatPageSlugs } from '@/utils/format-pages';
-import type { CompressionInput } from '@/types/compressor';
+import { findTool, getToolPageSlugs } from '@/utils/tool-pages';
 
 export const dynamic = 'force-static';
-const sitemapPathnames = (
-  Object.keys(routing.pathnames) as Array<keyof typeof routing.pathnames>
-).filter(
-  (pathname): pathname is Exclude<keyof typeof routing.pathnames, '/home/'> =>
-    pathname !== '/home/',
-);
+const sitemapPathnames = Object.keys(routing.pathnames) as Array<
+  keyof typeof routing.pathnames
+>;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const urlSets: { urls: Record<Locale, string>; lastModified: Date }[] =
     sitemapPathnames.flatMap(function (pathname) {
       switch (pathname) {
+        case '/home/':
         case '/image/':
         case '/video/':
         case '/subscribe/':
@@ -103,10 +100,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
           return [...postsUrls, ...foldersUrls];
         }
         case '/image/format/[[...slugs]]':
-        case '/video/format/[[...slugs]]': {
-          const type: CompressionInput =
-            pathname === formatPagePathnames.image ? 'image' : 'video';
-          return getFormatPageSlugs(type).map((slugs) => ({
+        case '/image/resize/[[...slugs]]':
+        case '/video/format/[[...slugs]]':
+        case '/video/resize/[[...slugs]]':
+        case '/video/thumbnail/[[...slugs]]': {
+          const { tool, type } = findTool(pathname);
+          return getToolPageSlugs(tool, type).map((slugs) => ({
             lastModified: new Date(),
             urls: routing.locales.reduce(
               (acc, locale) => {

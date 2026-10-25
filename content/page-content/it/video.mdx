@@ -17,7 +17,7 @@ I browser stanno combattendo una guerra sui formati video. Apple preferisce HEVC
 Ri-trasformiamo automaticamente il tuo video nei tre formati critici richiesti per un'esperienza web moderna e a prova di proiettile:
 
 - WebM (codec VP9): Lo Standard Google. Altamente compresso e cristallino. Preferito da Chrome, Android e Firefox. Di solito 30-50% più piccolo di MP4 standard
-- MP4 (codec HEVC aka H.265): Lo Standard Apple. L'unico modo per ottenere video ad alta efficienza su iPhones, iPads e Safari (macOS).
+- MP4 (codec HEVC aka H.265): Lo Standard Apple. L'opzione più efficiente su iPhone, iPad e Safari (macOS), grazie alla decodifica hardware.
 - MP4 (codec AVC aka H.264): Il Fallback Universale. La "rete di sicurezza" che funziona su praticamente ogni dispositivo creato negli ultimi 15 anni.
 
 </FAQ>
@@ -37,7 +37,7 @@ Per ogni dimensione video (Mobile, Tablet, Desktop), estraiamo il primo frame e 
 Hai bisogno di 3 formati video per assicurare che il browser possa scegliere quello che supporta nativamente (risparmiando batteria e dati), e hai bisogno di 3 formati immagine così il browser può caricare l'immagine di "anteprima" più leggera possibile immediatamente. Sembra un sacco di file, ma il browser dell'utente scaricherà solo un video e un'immagine.
 </FAQ>
 <FAQ question="Come aiuta con i dispositivi Apple?">
-Gli iPhone e Mac sono ottimizzati per HEVC (H.265). Se servi loro un MP4 standard, devono lavorare più duramente per decodificarlo. Se servi loro un WebM VP9, potrebbero non riprodurlo affatto. Fornendo una versione HEVC, assicuri che gli utenti Apple ottengano la qualità più alta con il minor consumo di batteria.
+Gli iPhone e Mac sono ottimizzati per HEVC (H.265). Se servi loro un MP4 standard, devono lavorare più duramente per decodificarlo. Le versioni recenti di Safari riproducono anche il WebM VP9, ma l'hardware Apple decodifica l'HEVC in modo molto più efficiente: metti per prima la sorgente HEVC e i dispositivi Apple la sceglieranno. Fornendo una versione HEVC, assicuri che gli utenti Apple ottengano la qualità più alta con il minor consumo di batteria.
 </FAQ>
 <FAQ question="Come lo codifico sul mio sito?">
 Implementare video responsive in React può essere complicato perché i tag HTML `<video>` standard non supportano query media per le fonti come i tag `<picture>`.
@@ -56,9 +56,11 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 1080,
         mediaQuery: '(min-width: 1200px)', // Desktop
         videoSources: [
-          { url: 'desktop.webm', format: 'video/webm' }, // VP9
-          { url: 'desktop-hevc.mp4', format: 'video/mp4' }, // HEVC
-          { url: 'desktop.mp4', format: 'video/mp4' } // AVC
+          // HEVC first, with its codec: "video/mp4" alone can't tell it
+          // from AVC, so browsers without HEVC would pick it and fail.
+          { url: 'desktop-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'desktop.webm', format: 'video/webm; codecs="vp9"' },
+          { url: 'desktop.mp4', format: 'video/mp4' } // AVC, plays everywhere
         ],
         posterSources: [
           { url: 'desktop-poster.avif', format: 'image/avif' },
@@ -71,8 +73,8 @@ import ReactResponsiveVideo from '@damiarita/react-responsive-video';
         height: 800,
         mediaQuery: '(max-width: 768px)', // Mobile
         videoSources: [
-          { url: 'mobile.webm', format: 'video/webm' },
-          { url: 'mobile-hevc.mp4', format: 'video/mp4' },
+          { url: 'mobile-hevc.mp4', format: 'video/mp4; codecs="hvc1"' },
+          { url: 'mobile.webm', format: 'video/webm; codecs="vp9"' },
           { url: 'mobile.mp4', format: 'video/mp4' }
         ],
         posterSources: [

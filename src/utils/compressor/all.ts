@@ -15,16 +15,28 @@ export function getCompressedFileName(
   );
 }
 
+// Format, resize and thumbnail pages: `photo-converted.webp`,
+// `photo-resized-2.jpg`, `clip-thumbnail.png`.
+export function getToolFileName(
+  originalName: string,
+  configName: string,
+  format: string,
+) {
+  return getFileNameWithExtensionAndSuffix(
+    originalName,
+    format,
+    '-' + configName.trim().toLowerCase().replace(/\s+/g, '-'),
+  );
+}
+
 export function getFileNameWithExtensionAndSuffix(
   originalName: string,
   extension: string,
   suffix?: string,
 ) {
-  const fileNamePieces = originalName.split('.');
-  fileNamePieces[fileNamePieces.length - 2] =
-    fileNamePieces[fileNamePieces.length - 2] + (suffix || '');
-  fileNamePieces[fileNamePieces.length - 1] = extension;
-  return fileNamePieces.join('.');
+  const dot = originalName.lastIndexOf('.');
+  const baseName = dot > 0 ? originalName.slice(0, dot) : originalName;
+  return `${baseName}${suffix ?? ''}.${extension}`;
 }
 
 // The compress pages optimize videos for websites, where they usually play
@@ -66,19 +78,31 @@ export async function getDefaultCompressionConfig(
   }));
 }
 
-export function getDefaultFormatConfig(
-  formats: Format[],
-  versionName: string,
-): FormatConfig {
+// Format and thumbnail pages start at the original size with resizing off;
+// resize pages start resized, with each file kept in its own format.
+export function getDefaultFormatConfig({
+  formats,
+  versionName,
+  resize = false,
+  originalFormat = false,
+  percentage = 100,
+}: {
+  formats: Format[];
+  versionName: string;
+  resize?: boolean;
+  originalFormat?: boolean;
+  percentage?: number;
+}): FormatConfig {
   return {
     formats: [...formats],
+    originalFormat,
     keepAudio: true,
-    resize: false,
+    resize,
     versions: [
       {
         name: versionName,
         type: 'percentage',
-        value: { percentage: 100, width: 1920, height: 1080 },
+        value: { percentage, width: 1920, height: 1080 },
       },
     ],
   };

@@ -6,6 +6,10 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import remarkGfm from 'remark-gfm';
 import urlSlug from 'url-slug';
 
+// Lowercase first: url-slug splits camelCase, so "SlingSite vs" would become
+// "sling-site-vs" and break the existing URLs ("slingsite-vs").
+const folderSlug = (folder: string) => urlSlug(folder.toLowerCase());
+
 export const Post = defineDocumentType(() => ({
   name: 'Post',
   filePathPattern: `posts/**/*.mdx`, // where your files live
@@ -58,12 +62,12 @@ export const Post = defineDocumentType(() => ({
     },
     pathPrefix: {
       type: 'string',
-      resolve: (doc) => (doc.folder ? urlSlug(doc.folder) : ''),
+      resolve: (doc) => (doc.folder ? folderSlug(doc.folder) : ''),
     },
     slugPath: {
       type: 'list',
       resolve: (doc) =>
-        doc.folder ? [urlSlug(doc.folder), doc.slug] : [doc.slug],
+        doc.folder ? [folderSlug(doc.folder), doc.slug] : [doc.slug],
     },
     readingTime: {
       type: 'number',

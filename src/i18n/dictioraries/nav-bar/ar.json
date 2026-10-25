@@ -4,7 +4,10 @@
   "imageCompressor": "ضاغط الصور",
   "videoCompressor": "ضاغط الفيديو",
   "imageConverter": "محوّل الصور",
+  "imageResizer": "تغيير حجم الصور",
   "videoConverter": "محوّل الفيديو",
+  "videoResizer": "تغيير حجم الفيديو",
+  "videoThumbnail": "صورة مصغرة للفيديو",
   "menu": "القائمة",
   "openMenu": "فتح القائمة",
   "closeMenu": "إغلاق القائمة"

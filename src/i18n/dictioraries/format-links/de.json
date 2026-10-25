@@ -3,5 +3,12 @@
   "videoHeading": "Alle Videokonvertierungen",
   "anyImageTo": "Beliebiges Bild in {to}",
   "anyVideoTo": "Beliebiges Video in {to}",
-  "fromTo": "{from} in {to}"
+  "fromTo": "{from} in {to}",
+  "resizeImageHeading": "Bilder nach Format skalieren",
+  "resizeVideoHeading": "Videos nach Format skalieren",
+  "resize": "{format} skalieren",
+  "thumbnailHeading": "Alle Vorschaubild-Extraktionen",
+  "thumbnailTo": "Video-Vorschaubild als {to}",
+  "thumbnailFrom": "{from}-Vorschaubild",
+  "thumbnailFromTo": "{from}-Vorschaubild als {to}"
 }

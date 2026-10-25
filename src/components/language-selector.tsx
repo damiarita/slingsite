@@ -97,8 +97,11 @@ export default function LanguageSelector({
         );
       }
       case '/image/format/[[...slugs]]':
-      case '/video/format/[[...slugs]]': {
-        // Format slugs are format names, the same in every locale.
+      case '/image/resize/[[...slugs]]':
+      case '/video/format/[[...slugs]]':
+      case '/video/resize/[[...slugs]]':
+      case '/video/thumbnail/[[...slugs]]': {
+        // Tool slugs are format names, the same in every locale.
         const slugs = params.slugs ?? [];
         return routing.locales.reduce(
           (acc, locale) => {

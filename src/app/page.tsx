@@ -2,10 +2,7 @@ import BaseDatalayer from '@/components/base-datalayer';
 import Body from '@/components/body';
 import { Redirecter } from '@/components/redirecter';
 import { routing } from '@/i18n/routing';
-import {
-  getImagePageMetadataDictionary,
-  getRedirectionDictionary,
-} from '@/i18n/requests';
+import { getHomeDictionary, getRedirectionDictionary } from '@/i18n/requests';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
 
@@ -13,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const redirectionDictionary = await getRedirectionDictionary(
     routing.defaultLocale,
   );
-  const destinationPageTranslation = await getImagePageMetadataDictionary(
+  const { metadata: destinationPageTranslation } = await getHomeDictionary(
     routing.defaultLocale,
   );
   return {
@@ -23,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: destinationPageTranslation.description,
       url: getPathname({
         locale: routing.defaultLocale,
-        href: { pathname: '/image/' },
+        href: '/home/',
       }),
       siteName: 'SlingSite',
       images: [
@@ -56,10 +53,7 @@ export default async function HomePage() {
   const dict = await getRedirectionDictionary(routing.defaultLocale);
   return (
     <Body locale={routing.defaultLocale}>
-      <Redirecter
-        href={{ pathname: '/image/' }}
-        redirecting={dict.redirecting}
-      />
+      <Redirecter href="/home/" redirecting={dict.redirecting} />
       <BaseDatalayer
         locale={routing.defaultLocale}
         pageType="redirect"

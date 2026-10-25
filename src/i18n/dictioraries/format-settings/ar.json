@@ -20,5 +20,19 @@
     "width": "عرض مخصص",
     "height": "ارتفاع مخصص"
   },
-  "startConversion": "بدء التحويل"
+  "startConversion": "بدء التحويل",
+  "outputSizes": "أحجام الإخراج",
+  "originalFormat": "الصيغة الأصلية",
+  "originalFormatDescription": "يحتفظ كل ملف بصيغته. الصيغ التي لا يمكننا إنشاؤها (GIF وMOV وMKV…) تتحول إلى WebP أو MP4.",
+  "filesToResize": "ملفات لتغيير حجمها",
+  "startResize": "بدء تغيير الحجم",
+  "thumbnail": "صورة مصغرة",
+  "startThumbnail": "استخراج الصور المصغرة",
+  "videosForThumbnails": "مقاطع الفيديو",
+  "convertedFiles": "الملفات المحوّلة",
+  "resizedFiles": "الملفات بعد تغيير الحجم",
+  "extractedThumbnails": "الصور المصغرة",
+  "converting": "جاري التحويل...",
+  "resizing": "جاري تغيير الحجم...",
+  "extracting": "جاري الاستخراج..."
 }

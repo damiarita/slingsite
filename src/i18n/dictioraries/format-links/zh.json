@@ -3,5 +3,12 @@
   "videoHeading": "所有视频格式转换",
   "anyImageTo": "任意图片转 {to}",
   "anyVideoTo": "任意视频转 {to}",
-  "fromTo": "{from} 转 {to}"
+  "fromTo": "{from} 转 {to}",
+  "resizeImageHeading": "按格式调整图片大小",
+  "resizeVideoHeading": "按格式调整视频大小",
+  "resize": "调整 {format} 大小",
+  "thumbnailHeading": "所有缩略图提取",
+  "thumbnailTo": "视频缩略图导出为 {to}",
+  "thumbnailFrom": "{from} 缩略图",
+  "thumbnailFromTo": "{from} 缩略图导出为 {to}"
 }

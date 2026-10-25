@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { ImagePlus } from 'lucide-react';
+import { Film, ImagePlus } from 'lucide-react';
 import type { CompressionInput } from '@/types/compressor';
 import type { UploadDictionary } from '@/i18n/type';
-import { formatLabel, inputFormats } from '@/utils/format-pages';
+import { formatLabel, inputFormats } from '@/utils/tool-pages';
 
 interface FileUploadProps {
   onFilesAdded: (files: File[]) => void;
@@ -19,6 +19,7 @@ export const FileUpload = ({
   translations,
 }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const UploadIcon = type === 'video' ? Film : ImagePlus;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -65,7 +66,7 @@ export const FileUpload = ({
       />
       <div className="flex flex-col items-center justify-center space-y-4">
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-          <ImagePlus
+          <UploadIcon
             className={`w-8 h-8 transition-colors duration-300 ${isDragging ? 'text-blue-600' : 'text-gray-500'}`}
           />
         </div>

@@ -1,6 +1,8 @@
-# Slingsite: Image and Video Compression Tools
+# SlingSite: Image and Video Compression Tools
 
-This website is an interactive web tool designed to help developers and designers optimize their website's performance by compressing images and videos.
+This website is an interactive web tool designed to help developers and designers optimize their website's performance by compressing images and videos. It also resizes and converts images and videos, and extracts video thumbnails. Everything runs in the browser: files are never uploaded.
+
+The home page [/en/](/en/) introduces every tool.
 
 ## Image Compression
 
@@ -26,7 +28,7 @@ Learn more about video compression at [/en/video/](/en/video/)
 
 Convert images at [/en/image/format/](/en/image/format/)
 
-- Upload multiple image files and pick the output formats: JPG, WEBP and/or AVIF
+- Upload multiple image files and pick the output formats: JPG, WEBP, AVIF and/or PNG
 - Files keep their original resolution by default
 - Optional resizing under "Advanced settings": by percentage of the original, exact width or exact height
 - Everything runs in the browser; files never leave the device
@@ -38,15 +40,41 @@ Convert videos at [/en/video/format/](/en/video/format/)
 - Upload video files and pick the output formats: MP4 (H.264/AVC), MP4 (H.265/HEVC) and/or WEBM (VP9)
 - Optional resizing under "Advanced settings": by percentage of the original, exact width or exact height
 
+## Image Resizing
+
+Resize images at [/en/image/resize/](/en/image/resize/)
+
+- Upload multiple images and pick the new size: percentage of the original (50% by default), exact width or exact height; "More sizes" gives several versions at once
+- The aspect ratio is always kept and images are never upscaled
+- Each image keeps its own format by default (JPG, PNG, WEBP, AVIF); formats that can't be written, like GIF, become WEBP. Other output formats are under "Advanced settings"
+- One page per output format, with that format preselected: [/en/image/resize/jpg/](/en/image/resize/jpg/), [/en/image/resize/png/](/en/image/resize/png/), [/en/image/resize/webp/](/en/image/resize/webp/), [/en/image/resize/avif/](/en/image/resize/avif/)
+
+## Video Resizing
+
+Resize videos at [/en/video/resize/](/en/video/resize/)
+
+- Same sizing options as images; audio is kept by default (can be removed under "Advanced settings")
+- Each video keeps its format by default: MP4 stays MP4 (H.264), WEBM stays WEBM (VP9), MOV and MKV become MP4
+- One page per output format: [/en/video/resize/mp4/](/en/video/resize/mp4/), [/en/video/resize/hevc/](/en/video/resize/hevc/), [/en/video/resize/webm/](/en/video/resize/webm/)
+
+## Video Thumbnails (first frame)
+
+Extract thumbnails at [/en/video/thumbnail/](/en/video/thumbnail/)
+
+- Saves the first frame of each video as JPG (default), PNG, WEBP and/or AVIF, at the video's resolution
+- Optional resizing under "Advanced settings"
+- Always the very first frame: there is no frame picker
+- Pages by source (/en/video/thumbnail/<source>/ with mp4, webm, mov or mkv), by output (/en/video/thumbnail/to-<output>/ with jpg, png, webp or avif) and by both (/en/video/thumbnail/<source>-to-<output>/, e.g. [/en/video/thumbnail/mov-to-jpg/](/en/video/thumbnail/mov-to-jpg/))
+
 ## Conversion pages
 
 Every conversion has its own page with the output format preselected. Same tool, same privacy (everything runs in the browser), optional resizing.
 
-- Images, any to one format: [/en/image/format/to-jpg/](/en/image/format/to-jpg/), [/en/image/format/to-webp/](/en/image/format/to-webp/), [/en/image/format/to-avif/](/en/image/format/to-avif/)
-- Images, by source: /en/image/format/<source>-to-<output>/ with source jpg, png, webp, gif or avif and output jpg, webp or avif (e.g. [/en/image/format/png-to-webp/](/en/image/format/png-to-webp/), [/en/image/format/webp-to-jpg/](/en/image/format/webp-to-jpg/))
+- Images, any to one format: [/en/image/format/to-jpg/](/en/image/format/to-jpg/), [/en/image/format/to-webp/](/en/image/format/to-webp/), [/en/image/format/to-avif/](/en/image/format/to-avif/), [/en/image/format/to-png/](/en/image/format/to-png/)
+- Images, by source: /en/image/format/<source>-to-<output>/ with source jpg, png, webp, gif or avif and output jpg, webp, avif or png (e.g. [/en/image/format/png-to-webp/](/en/image/format/png-to-webp/), [/en/image/format/webp-to-jpg/](/en/image/format/webp-to-jpg/))
 - Videos, any to one format: [/en/video/format/to-mp4/](/en/video/format/to-mp4/) (H.264), [/en/video/format/to-hevc/](/en/video/format/to-hevc/) (H.265), [/en/video/format/to-webm/](/en/video/format/to-webm/) (VP9)
 - Videos, by source: /en/video/format/<source>-to-<output>/ with source mp4, webm, mov or mkv and output mp4, hevc or webm (e.g. [/en/video/format/mov-to-mp4/](/en/video/format/mov-to-mp4/), [/en/video/format/webm-to-mp4/](/en/video/format/webm-to-mp4/))
-- Limits to mention: JPG output fills transparency with white; animated GIFs keep only the first frame; HEVC encoding needs browser/hardware support (Safari, or Chrome/Edge on supported devices)
+- Limits to mention: JPG output fills transparency with white; PNG output is lossless and much larger; animated GIFs keep only the first frame; HEVC encoding needs browser/hardware support (Safari, or Chrome/Edge on supported devices)
 - All pages exist in en, es, ar, de, fr, it and zh (replace /en/)
 
 ## Interaction with LLMs

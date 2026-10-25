@@ -1,6 +1,6 @@
 'use client';
 
-import { FileImage, FileVideo, Plus, Settings, X } from 'lucide-react';
+import { FileImage, FileVideo, Plus, Scaling, Settings, X } from 'lucide-react';
 import { SecondaryButton } from './buttons';
 import { Switch } from './switch';
 import { AdvancedSettings } from './advanced-settings';
@@ -26,16 +26,21 @@ type Props = {
   translation: FormatSettingsDictionary;
 };
 
+type FormatPickerProps = Props & {
+  availableFormats: Format[];
+  formatsTranslation: Record<Format, string>;
+  // Resize pages: offer keeping each file in its own format.
+  showOriginalFormat?: boolean;
+};
+
 export const FormatPicker = ({
   config,
   setConfig,
   translation,
   availableFormats,
   formatsTranslation,
-}: Props & {
-  availableFormats: Format[];
-  formatsTranslation: Record<Format, string>;
-}) => {
+  showOriginalFormat,
+}: FormatPickerProps) => {
   const handleFormatToggle = (format: Format) => {
     const formats = config.formats.includes(format)
       ? config.formats.filter((f) => f !== format)
@@ -45,7 +50,33 @@ export const FormatPicker = ({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+      {showOriginalFormat && (
+        <div
+          className={`flex items-center justify-between gap-4 p-4 mb-4 rounded-lg transition-all duration-300 ${config.originalFormat ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
+        >
+          <div>
+            <label
+              htmlFor="format-original"
+              className="font-semibold text-gray-700"
+            >
+              {translation.originalFormat}
+            </label>
+            <p className="text-xs text-gray-500 mt-1">
+              {translation.originalFormatDescription}
+            </p>
+          </div>
+          <Switch
+            id="format-original"
+            checked={config.originalFormat}
+            onChange={() =>
+              setConfig({ ...config, originalFormat: !config.originalFormat })
+            }
+          />
+        </div>
+      )}
+      <div
+        className={`grid grid-cols-1 gap-4 mb-2 ${availableFormats.length === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'}`}
+      >
         {availableFormats.map((format) => {
           const isSelected = config.formats.includes(format);
           const Icon = isVideoFormat(format) ? FileVideo : FileImage;
@@ -69,7 +100,7 @@ export const FormatPicker = ({
           );
         })}
       </div>
-      {config.formats.length === 0 && (
+      {config.formats.length === 0 && !config.originalFormat && (
         <p className="text-sm text-red-600 mb-2">
           {translation.selectFormatFirst}
         </p>
@@ -207,7 +238,15 @@ const VersionSettings = ({
 };
 
 // One output size per version. Starts with one; "More sizes" adds another.
-export const ResizeSettings = ({ config, setConfig, translation }: Props) => {
+// `required` (resize pages) drops the on/off switch: resizing is the point.
+// `versionName` is the base name of new versions (default "Resized").
+export const ResizeSettings = ({
+  config,
+  setConfig,
+  translation,
+  required,
+  versionName = translation.resized,
+}: Props & { required?: boolean; versionName?: string }) => {
   const updateVersion = (index: number, newVersion: Version) => {
     setConfig({
       ...config,
@@ -231,13 +270,41 @@ export const ResizeSettings = ({ config, setConfig, translation }: Props) => {
       versions: [
         ...config.versions,
         {
-          name: getNewVersionName(config.versions, translation.resized),
+          name: getNewVersionName(config.versions, versionName),
           type: last?.type ?? 'percentage',
           value: { percentage: 50, width: 800, height: 600 },
         },
       ],
     });
   };
+
+  const versions = (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {config.versions.map((version, index) => (
+          <VersionSettings
+            key={version.name}
+            version={version}
+            onChange={(newVersion) => updateVersion(index, newVersion)}
+            onRemove={
+              config.versions.length > 1
+                ? () => removeVersion(index)
+                : undefined
+            }
+            translation={translation}
+          />
+        ))}
+      </div>
+      <div className="flex justify-end mt-4">
+        <SecondaryButton onClick={addVersion}>
+          <Plus className="w-4 h-4 me-2" />
+          {translation.moreSizes}
+        </SecondaryButton>
+      </div>
+    </>
+  );
+
+  if (required) return versions;
 
   return (
     <div
@@ -258,42 +325,27 @@ export const ResizeSettings = ({ config, setConfig, translation }: Props) => {
           {translation.resizeDescription}
         </p>
       )}
-      {config.resize && (
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {config.versions.map((version, index) => (
-              <VersionSettings
-                key={version.name}
-                version={version}
-                onChange={(newVersion) => updateVersion(index, newVersion)}
-                onRemove={
-                  config.versions.length > 1
-                    ? () => removeVersion(index)
-                    : undefined
-                }
-                translation={translation}
-              />
-            ))}
-          </div>
-          <div className="flex justify-end mt-4">
-            <SecondaryButton onClick={addVersion}>
-              <Plus className="w-4 h-4 me-2" />
-              {translation.moreSizes}
-            </SecondaryButton>
-          </div>
-        </div>
-      )}
+      {config.resize && <div className="px-4 pb-4">{versions}</div>}
     </div>
   );
 };
 
-// Format pages: formats first, resizing (and audio, for videos) behind
-// "advanced settings". Resize pages will swap the first two (ResizeSettings
-// first, FormatPicker behind).
+const sameFormats = (a: FormatConfig, b: FormatConfig) =>
+  a.originalFormat === b.originalFormat &&
+  a.formats.length === b.formats.length &&
+  a.formats.every((format) => b.formats.includes(format));
+
+// Two layouts:
+// - 'formats' (format and thumbnail pages): output formats first, resizing
+//   (and audio, for videos) behind "advanced settings".
+// - 'resize' (resize pages): sizes first, output formats (and audio) behind
+//   "advanced settings".
 export const FormatSettings = (
-  props: Props & {
-    availableFormats: Format[];
-    formatsTranslation: Record<Format, string>;
+  props: FormatPickerProps & {
+    primary: 'formats' | 'resize';
+    // The page defaults: advanced settings that differ show as badges.
+    initialConfig: FormatConfig;
+    versionName?: string;
     // Only for videos. Without it there is no audio toggle.
     audio?: {
       defaultKeepAudio: boolean;
@@ -301,42 +353,67 @@ export const FormatSettings = (
     };
   },
 ) => {
-  const { config, setConfig, translation, audio } = props;
+  const {
+    config,
+    setConfig,
+    translation,
+    audio,
+    primary,
+    initialConfig,
+    versionName,
+  } = props;
+
+  const resizeSettings = (
+    <ResizeSettings
+      config={config}
+      setConfig={setConfig}
+      translation={translation}
+      required={primary === 'resize'}
+      versionName={versionName}
+    />
+  );
+  const audioSettings = audio && (
+    <AudioSettings
+      keepAudio={config.keepAudio}
+      setKeepAudio={(keepAudio) => setConfig({ ...config, keepAudio })}
+      translation={audio.translation}
+    />
+  );
+  const audioLabels = audio
+    ? getAudioActiveLabels(
+        config.keepAudio,
+        audio.defaultKeepAudio,
+        audio.translation,
+      )
+    : [];
+  const Icon = primary === 'resize' ? Scaling : Settings;
 
   return (
     <>
       <div className="flex items-center mb-4">
-        <Settings className="w-6 h-6 text-gray-600 mr-3" />
+        <Icon className="w-6 h-6 text-gray-600 mr-3" />
         <h3 className="text-xl font-semibold text-gray-800">
-          {translation.outputFormats}
+          {primary === 'resize'
+            ? translation.outputSizes
+            : translation.outputFormats}
         </h3>
       </div>
-      <FormatPicker {...props} />
+      {primary === 'resize' ? resizeSettings : <FormatPicker {...props} />}
       <AdvancedSettings
         label={translation.advancedSettings}
         activeLabels={[
-          ...(config.resize ? [translation.resize] : []),
-          ...(audio
-            ? getAudioActiveLabels(
-                config.keepAudio,
-                audio.defaultKeepAudio,
-                audio.translation,
-              )
-            : []),
+          ...(primary === 'resize'
+            ? sameFormats(config, initialConfig)
+              ? []
+              : [translation.outputFormats]
+            : config.resize
+              ? [translation.resize]
+              : []),
+          ...audioLabels,
         ]}
       >
-        <ResizeSettings
-          config={config}
-          setConfig={setConfig}
-          translation={translation}
-        />
-        {audio && (
-          <AudioSettings
-            keepAudio={config.keepAudio}
-            setKeepAudio={(keepAudio) => setConfig({ ...config, keepAudio })}
-            translation={audio.translation}
-          />
-        )}
+        {primary === 'resize' ? <FormatPicker {...props} /> : resizeSettings}
+        {audioSettings}
       </AdvancedSettings>
     </>
   );

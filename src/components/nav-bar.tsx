@@ -27,6 +27,13 @@ export default function NavBar({
           },
           label: translation.imageConverter,
         },
+        {
+          href: {
+            pathname: '/image/resize/[[...slugs]]',
+            params: { slugs: [] },
+          },
+          label: translation.imageResizer,
+        },
       ],
     },
     {
@@ -39,6 +46,20 @@ export default function NavBar({
             params: { slugs: [] },
           },
           label: translation.videoConverter,
+        },
+        {
+          href: {
+            pathname: '/video/resize/[[...slugs]]',
+            params: { slugs: [] },
+          },
+          label: translation.videoResizer,
+        },
+        {
+          href: {
+            pathname: '/video/thumbnail/[[...slugs]]',
+            params: { slugs: [] },
+          },
+          label: translation.videoThumbnail,
         },
       ],
     },
@@ -72,7 +93,7 @@ export default function NavBar({
           <div className="flex justify-between items-center h-16">
             <Link
               locale={locale}
-              href="/image/"
+              href="/home/"
               className="flex items-center space-x-3"
             >
               <Logo />

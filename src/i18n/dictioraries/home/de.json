@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "title": "SlingSite: Bilder und Videos kostenlos optimieren, skalieren und konvertieren",
+    "description": "Bilder und Videos kostenlos im Browser komprimieren, skalieren und konvertieren oder ein Video-Vorschaubild extrahieren. Ihre Dateien verlassen nie Ihr Gerät. JPG, PNG, WebP, AVIF, MP4 und WebM."
+  },
+  "hero": {
+    "title": "Webfertige Bilder und Videos, direkt im Browser",
+    "subtitle": "Komprimieren, skalieren und konvertieren Sie Ihre Medien oder holen Sie sich das Vorschaubild eines Videos, mit wenigen Klicks. Kostenlos, ohne Anmeldung, und Ihre Dateien verlassen nie Ihr Gerät.",
+    "ctaImages": "Bilder optimieren",
+    "ctaVideos": "Videos optimieren",
+    "badges": [
+      "100 % kostenlos",
+      "Keine Anmeldung",
+      "Dateien verlassen nie Ihr Gerät",
+      "Stapelverarbeitung"
+    ]
+  },
+  "features": {
+    "heading": "Ein Werkzeugkasten für alle Ihre Medien",
+    "subheading": "Wählen Sie das passende Werkzeug. Jedes verarbeitet beliebig viele Dateien auf einmal.",
+    "forImages": "Bilder",
+    "forVideos": "Videos",
+    "optimize": {
+      "title": "Fürs Web optimieren",
+      "description": "Alle Größen und modernen Formate, die Ihre Website braucht, aus einem einzigen Upload.",
+      "points": [
+        "Größen für Smartphone, Tablet und Desktop",
+        "Bilder in JPG, WebP und AVIF",
+        "Videos in MP4 (H.264, H.265) und WebM, plus Posterbild"
+      ]
+    },
+    "resize": {
+      "title": "Größe ändern",
+      "description": "Verkleinern Sie Bilder und Videos nach Prozent, Breite oder Höhe. Das Seitenverhältnis bleibt immer erhalten.",
+      "points": [
+        "Mehrere Größen in einem Durchgang",
+        "Behält das Format jeder Datei oder konvertiert sie",
+        "Vergrößert nie, also keine unscharfen Ergebnisse"
+      ]
+    },
+    "convert": {
+      "title": "Formate konvertieren",
+      "description": "Wandeln Sie jedes Bild und Video in das Format um, das Sie brauchen, in Originalgröße.",
+      "points": [
+        "Bilder in JPG, PNG, WebP oder AVIF",
+        "Videos in MP4 (H.264 oder H.265) oder WebM",
+        "Liest PNG, GIF, MOV, MKV und mehr"
+      ]
+    },
+    "thumbnail": {
+      "title": "Video-Vorschaubild",
+      "description": "Extrahieren Sie das erste Bild eines Videos als Bilddatei, fertig als Cover oder Poster.",
+      "points": [
+        "Speichern als JPG, PNG, WebP oder AVIF",
+        "In voller Auflösung oder verkleinert",
+        "Funktioniert mit MP4, WebM, MOV und MKV"
+      ],
+      "cta": "Vorschaubild extrahieren"
+    }
+  },
+  "steps": {
+    "heading": "So funktioniert es",
+    "items": [
+      {
+        "title": "Dateien hinzufügen",
+        "description": "Ziehen Sie Bilder oder Videos auf die Seite oder wählen Sie sie auf Ihrem Gerät aus."
+      },
+      {
+        "title": "Einstellungen wählen",
+        "description": "Wählen Sie die gewünschten Größen und Formate. Sinnvolle Voreinstellungen sind schon gesetzt."
+      },
+      {
+        "title": "Herunterladen",
+        "description": "Speichern Sie jede Datei einzeln oder alle auf einmal, oder senden Sie sie an Google Drive."
+      }
+    ]
+  },
+  "privacy": {
+    "heading": "Ihre Dateien bleiben auf Ihrem Gerät",
+    "description": "SlingSite erledigt alles in Ihrem Browser, auf Ihrem eigenen Computer oder Smartphone. Nichts wird hochgeladen und kein Server sieht Ihre Dateien, daher ist es auch für private und vertrauliche Medien sicher.",
+    "points": [
+      "Nichts wird auf einen Server hochgeladen",
+      "Kein Konto, kein Wasserzeichen",
+      "Die Geschwindigkeit hängt von Ihrem Gerät ab, nicht von Ihrer Verbindung",
+      "Kostenlos, ohne Begrenzung der Dateianzahl"
+    ]
+  },
+  "popular": {
+    "heading": "Beliebte Werkzeuge"
+  }
+}

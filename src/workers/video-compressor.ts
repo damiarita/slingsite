@@ -15,7 +15,7 @@ import {
 } from '@/utils/workers';
 
 self.addEventListener('message', async (ev) => {
-  const { jobId, file, formats, mediaSizes, keepAudio } =
+  const { jobId, file, formats, mediaSizes, keepAudio, fileNames } =
     ev.data as InputMessage;
 
   const videoFormatsByConfig: Record<string, VideoFormat[]> = {};
@@ -39,7 +39,7 @@ self.addEventListener('message', async (ev) => {
           'Failed to extract thumbnail from video ' +
           file.name +
           ': ' +
-          (error.message || String(error));
+          (error?.message || String(error));
         console.error(errorMessage);
         for (const [configName, configFormats] of Object.entries(
           imageFormatsByConfig,
@@ -57,6 +57,7 @@ self.addEventListener('message', async (ev) => {
     videoFormatsByConfig,
     mediaSizes,
     keepAudio,
+    fileNames,
     (compressedFile: File, configName: string, format: VideoFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
     },
@@ -73,6 +74,7 @@ self.addEventListener('message', async (ev) => {
       thumbnail,
       imageFormatsByConfig,
       mediaSizes,
+      fileNames,
       (compressedFile: File, configName: string, format: ImageFormat) => {
         sendResultMessage(jobId, configName, format, compressedFile);
       },

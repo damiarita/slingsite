@@ -1,9 +1,6 @@
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import type { VideoFormat } from '@/utils/formats';
-import {
-  getCompressedFileName,
-  getFileNameWithExtensionAndSuffix,
-} from '@/utils/compressor/all';
+import { getFileNameWithExtensionAndSuffix } from '@/utils/compressor/all';
 import {
   Input,
   Output,
@@ -34,6 +31,7 @@ export async function compressVideo(
   formatsByConfig: Record<string, VideoFormat[]>,
   mediaSizes: Record<string, MediaDimensions>,
   keepAudio: boolean,
+  fileNames: Record<string, Partial<Record<VideoFormat, string>>>,
   onSuccess: (file: File, configName: string, format: VideoFormat) => void,
   onError: (
     configName: string,
@@ -119,7 +117,7 @@ export async function compressVideo(
       }
       const compressedFile = new File(
         [output.target.buffer],
-        getCompressedFileName(file.name, configName, format),
+        fileNames[configName]?.[format] ?? file.name,
         {
           type: await output.getMimeType(),
         },
@@ -134,43 +132,19 @@ export async function extractFirstFrame(file: File): Promise<File> {
     formats: ALL_FORMATS,
     source: new BlobSource(file),
   });
-  return new Promise<File>(async (resolve, reject) => {
-    input.getPrimaryVideoTrack().then((videoTrack) => {
-      if (!videoTrack) {
-        reject('No video track found');
-        return;
-      }
-      videoTrack.canDecode().then((decodable) => {
-        if (!decodable) {
-          reject('Video track is not decodable');
-          return;
-        }
-        const sink = new CanvasSink(videoTrack);
-
-        videoTrack.getFirstTimestamp().then((firstTimestamp) => {
-          // Get the thumbnail at timestamp 0s
-          sink.getCanvas(firstTimestamp).then((result) => {
-            if (!result) {
-              reject('Could not extract frame');
-              return;
-            }
-            const canvas = result.canvas as OffscreenCanvas;
-            canvas.convertToBlob({ type: 'image/png' }).then((blob) => {
-              resolve(
-                new File(
-                  [blob],
-                  getFileNameWithExtensionAndSuffix(
-                    file.name,
-                    'png',
-                    '-thumbnail',
-                  ),
-                  { type: 'image/png' },
-                ),
-              );
-            });
-          });
-        });
-      });
-    });
-  });
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) throw new Error('No video track found');
+  if (!(await videoTrack.canDecode())) {
+    throw new Error('This browser cannot decode this video');
+  }
+  const sink = new CanvasSink(videoTrack);
+  const result = await sink.getCanvas(await videoTrack.getFirstTimestamp());
+  if (!result) throw new Error('Could not extract frame');
+  const canvas = result.canvas as OffscreenCanvas;
+  const blob = await canvas.convertToBlob({ type: 'image/png' });
+  return new File(
+    [blob],
+    getFileNameWithExtensionAndSuffix(file.name, 'png', '-thumbnail'),
+    { type: 'image/png' },
+  );
 }

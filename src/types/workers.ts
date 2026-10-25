@@ -7,6 +7,8 @@ export interface InputMessage {
   formats: Record<string, Format[]>;
   mediaSizes: Record<string, MediaDimensions>;
   keepAudio: boolean;
+  // Output file name per config and format, decided by the job creator.
+  fileNames: Record<string, Partial<Record<Format, string>>>;
 }
 
 interface BaseOutputMessage {

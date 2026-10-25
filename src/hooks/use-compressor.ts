@@ -55,6 +55,7 @@ export default function useCompressor(type: CompressionInput) {
       formats: Record<string, Format[]>,
       mediaSizes: Record<string, MediaDimensions>,
       keepAudio: boolean,
+      fileNames: Record<string, Partial<Record<Format, string>>>,
       onProgress: (
         jobId: string,
         format: Format,
@@ -120,6 +121,7 @@ export default function useCompressor(type: CompressionInput) {
         formats,
         mediaSizes,
         keepAudio,
+        fileNames,
       };
       worker.postMessage(message);
     },

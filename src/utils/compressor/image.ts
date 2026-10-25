@@ -5,11 +5,10 @@ import type { ImageFormat } from '@/utils/formats';
 import { encode as avif_encode } from '@jsquash/avif';
 import { encode as webp_encode } from '@jsquash/webp';
 import { encode as jpeg_encode } from '@jsquash/jpeg';
-import { getCompressedFileName } from '@/utils/compressor/all';
 
-const wasmEncoders: Record<
-  ImageFormat,
-  (imageData: ImageData) => Promise<ArrayBuffer>
+// No PNG encoder: every browser encodes PNG natively.
+const wasmEncoders: Partial<
+  Record<ImageFormat, (imageData: ImageData) => Promise<ArrayBuffer>>
 > = {
   avif: async (imageData: ImageData) => {
     return avif_encode(imageData);
@@ -29,6 +28,7 @@ export async function compressImage(
   file: File,
   formatsByConfig: Record<string, ImageFormat[]>,
   mediaSizes: Record<string, MediaDimensions>,
+  fileNames: Record<string, Partial<Record<ImageFormat, string>>>,
   onSuccess: (file: File, configName: string, format: ImageFormat) => void,
   onError: (
     configName: string,
@@ -78,30 +78,32 @@ export async function compressImage(
       const sourceCanvas = format === 'jpg' ? getFlattenedCanvas() : canvas;
       onBegin(configName, format);
       const outputMimeType = getMimeType(format);
+      const fileName = fileNames[configName]?.[format] ?? file.name;
+      const wasmEncoder = wasmEncoders[format];
       if (nativelySupportedEncoders[format]) {
         const blob = await sourceCanvas.convertToBlob({
           type: outputMimeType,
           quality: 0.8,
         });
-        const compressedFile = new File(
-          [blob],
-          getCompressedFileName(file.name, configName, format),
-          { type: outputMimeType },
-        );
+        const compressedFile = new File([blob], fileName, {
+          type: outputMimeType,
+        });
         onSuccess(compressedFile, configName, format);
+      } else if (!wasmEncoder) {
+        onError(
+          configName,
+          format,
+          `This browser cannot encode ${format.toUpperCase()}.`,
+        );
       } else {
         // Use WASM encoder
         const imageData = sourceCanvas
           .getContext('2d')!
           .getImageData(0, 0, mediaSize.width, mediaSize.height);
-        const arrayBuffer = await wasmEncoders[format](imageData);
-        const compressedFile = new File(
-          [arrayBuffer],
-          getCompressedFileName(file.name, configName, format),
-          {
-            type: outputMimeType,
-          },
-        );
+        const arrayBuffer = await wasmEncoder(imageData);
+        const compressedFile = new File([arrayBuffer], fileName, {
+          type: outputMimeType,
+        });
         onSuccess(compressedFile, configName, format);
       }
     }
@@ -123,6 +125,7 @@ async function calculateSupportedEncoders(): Promise<
     jpg: false,
     webp: false,
     avif: false,
+    png: false,
   };
 
   for (const format of imageFormats) {

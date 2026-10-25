@@ -20,5 +20,19 @@
     "width": "自定义宽度",
     "height": "自定义高度"
   },
-  "startConversion": "开始转换"
+  "startConversion": "开始转换",
+  "outputSizes": "输出尺寸",
+  "originalFormat": "原始格式",
+  "originalFormatDescription": "每个文件保留原格式。无法生成的格式（GIF、MOV、MKV…）会转为 WebP 或 MP4。",
+  "filesToResize": "要调整大小的文件",
+  "startResize": "开始调整大小",
+  "thumbnail": "缩略图",
+  "startThumbnail": "提取缩略图",
+  "videosForThumbnails": "视频",
+  "convertedFiles": "已转换文件",
+  "resizedFiles": "已调整大小的文件",
+  "extractedThumbnails": "缩略图",
+  "converting": "正在转换...",
+  "resizing": "正在调整大小...",
+  "extracting": "正在提取..."
 }

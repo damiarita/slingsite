@@ -1,25 +1,36 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import { Redirecter } from '@/components/redirecter';
-import { Locale } from '@/i18n/routing';
-import {
-  getImagePageMetadataDictionary,
-  getRedirectionDictionary,
-} from '@/i18n/requests';
+import HomePage from '@/components/home-page';
+import PageContent from '@/components/page-content';
+import { Locale, routing } from '@/i18n/routing';
+import { getFormatLinksDictionary, getHomeDictionary } from '@/i18n/requests';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
+import { toAbsoluteUrl, withDefault } from '@/utils/seo';
+
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const redirectionDictionary = await getRedirectionDictionary(locale);
-  const destinationPageTranslation =
-    await getImagePageMetadataDictionary(locale);
+  const { metadata } = await getHomeDictionary(locale);
   return {
-    title: redirectionDictionary.redirecting,
+    title: metadata.title,
+    description: metadata.description,
+    alternates: {
+      canonical: getPathname({ locale, href: '/home/' }),
+      languages: withDefault(
+        routing.locales.reduce(
+          (acc, locale) => {
+            acc[locale] = getPathname({ href: '/home/', locale: locale });
+            return acc;
+          },
+          {} as Record<Locale, string>,
+        ),
+      ),
+    },
     openGraph: {
-      title: destinationPageTranslation.title,
-      description: destinationPageTranslation.description,
-      url: getPathname({ locale: locale, href: { pathname: '/image/' } }),
+      title: metadata.title,
+      description: metadata.description,
+      url: getPathname({ locale, href: '/home/' }),
       siteName: 'SlingSite',
       images: [
         {
@@ -35,29 +46,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: 'SlingSite Logo',
         },
       ],
-      locale: locale,
+      locale,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: destinationPageTranslation.title,
-      description: destinationPageTranslation.description,
+      title: metadata.title,
+      description: metadata.description,
       images: ['/screenshots/image.jpg', '/favicon.ico'],
     },
   };
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function Home({ params }: Props) {
   const { locale } = await params;
-  const dict = await getRedirectionDictionary(locale);
+  const translation = await getHomeDictionary(locale);
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'SlingSite',
+    url: toAbsoluteUrl(getPathname({ locale, href: '/home/' })),
+    inLanguage: locale,
+    description: translation.metadata.description,
+  };
   return (
     <>
-      <Redirecter
-        href={{ pathname: '/image/' }}
-        locale={locale}
-        redirecting={dict.redirecting}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <BaseDatalayer locale={locale} pageType="redirect" pageSubtype="root" />
+      <HomePage
+        locale={locale}
+        translation={translation}
+        linksTranslation={await getFormatLinksDictionary(locale)}
+      />
+      <PageContent locale={locale} slug="home" />
+      <BaseDatalayer locale={locale} pageType="home" pageSubtype="home" />
     </>
   );
 }

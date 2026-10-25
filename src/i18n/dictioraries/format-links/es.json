@@ -3,5 +3,12 @@
   "videoHeading": "Todas las conversiones de vídeo",
   "anyImageTo": "Cualquier imagen a {to}",
   "anyVideoTo": "Cualquier vídeo a {to}",
-  "fromTo": "{from} a {to}"
+  "fromTo": "{from} a {to}",
+  "resizeImageHeading": "Redimensionar imágenes por formato",
+  "resizeVideoHeading": "Redimensionar vídeos por formato",
+  "resize": "Redimensionar {format}",
+  "thumbnailHeading": "Todas las extracciones de miniaturas",
+  "thumbnailTo": "Miniatura de vídeo en {to}",
+  "thumbnailFrom": "Miniatura de {from}",
+  "thumbnailFromTo": "Miniatura de {from} en {to}"
 }

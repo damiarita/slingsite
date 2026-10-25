@@ -11,7 +11,8 @@ import { compressImage } from '@/utils/compressor/image';
 import type { InputMessage } from '@/types/workers';
 
 self.onmessage = async (ev) => {
-  const { jobId, file, formats, mediaSizes } = ev.data as InputMessage;
+  const { jobId, file, formats, mediaSizes, fileNames } =
+    ev.data as InputMessage;
 
   const imageFormatsByConfig: Record<string, ImageFormat[]> = {};
   for (const [configName, configFormats] of Object.entries(formats)) {
@@ -30,6 +31,7 @@ self.onmessage = async (ev) => {
     file,
     imageFormatsByConfig,
     mediaSizes,
+    fileNames,
     (compressedFile: File, configName: string, format: ImageFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
     },

@@ -4,8 +4,13 @@ export const siteUrl = new URL(
   process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://slingsite.github.io/',
 );
 
+// Page paths only. getPathname drops the trailing slash of a locale root
+// ("/en"), but the site uses `trailingSlash: true`.
 export function toAbsoluteUrl(pathname: string): string {
-  return new URL(pathname, siteUrl).toString();
+  return new URL(
+    pathname.endsWith('/') ? pathname : `${pathname}/`,
+    siteUrl,
+  ).toString();
 }
 
 export function withDefault(

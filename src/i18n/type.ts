@@ -38,6 +38,9 @@ export interface NavBarTranslations {
   videoCompressor: string;
   imageConverter: string;
   videoConverter: string;
+  imageResizer: string;
+  videoResizer: string;
+  videoThumbnail: string;
   menu: string;
   openMenu: string;
   closeMenu: string;
@@ -101,6 +104,21 @@ export interface FormatSettingsDictionary {
   setHeight: string;
   configMode: Record<ConfigMode, string>;
   startConversion: string;
+  outputSizes: string;
+  originalFormat: string;
+  originalFormatDescription: string;
+  filesToResize: string;
+  startResize: string;
+  thumbnail: string;
+  startThumbnail: string;
+  videosForThumbnails: string;
+  // Results panel, replacing the compress wording of ResultsDictionary
+  convertedFiles: string;
+  resizedFiles: string;
+  extractedThumbnails: string;
+  converting: string;
+  resizing: string;
+  extracting: string;
 }
 
 export interface AudioSettingsDictionary {
@@ -115,6 +133,13 @@ export interface FormatLinksDictionary {
   anyImageTo: string; // {to}
   anyVideoTo: string; // {to}
   fromTo: string; // {from}, {to}
+  resizeImageHeading: string;
+  resizeVideoHeading: string;
+  resize: string; // {format}
+  thumbnailHeading: string;
+  thumbnailTo: string; // {to}
+  thumbnailFrom: string; // {from}
+  thumbnailFromTo: string; // {from}, {to}
 }
 
 export interface ResultsDictionary {
@@ -127,6 +152,39 @@ export interface ResultsDictionary {
   compressing: string;
   inQueue: string;
   compressedFiles: string;
+}
+
+export interface HomeFeature {
+  title: string;
+  description: string;
+  points: string[];
+}
+
+export interface HomeDictionary {
+  metadata: PageMetadata;
+  hero: {
+    title: string;
+    subtitle: string;
+    ctaImages: string;
+    ctaVideos: string;
+    badges: string[];
+  };
+  features: {
+    heading: string;
+    subheading: string;
+    forImages: string;
+    forVideos: string;
+    optimize: HomeFeature;
+    resize: HomeFeature;
+    convert: HomeFeature;
+    thumbnail: HomeFeature & { cta: string };
+  };
+  steps: {
+    heading: string;
+    items: { title: string; description: string }[];
+  };
+  privacy: { heading: string; description: string; points: string[] };
+  popular: { heading: string };
 }
 
 export interface NotFoundTranslations {

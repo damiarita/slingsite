@@ -17,6 +17,7 @@ import {
   FormatLinksDictionary,
   ResultsDictionary,
   NotFoundTranslations,
+  HomeDictionary,
 } from './type';
 import type { Format } from '@/utils/formats';
 
@@ -270,4 +271,13 @@ export const getDevicesDictionary = createDictionaryGetter<
   it: () => import('./dictioraries/devices/it.json'),
   zh: () => import('./dictioraries/devices/zh.json'),
   en: () => import('./dictioraries/devices/en.json'),
+});
+export const getHomeDictionary = createDictionaryGetter<HomeDictionary>({
+  ar: () => import('./dictioraries/home/ar.json'),
+  de: () => import('./dictioraries/home/de.json'),
+  es: () => import('./dictioraries/home/es.json'),
+  fr: () => import('./dictioraries/home/fr.json'),
+  it: () => import('./dictioraries/home/it.json'),
+  zh: () => import('./dictioraries/home/zh.json'),
+  en: () => import('./dictioraries/home/en.json'),
 });

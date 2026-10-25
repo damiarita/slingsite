@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "title": "SlingSite: Free Image and Video Optimizer, Resizer and Converter",
+    "description": "Compress, resize and convert images and videos, or extract a video thumbnail, for free in your browser. Your files never leave your device. JPG, PNG, WebP, AVIF, MP4 and WebM."
+  },
+  "hero": {
+    "title": "Web-ready images and videos, right in your browser",
+    "subtitle": "Compress, resize and convert your media, or grab a video's thumbnail, in a few clicks. Free, with no sign-up, and your files never leave your device.",
+    "ctaImages": "Optimize images",
+    "ctaVideos": "Optimize videos",
+    "badges": [
+      "100% free",
+      "No sign-up",
+      "Files never leave your device",
+      "Batch processing"
+    ]
+  },
+  "features": {
+    "heading": "One toolbox for all your media",
+    "subheading": "Pick the tool that fits the job. Every tool handles as many files as you want at once.",
+    "forImages": "Images",
+    "forVideos": "Videos",
+    "optimize": {
+      "title": "Optimize for the web",
+      "description": "Get every size and next-gen format your website needs from a single upload.",
+      "points": [
+        "Mobile, tablet and desktop sizes",
+        "Images in JPG, WebP and AVIF",
+        "Videos in MP4 (H.264, H.265) and WebM, plus a poster image"
+      ]
+    },
+    "resize": {
+      "title": "Resize",
+      "description": "Shrink images and videos by percentage, width or height. The aspect ratio is always kept.",
+      "points": [
+        "Several sizes in one go",
+        "Keeps each file in its own format, or converts it",
+        "Never upscales, so no blurry results"
+      ]
+    },
+    "convert": {
+      "title": "Convert formats",
+      "description": "Turn any image or video into the format you need, at its original size.",
+      "points": [
+        "Images to JPG, PNG, WebP or AVIF",
+        "Videos to MP4 (H.264 or H.265) or WebM",
+        "Reads PNG, GIF, MOV, MKV and more"
+      ]
+    },
+    "thumbnail": {
+      "title": "Video thumbnail",
+      "description": "Extract the first frame of a video as an image, ready to use as a cover or poster.",
+      "points": [
+        "Save it as JPG, PNG, WebP or AVIF",
+        "Full resolution, or resized",
+        "Works with MP4, WebM, MOV and MKV"
+      ],
+      "cta": "Extract a thumbnail"
+    }
+  },
+  "steps": {
+    "heading": "How it works",
+    "items": [
+      {
+        "title": "Add your files",
+        "description": "Drop images or videos onto the page, or pick them from your device."
+      },
+      {
+        "title": "Choose your settings",
+        "description": "Pick the sizes and formats you want. Sensible defaults are already set."
+      },
+      {
+        "title": "Download",
+        "description": "Save each file or all of them at once, or send them to Google Drive."
+      }
+    ]
+  },
+  "privacy": {
+    "heading": "Your files stay on your device",
+    "description": "SlingSite does all the work inside your browser, on your own computer or phone. Nothing is uploaded and no server ever sees your files, so it is safe for private and confidential media.",
+    "points": [
+      "Nothing is uploaded to a server",
+      "No account, no watermark",
+      "Speed depends on your device, not your connection",
+      "Free, with no limit on the number of files"
+    ]
+  },
+  "popular": {
+    "heading": "Popular tools"
+  }
+}

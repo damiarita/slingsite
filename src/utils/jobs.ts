@@ -5,7 +5,18 @@ import type {
 } from '@/types/config';
 import type { Job, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
-import { Format, imageFormats, videoFormats } from '@/utils/formats';
+import {
+  type Format,
+  getOriginalOutputFormat,
+  isImageFormat,
+  videoFormats,
+  webImageFormats,
+} from '@/utils/formats';
+import {
+  getCompressedFileName,
+  getFileNameWithExtensionAndSuffix,
+  getToolFileName,
+} from '@/utils/compressor/all';
 import {
   getMediumSize,
   scaleToHeight,
@@ -21,87 +32,119 @@ export const dimensionsConfigIsValid = (config: DimensionsConfig): boolean =>
   getEnabledConfigNames(config.sizes).length > 0;
 
 export const formatConfigIsValid = (config: FormatConfig): boolean =>
-  config.formats.length > 0 &&
+  (config.formats.length > 0 || config.originalFormat) &&
   (!config.resize ||
     (config.versions.length > 0 &&
       config.versions.every((version) => version.value[version.type] > 0)));
 
 // Used by the compress pages: one entry per enabled device, and the formats
-// are fixed by the file type (videos also get a poster in every image format).
+// are fixed by the file type (videos also get a poster in every web image
+// format).
 export const createDimensionsJob = (
   file: File,
   config: DimensionsConfig,
-): Promise<Job> =>
-  createJob(file, config.keepAudio, (originalDimensions) => {
-    const configs = config.sizes;
-    const requestedFormats: Format[] = file.type.startsWith('image/')
-      ? [...imageFormats]
-      : [...videoFormats, ...imageFormats];
-    const requestedDimensions: Record<string, MediaDimensions> = {};
-    const formatsByConfig: Record<string, Format[]> = {};
-    getEnabledConfigNames(configs).forEach((configName) => {
-      const sizing = configs[configName];
-      if (sizing.sizingType === 'height') {
-        requestedDimensions[configName] = scaleToHeight(
-          originalDimensions,
-          sizing.height,
+): Promise<Job> => {
+  const isImage = file.type.startsWith('image/');
+  const getFileName = (configName: string, format: Format) =>
+    isImage || !isImageFormat(format)
+      ? getCompressedFileName(file.name, configName, format)
+      : getFileNameWithExtensionAndSuffix(
+          file.name,
+          format,
+          `-thumbnail-compressed-${configName}`,
         );
-      } else if (sizing.sizingType === 'width') {
-        requestedDimensions[configName] = scaleToWidth(
-          originalDimensions,
-          sizing.width,
-        );
-      } else {
-        requestedDimensions[configName] = scaleToWidth(
-          originalDimensions,
-          sizing.screenWidth * (sizing.percentage / 100),
-        );
-      }
-      formatsByConfig[configName] = requestedFormats;
-    });
-    return { requestedDimensions, requestedFormats: formatsByConfig };
-  });
+  return createJob(
+    file,
+    config.keepAudio,
+    getFileName,
+    (originalDimensions) => {
+      const configs = config.sizes;
+      const requestedFormats: Format[] = isImage
+        ? [...webImageFormats]
+        : [...videoFormats, ...webImageFormats];
+      const requestedDimensions: Record<string, MediaDimensions> = {};
+      const formatsByConfig: Record<string, Format[]> = {};
+      getEnabledConfigNames(configs).forEach((configName) => {
+        const sizing = configs[configName];
+        if (sizing.sizingType === 'height') {
+          requestedDimensions[configName] = scaleToHeight(
+            originalDimensions,
+            sizing.height,
+          );
+        } else if (sizing.sizingType === 'width') {
+          requestedDimensions[configName] = scaleToWidth(
+            originalDimensions,
+            sizing.width,
+          );
+        } else {
+          requestedDimensions[configName] = scaleToWidth(
+            originalDimensions,
+            sizing.screenWidth * (sizing.percentage / 100),
+          );
+        }
+        formatsByConfig[configName] = requestedFormats;
+      });
+      return { requestedDimensions, requestedFormats: formatsByConfig };
+    },
+  );
+};
 
-// Used by the format pages. Without resizing there is a single output at the
-// original size, named `unresizedName` (it shows in the results and filenames).
+// Used by the format, resize and thumbnail pages. Without resizing there is a
+// single output at the original size, named `unresizedName` (it shows in the
+// results and filenames).
 export const createFormatJob = (
   file: File,
   config: FormatConfig,
   unresizedName: string,
-): Promise<Job> =>
-  createJob(file, config.keepAudio, (originalDimensions) => {
-    const requestedDimensions: Record<string, MediaDimensions> = {};
-    const formatsByConfig: Record<string, Format[]> = {};
-    if (!config.resize) {
-      requestedDimensions[unresizedName] = originalDimensions;
-      formatsByConfig[unresizedName] = [...config.formats];
-    } else {
-      config.versions.forEach((version) => {
-        if (version.type === 'height') {
-          requestedDimensions[version.name] = scaleToHeight(
-            originalDimensions,
-            version.value.height,
-          );
-        } else if (version.type === 'width') {
-          requestedDimensions[version.name] = scaleToWidth(
-            originalDimensions,
-            version.value.width,
-          );
-        } else {
-          requestedDimensions[version.name] = scaleToWidth(
-            originalDimensions,
-            originalDimensions.width * (version.value.percentage / 100),
-          );
-        }
-        formatsByConfig[version.name] = [...config.formats];
-      });
-    }
-    return { requestedDimensions, requestedFormats: formatsByConfig };
-  });
+): Promise<Job> => {
+  const formats = [
+    ...new Set([
+      ...(config.originalFormat ? [getOriginalOutputFormat(file)] : []),
+      ...config.formats,
+    ]),
+  ];
+  const getFileName = (configName: string, format: Format) =>
+    getToolFileName(file.name, configName, format);
+  return createJob(
+    file,
+    config.keepAudio,
+    getFileName,
+    (originalDimensions) => {
+      const requestedDimensions: Record<string, MediaDimensions> = {};
+      const formatsByConfig: Record<string, Format[]> = {};
+      if (!config.resize) {
+        requestedDimensions[unresizedName] = originalDimensions;
+        formatsByConfig[unresizedName] = formats;
+      } else {
+        config.versions.forEach((version) => {
+          if (version.type === 'height') {
+            requestedDimensions[version.name] = scaleToHeight(
+              originalDimensions,
+              version.value.height,
+            );
+          } else if (version.type === 'width') {
+            requestedDimensions[version.name] = scaleToWidth(
+              originalDimensions,
+              version.value.width,
+            );
+          } else {
+            requestedDimensions[version.name] = scaleToWidth(
+              originalDimensions,
+              originalDimensions.width * (version.value.percentage / 100),
+            );
+          }
+          formatsByConfig[version.name] = formats;
+        });
+      }
+      return { requestedDimensions, requestedFormats: formatsByConfig };
+    },
+  );
+};
 
 async function createJob(
   file: File,
   keepAudio: boolean,
+  getFileName: (configName: string, format: Format) => string,
   plan: (originalDimensions: MediaDimensions) => {
     requestedDimensions: Record<string, MediaDimensions>;
     requestedFormats: Record<string, Format[]>;
@@ -111,10 +154,13 @@ async function createJob(
     const originalDimensions = await getMediumSize(file);
     const { requestedDimensions, requestedFormats } = plan(originalDimensions);
     const tasks: Record<string, Partial<Record<Format, Task>>> = {};
+    const outputFileNames: Record<string, Partial<Record<Format, string>>> = {};
     for (const [configName, formats] of Object.entries(requestedFormats)) {
       tasks[configName] = {};
+      outputFileNames[configName] = {};
       for (const format of formats) {
         tasks[configName][format] = { status: 'waiting' };
+        outputFileNames[configName][format] = getFileName(configName, format);
       }
     }
     return {
@@ -125,6 +171,7 @@ async function createJob(
       requestedDimensions,
       requestedFormats,
       keepAudio,
+      outputFileNames,
       tasks,
     };
   } catch (error) {

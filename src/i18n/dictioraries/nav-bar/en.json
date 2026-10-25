@@ -4,7 +4,10 @@
   "imageCompressor": "Image Compressor",
   "videoCompressor": "Video Compressor",
   "imageConverter": "Image Converter",
+  "imageResizer": "Image Resizer",
   "videoConverter": "Video Converter",
+  "videoResizer": "Video Resizer",
+  "videoThumbnail": "Video Thumbnail",
   "menu": "Menu",
   "openMenu": "Open menu",
   "closeMenu": "Close menu"

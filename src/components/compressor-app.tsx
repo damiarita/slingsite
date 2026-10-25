@@ -143,6 +143,7 @@ export default function CompressorApp<Config>({
       jobToRun.requestedFormats,
       jobToRun.requestedDimensions,
       jobToRun.keepAudio,
+      jobToRun.outputFileNames,
       (
         jobId: string,
         format: Format,

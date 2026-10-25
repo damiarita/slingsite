@@ -15,5 +15,6 @@ export type Job = {
   requestedDimensions: Record<string, MediaDimensions>;
   requestedFormats: Record<string, Format[]>;
   keepAudio: boolean;
+  outputFileNames: Record<string, Partial<Record<Format, string>>>;
   tasks: Record<string, Partial<Record<Format, Task>>>;
 };
