@@ -414,7 +414,12 @@ files with an empty MIME type as video.
 - After switching branches, stale `.next/types` makes `tsc` fail on routes
   that no longer exist. Delete `.next`.
 - `.contentlayer/` is generated (by `dev`/`build`). Imports from
-  `contentlayer/generated` fail until it exists.
+  `contentlayer/generated` fail until it exists. If a build fails with a
+  contentlayer `JsonParseError` ("Unterminated string in JSON"), its cache was
+  left truncated by an interrupted run: `rm -rf .contentlayer .next`.
+- In MDX, always write links as `[text](url)`. A bare URL is auto-linked
+  (GFM) up to the next whitespace, so in Chinese it swallows the text after
+  it, and `[url]` without `(url)` shows literal brackets.
 - `public/ffmpeg` and `static/ffmpeg` are build outputs (CopyPlugin), not source.
 - With static export, the base page of an optional catch-all is generated
   from `{ slugs: [] }`. Links to it use
@@ -527,3 +532,6 @@ Nothing scheduled.
   next-gen and lists every input format; `/video/` sample code gives HEVC
   `video/mp4; codecs="hvc1"` (listed first) and no longer says Safari can't
   play WebM.
+- 2026-10-25: Legal posts: bare and bracketed URLs (`[https://…]` in every
+  plain-language terms page, and a URL glued to Chinese text that turned the
+  rest of the sentence into a broken link) are now explicit Markdown links.
