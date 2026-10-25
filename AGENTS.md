@@ -449,3 +449,5 @@ files with an empty MIME type as video.
   default on `/video/`, on by default on the video format pages. New
   `audio-settings` dictionary and `settings.advancedSettings`. Extracted
   `Switch` and `AdvancedSettings` into their own components.
+- 2026-10-25: Toned down `FormatPageLinks` (bordered rows, no gradients) so
+  it doesn't compete with the upload box, the page's main action.
