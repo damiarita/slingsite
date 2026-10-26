@@ -49,10 +49,12 @@ multilingual MDX content (comparison articles, legal pages) for SEO.
 | Serve build | `npm start`        | `serve out`                                                                                |
 | Format      | `npm run format`   | Prettier. Runs on staged files via the husky pre-commit hook (`lint-staged`).              |
 | Type-check  | `npx tsc --noEmit` | If it complains about missing files under `.next/types`, run `rm -rf .next` (stale build). |
-| Lint        | `npm run lint`     | **Currently broken**, see Known issues #1.                                                 |
+| Lint        | `npm run lint`     | `eslint .` (flat config). Currently reports errors, see Known issues #1.                   |
 
 There are no tests. Verify changes with `npx tsc --noEmit` and
-`npm run build`, then check in `npm run dev`.
+`npm run build`, then check in `npm run dev`. CI uses Node 24 (`.nvmrc`)
+and `npm ci`; reproduce it with `rm -rf node_modules && npm ci && npm run
+build`.
 
 Browser checks can be scripted with Playwright's Chromium (not a project
 dependency; use it from a scratch folder). In the Flatpak VS Code setup, its
@@ -70,9 +72,23 @@ Env vars (in `.env.local`, git-ignored): `NEXT_PUBLIC_GOOGLE_CLIENT_ID`,
 
 - Push to `master` → `.github/workflows/deploy.yml` builds and pushes `out/` to
   the `gh-pages` branch of `slingsite/slingsite.github.io` (GitHub Pages).
-- PRs to `master` → `.github/workflows/test-prs.yml` runs `npm run lint` and
-  `npm run build`.
-- Dependabot opens daily npm update PRs.
+- PRs to `master` → `.github/workflows/test-prs.yml` runs two independent
+  jobs, `build` (`npm ci` + `npm run build`, which also type-checks) and
+  `lint`, so a lint failure never hides whether the build passes. It needs
+  no secrets (Dependabot PRs can't read Actions secrets). It can also be run
+  by hand (`workflow_dispatch`).
+- Both workflows read the Node version from `.nvmrc` and install with
+  `npm ci`, which fails on a lockfile/`package.json` mismatch or peer
+  conflict instead of resolving around it.
+- Dependabot (`.github/dependabot.yml`) opens daily npm PRs and weekly
+  GitHub Actions PRs. Packages that must move together are grouped into one
+  PR (`next` + `eslint-config-next` + `@next/*`, `react` + `react-dom` +
+  their types, contentlayer, mdx/unified, tailwind, eslint, `@jsquash/*`,
+  `@ffmpeg/*`); every other minor/patch bump shares one PR, majors get
+  their own. When adding a dependency that must match another's version,
+  add it to that group. PRs opened before CI existed have no checks: comment
+  `@dependabot recreate` on them (or close them, the groups supersede
+  them).
 
 GitHub Pages implications: **`output: 'export'` (static only)**, no server
 code, no API routes, no middleware, no runtime redirects, no custom headers
@@ -562,11 +578,11 @@ files with an empty MIME type as video.
 
 ## Known issues (found in the 2026-10-24 review, not fixed yet)
 
-1. **Lint is broken, so the PR CI fails.** `next lint` was removed in
-   Next 16, and `eslint.config.mjs` uses `FlatCompat` with `eslint-config-next`
-   16, which crashes ("Converting circular structure to JSON"). Fix: import
-   the flat configs from `eslint-config-next` directly and set
-   `"lint": "eslint ."`.
+1. **The CI `lint` job fails** (the `build` job is unaffected): 7 errors.
+   `inline-script-id` in `compressor-page.tsx` and `post-page.tsx`,
+   `no-explicit-any` in `i18n/navigation.ts` and `utils/google-drive.ts`
+   (×2), `react-hooks/set-state-in-effect` in `hooks/use-compressor.ts` and
+   `react-hooks/preserve-manual-memoization` in `language-selector.tsx`.
 2. `hooks/use-compressor.ts` `createWorker()` instantiates **both** workers
    and uses only one. The other is never terminated (it leaks, and loads its
    codecs for nothing).
@@ -715,3 +731,9 @@ Nothing scheduled.
 - 2026-10-26: Added an empty
   `public/.well-known/appspecific/com.chrome.devtools.json`, so Chrome
   DevTools' request no longer makes `next dev` throw on the post route.
+- 2026-10-26: CI for every PR, Dependabot included. Lint works again
+  (`eslint .` with `eslint-config-next`'s flat configs; dropped
+  `@eslint/eslintrc`), and runs as its own job so it can't block the build.
+  Both workflows use `npm ci` and Node 24 from `.nvmrc` (was Node 20, now
+  EOL). Dependabot groups packages that must be updated together, and also
+  updates GitHub Actions.

@@ -6,7 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "npx serve@latest out",
-    "lint": "next lint",
+    "lint": "eslint .",
     "prepare": "husky",
     "format": "prettier --write ."
   },
@@ -38,7 +38,6 @@
     "vanilla-cookieconsent": "^3.1.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@ffmpeg/types": "^0.12.4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^25",

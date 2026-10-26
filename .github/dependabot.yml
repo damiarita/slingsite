@@ -1,9 +1,67 @@
 version: 2
 updates:
-  # Enable version updates for npm
   - package-ecosystem: 'npm'
-    # Look for `package.json` and `lock` files in the `root` directory
     directory: '/'
-    # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: 'daily'
+    # Packages that must move together get one PR, so they are never
+    # installed at mismatched versions (e.g. react-dom requires the exact
+    # same react version, and both are pinned). A package goes to the first
+    # group it matches. These groups shape version updates only; security
+    # updates keep the repo's own grouping.
+    groups:
+      next:
+        patterns:
+          - 'next'
+          - '@next/*'
+          - 'eslint-config-next'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      contentlayer:
+        patterns:
+          - 'contentlayer2'
+          - 'next-contentlayer2'
+      mdx:
+        patterns:
+          - 'next-mdx-remote'
+          - 'remark'
+          - 'remark-*'
+          - 'rehype-*'
+          - 'strip-markdown'
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+      eslint:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+      jsquash:
+        patterns:
+          - '@jsquash/*'
+      ffmpeg:
+        patterns:
+          - '@ffmpeg/*'
+      # Everything else: minor and patch bumps in a single PR. Majors of
+      # these stay one PR each, since they are the ones likely to break.
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+    commit-message:
+      prefix: 'deps'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'ci'
