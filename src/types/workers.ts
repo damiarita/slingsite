@@ -1,4 +1,5 @@
 import type { Format } from '@/utils/formats';
+import type { TaskErrorKind } from './analytics';
 import type { MediaDimensions } from './mediaDimensions';
 
 export interface InputMessage {
@@ -37,4 +38,5 @@ export type OutputMessage =
   | (JobOutputMessage & {
       type: 'error';
       content: string;
+      kind: TaskErrorKind;
     });

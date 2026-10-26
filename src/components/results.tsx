@@ -1,7 +1,9 @@
-import type { Job, Task } from '@/types/job';
-import { jobProportionOfDoneTasks } from '@/utils/jobs';
+import type { Job } from '@/types/job';
+import { jobProportionOfDoneTasks, jobTaskEntries } from '@/utils/jobs';
 import { FileItem } from './file-item';
 import type { Format } from '@/utils/formats';
+import type { PersistenceScope, TaskOutcome } from '@/types/analytics';
+import { sumBy, taskEntry, trackEvent } from '@/utils/analytics';
 import { Package } from 'lucide-react';
 import { downloadAllFiles, downloadResultFile } from '@/utils/persistence';
 import { PrimaryButton } from './buttons';
@@ -21,28 +23,34 @@ type Props = {
   translation: ResultsDictionary;
 };
 
-function getPersistenceJobs(
+type CompletedTask = {
+  job: Job;
+  configName: string;
+  format: Format;
+  file: File;
+};
+
+function getCompletedTasks(
   jobs: Job[],
-  type: persistenceType,
-): FilePersistenceJob[] {
-  const persistenceJobs: FilePersistenceJob[] = [];
-  for (const job of jobs) {
-    for (const [configName, formats] of Object.entries(job.tasks)) {
-      for (const [format] of Object.entries(formats) as [Format, Task][]) {
-        const task = job.tasks[configName]?.[format];
-        if (task && task.status === 'completed' && task.result) {
-          persistenceJobs.push({
-            file: task.result,
-            id: `${job.id}-${configName}-${format}`,
-            type,
-            status: { status: 'waiting' },
-          });
-        }
-      }
-    }
-  }
-  return persistenceJobs;
+  only?: { configName: string; format: Format },
+): CompletedTask[] {
+  return jobs.flatMap((job) =>
+    jobTaskEntries(job).flatMap(({ configName, format, task }) =>
+      task.status === 'completed' &&
+      (!only || (only.configName === configName && only.format === format))
+        ? [{ job, configName, format, file: task.result }]
+        : [],
+    ),
+  );
 }
+
+const getTaskId = ({ job, configName, format }: CompletedTask) =>
+  job.taskIds[configName]?.[format] ?? `${job.id}-${configName}-${format}`;
+
+const getTaskEntries = (tasks: CompletedTask[]) =>
+  tasks.map((task) =>
+    taskEntry(task.job, task.configName, task.format, task.file),
+  );
 
 function chagePersistanceJobStatus(
   jobs: FilePersistenceJob[],
@@ -74,6 +82,91 @@ export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
     });
   };
 
+  const updatePersistenceJob = (id: string, status: FilePersistenceJobStatus) =>
+    setPersistenceJobs((currentJobs) =>
+      chagePersistanceJobStatus(currentJobs, id, status),
+    );
+
+  // Downloads or uploads the outputs of one click, and tracks it.
+  const persistTasks = (
+    tasks: CompletedTask[],
+    type: persistenceType,
+    scope: PersistenceScope,
+  ) => {
+    if (tasks.length === 0) return;
+    const newJobs: FilePersistenceJob[] = tasks.map((task) => ({
+      file: task.file,
+      id: getTaskId(task),
+      type,
+      status: { status: 'waiting' },
+    }));
+    if (type === 'device') {
+      if (scope === 'file') {
+        downloadResultFile(tasks[0].file);
+      } else {
+        addPersistenceJobs(newJobs);
+        downloadAllFiles(newJobs, updatePersistenceJob);
+      }
+      const entries = getTaskEntries(tasks);
+      trackEvent({
+        event: 'files_downloaded',
+        scope,
+        task_count: entries.length,
+        total_size_bytes: sumBy(entries, (entry) => entry.output_size_bytes),
+        tasks: entries,
+      });
+      return;
+    }
+
+    const uploadId = crypto.randomUUID();
+    const entries = getTaskEntries(tasks);
+    trackEvent({
+      event: 'drive_upload_started',
+      upload_id: uploadId,
+      scope,
+      task_count: entries.length,
+      total_size_bytes: sumBy(entries, (entry) => entry.output_size_bytes),
+      tasks: entries,
+    });
+    const outcomes = new Map<string, TaskOutcome>();
+    let finished = false;
+    const trackFinished = () => {
+      if (finished) return;
+      finished = true;
+      const uploaded = entries.map((entry) => ({
+        ...entry,
+        upload_status: outcomes.get(entry.task_id) ?? ('errored' as const),
+      }));
+      const completedCount = uploaded.filter(
+        (entry) => entry.upload_status === 'completed',
+      ).length;
+      trackEvent({
+        event: 'drive_upload_finished',
+        upload_id: uploadId,
+        scope,
+        task_count: uploaded.length,
+        completed_count: completedCount,
+        errored_count: uploaded.length - completedCount,
+        tasks: uploaded,
+      });
+    };
+    addPersistenceJobs(newJobs);
+    uploadFilesToGoogleDrive(newJobs, (id, status) => {
+      updatePersistenceJob(id, status);
+      if (status.status === 'completed' || status.status === 'errored') {
+        outcomes.set(id, status.status);
+        if (outcomes.size === newJobs.length) trackFinished();
+      }
+    }).catch((error) => {
+      // Sign-in or folder picking failed or was cancelled: nothing uploaded.
+      console.error('Google Drive upload error:', error);
+      for (const job of newJobs) {
+        if (!outcomes.has(job.id)) outcomes.set(job.id, 'errored');
+      }
+      trackFinished();
+    });
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-[200px]">
       <div className="flex justify-between items-center mb-4">
@@ -81,29 +174,15 @@ export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
           {translation.yourFiles}
         </h3>
         <PrimaryButton
-          onClick={() => {
-            const persistenceJobs = getPersistenceJobs(jobs, 'device');
-            addPersistenceJobs(persistenceJobs);
-            downloadAllFiles(persistenceJobs, (id, status) =>
-              setPersistenceJobs((currentJobs) =>
-                chagePersistanceJobStatus(currentJobs, id, status),
-              ),
-            );
-          }}
+          onClick={() => persistTasks(getCompletedTasks(jobs), 'device', 'all')}
           disabled={!jobs.some((job) => jobProportionOfDoneTasks(job) > 0)}
         >
           <Package className="w-4 h-4 mr-2" /> {translation.downloadAllFiles}
         </PrimaryButton>
         <GoogleDriveButton
-          onClick={() => {
-            const persistenceJobs = getPersistenceJobs(jobs, 'googleDrive');
-            addPersistenceJobs(persistenceJobs);
-            uploadFilesToGoogleDrive(persistenceJobs, (id, status) =>
-              setPersistenceJobs((currentJobs) =>
-                chagePersistanceJobStatus(currentJobs, id, status),
-              ),
-            );
-          }}
+          onClick={() =>
+            persistTasks(getCompletedTasks(jobs), 'googleDrive', 'all')
+          }
           disabled={!jobs.some((job) => jobProportionOfDoneTasks(job) > 0)}
           className="ml-2"
         />
@@ -118,26 +197,16 @@ export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
             <FileItem
               key={job.id}
               onRemove={() => handleRemoveJob(index)}
-              onDownloadOne={(file: File) => {
-                downloadResultFile(file);
-              }}
-              onDownloadAll={(persistenceType) => {
-                const jobs = getPersistenceJobs([job], persistenceType);
-                setPersistenceJobs((currentJobs) => [...currentJobs, ...jobs]);
-                if (persistenceType === 'device') {
-                  downloadAllFiles(jobs, (id, status) =>
-                    setPersistenceJobs((currentJobs) =>
-                      chagePersistanceJobStatus(currentJobs, id, status),
-                    ),
-                  );
-                } else if (persistenceType === 'googleDrive') {
-                  uploadFilesToGoogleDrive(jobs, (id, status) =>
-                    setPersistenceJobs((currentJobs) =>
-                      chagePersistanceJobStatus(currentJobs, id, status),
-                    ),
-                  );
-                }
-              }}
+              onDownloadOne={(configName, format) =>
+                persistTasks(
+                  getCompletedTasks([job], { configName, format }),
+                  'device',
+                  'file',
+                )
+              }
+              onDownloadAll={(persistenceType) =>
+                persistTasks(getCompletedTasks([job]), persistenceType, 'job')
+              }
               job={job}
               translation={translation}
             />

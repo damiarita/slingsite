@@ -1,4 +1,5 @@
 import BaseDatalayer from '@/components/base-datalayer';
+import NewsletterTracker from '@/components/newsletter-tracker';
 import { getPathname } from '@/i18n/navigation';
 import { Locale, routing } from '@/i18n/routing';
 import { getSubscribePageMetadataDictionary } from '@/i18n/requests';
@@ -1019,10 +1020,11 @@ export default async function App({ params }: Props) {
       `,
         }}
       />
+      <NewsletterTracker />
       <BaseDatalayer
         locale={locale}
         pageType="subscribe"
-        pageSubtype="suscribe"
+        pageSubtype="subscribe"
       />
     </>
   );

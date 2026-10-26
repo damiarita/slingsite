@@ -1,3 +1,4 @@
+import type { TaskErrorKind } from '@/types/analytics';
 import type { OutputMessage } from '@/types/workers';
 import type { Format } from './formats';
 
@@ -38,6 +39,14 @@ export function sendErrorMessage(
   configName: string,
   format: Format,
   error: string,
+  kind: TaskErrorKind,
 ) {
-  sendMessage({ jobId, type: 'error', configName, format, content: error });
+  sendMessage({
+    jobId,
+    type: 'error',
+    configName,
+    format,
+    content: error,
+    kind,
+  });
 }

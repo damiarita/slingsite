@@ -43,3 +43,27 @@ export function getOriginalOutputFormat(file: File): Format {
   }
   return 'avc.mp4';
 }
+
+const inputFormatsByMimeType: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+  'image/gif': 'gif',
+  'image/bmp': 'bmp',
+  'image/svg+xml': 'svg',
+  'image/tiff': 'tiff',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/quicktime': 'mov',
+  'video/x-matroska': 'mkv',
+};
+
+// A short name for the format of an input file (analytics). Falls back to the
+// extension, since MOV/MKV often have an empty MIME type.
+export function getInputFormat(file: File): string {
+  const fromMimeType = inputFormatsByMimeType[file.type];
+  if (fromMimeType) return fromMimeType;
+  const extension = /\.([a-z0-9]{1,5})$/i.exec(file.name)?.[1];
+  return extension?.toLowerCase() ?? 'unknown';
+}

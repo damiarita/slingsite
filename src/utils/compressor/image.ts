@@ -1,3 +1,4 @@
+import type { TaskErrorKind } from '@/types/analytics';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import { imageFormats } from '@/utils/formats';
 import type { ImageFormat } from '@/utils/formats';
@@ -34,11 +35,28 @@ export async function compressImage(
     configName: string,
     format: ImageFormat,
     errorMessage: string,
+    errorKind: TaskErrorKind,
   ) => void,
   onBegin: (configName: string, format: ImageFormat) => void,
 ): Promise<void> {
   const nativelySupportedEncoders = await nativelySupportedEncodersPromise;
-  const imageBitmap = await createImageBitmap(file);
+  let imageBitmap: ImageBitmap;
+  try {
+    imageBitmap = await createImageBitmap(file);
+  } catch (error) {
+    // Every task must end, or the worker never reports `ready` again.
+    for (const [configName, formats] of Object.entries(formatsByConfig)) {
+      for (const format of formats) {
+        onError(
+          configName,
+          format,
+          'This browser cannot read this image: ' + getErrorMessage(error),
+          'decode_failed',
+        );
+      }
+    }
+    return;
+  }
 
   for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
     const formats = formatsByConfig[configName] || [];
@@ -52,7 +70,12 @@ export async function compressImage(
     });
     if (!ctx) {
       for (const format of formats) {
-        onError(configName, format, 'Failed to get canvas context');
+        onError(
+          configName,
+          format,
+          'Failed to get canvas context',
+          'encode_failed',
+        );
       }
       continue;
     }
@@ -80,35 +103,48 @@ export async function compressImage(
       const outputMimeType = getMimeType(format);
       const fileName = fileNames[configName]?.[format] ?? file.name;
       const wasmEncoder = wasmEncoders[format];
-      if (nativelySupportedEncoders[format]) {
-        const blob = await sourceCanvas.convertToBlob({
-          type: outputMimeType,
-          quality: 0.8,
-        });
-        const compressedFile = new File([blob], fileName, {
-          type: outputMimeType,
-        });
-        onSuccess(compressedFile, configName, format);
-      } else if (!wasmEncoder) {
+      try {
+        if (nativelySupportedEncoders[format]) {
+          const blob = await sourceCanvas.convertToBlob({
+            type: outputMimeType,
+            quality: 0.8,
+          });
+          const compressedFile = new File([blob], fileName, {
+            type: outputMimeType,
+          });
+          onSuccess(compressedFile, configName, format);
+        } else if (!wasmEncoder) {
+          onError(
+            configName,
+            format,
+            `This browser cannot encode ${format.toUpperCase()}.`,
+            'codec_unsupported',
+          );
+        } else {
+          // Use WASM encoder
+          const imageData = sourceCanvas
+            .getContext('2d')!
+            .getImageData(0, 0, mediaSize.width, mediaSize.height);
+          const arrayBuffer = await wasmEncoder(imageData);
+          const compressedFile = new File([arrayBuffer], fileName, {
+            type: outputMimeType,
+          });
+          onSuccess(compressedFile, configName, format);
+        }
+      } catch (error) {
         onError(
           configName,
           format,
-          `This browser cannot encode ${format.toUpperCase()}.`,
+          'The image could not be encoded: ' + getErrorMessage(error),
+          'encode_failed',
         );
-      } else {
-        // Use WASM encoder
-        const imageData = sourceCanvas
-          .getContext('2d')!
-          .getImageData(0, 0, mediaSize.width, mediaSize.height);
-        const arrayBuffer = await wasmEncoder(imageData);
-        const compressedFile = new File([arrayBuffer], fileName, {
-          type: outputMimeType,
-        });
-        onSuccess(compressedFile, configName, format);
       }
     }
   }
 }
+
+const getErrorMessage = (error: unknown) =>
+  (error as Error)?.message || String(error);
 
 async function calculateSupportedEncoders(): Promise<
   Record<ImageFormat, boolean>

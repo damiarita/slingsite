@@ -3,7 +3,7 @@ import type {
   FormatConfig,
   SizingConfigs,
 } from '@/types/config';
-import type { Job, Task } from '@/types/job';
+import type { Job, JobIds, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import {
   type Format,
@@ -43,6 +43,7 @@ export const formatConfigIsValid = (config: FormatConfig): boolean =>
 export const createDimensionsJob = (
   file: File,
   config: DimensionsConfig,
+  ids: JobIds,
 ): Promise<Job> => {
   const isImage = file.type.startsWith('image/');
   const getFileName = (configName: string, format: Format) =>
@@ -55,6 +56,7 @@ export const createDimensionsJob = (
         );
   return createJob(
     file,
+    ids,
     config.keepAudio,
     getFileName,
     (originalDimensions) => {
@@ -96,6 +98,7 @@ export const createFormatJob = (
   file: File,
   config: FormatConfig,
   unresizedName: string,
+  ids: JobIds,
 ): Promise<Job> => {
   const formats = [
     ...new Set([
@@ -107,6 +110,7 @@ export const createFormatJob = (
     getToolFileName(file.name, configName, format);
   return createJob(
     file,
+    ids,
     config.keepAudio,
     getFileName,
     (originalDimensions) => {
@@ -143,6 +147,7 @@ export const createFormatJob = (
 
 async function createJob(
   file: File,
+  ids: JobIds,
   keepAudio: boolean,
   getFileName: (configName: string, format: Format) => string,
   plan: (originalDimensions: MediaDimensions) => {
@@ -155,15 +160,19 @@ async function createJob(
     const { requestedDimensions, requestedFormats } = plan(originalDimensions);
     const tasks: Record<string, Partial<Record<Format, Task>>> = {};
     const outputFileNames: Record<string, Partial<Record<Format, string>>> = {};
+    const taskIds: Record<string, Partial<Record<Format, string>>> = {};
     for (const [configName, formats] of Object.entries(requestedFormats)) {
       tasks[configName] = {};
       outputFileNames[configName] = {};
+      taskIds[configName] = {};
       for (const format of formats) {
         tasks[configName][format] = { status: 'waiting' };
         outputFileNames[configName][format] = getFileName(configName, format);
+        taskIds[configName][format] = crypto.randomUUID();
       }
     }
     return {
+      ...ids,
       id: crypto.randomUUID(),
       originalFile: file,
       originalFileObjectURL: URL.createObjectURL(file),
@@ -172,6 +181,7 @@ async function createJob(
       requestedFormats,
       keepAudio,
       outputFileNames,
+      taskIds,
       tasks,
     };
   } catch (error) {
@@ -196,6 +206,17 @@ const jobTasksAsArray = (job: Job): Task[] => {
     Object.values(deviceTasks),
   );
 };
+
+export const jobTaskEntries = (
+  job: Job,
+): Array<{ configName: string; format: Format; task: Task }> =>
+  Object.entries(job.tasks).flatMap(([configName, formats]) =>
+    (Object.entries(formats) as [Format, Task][]).map(([format, task]) => ({
+      configName,
+      format,
+      task,
+    })),
+  );
 
 export const jobIsRunning = (job: Job): boolean => {
   return jobTasksAsArray(job).some((task) => task.status === 'running');

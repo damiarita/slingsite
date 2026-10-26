@@ -1,15 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Locale } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
+import { Locale } from '@/i18n/routing';
+import type { PageType } from '@/types/analytics';
+import { setPageContext } from '@/utils/analytics';
 
 interface BaseDatalayerProps {
   locale: Locale;
-  pageType: string;
+  pageType: PageType;
   pageSubtype: string;
 }
 
+// Every page renders one. It sets the context that every later event carries
+// and pushes `page_context`, which GTM sends to GA4 as the page_view (on load
+// and on every client navigation).
 export default function BaseDatalayer({
   locale,
   pageType,
@@ -18,16 +23,8 @@ export default function BaseDatalayer({
   const pathName = usePathname();
 
   useEffect(() => {
-    window.dataLayer = window.dataLayer || [];
-
-    window.dataLayer.push({
-      locale,
-      event: 'page_view',
-      pageType,
-      pageSubtype,
-      env: process.env.NODE_ENV || 'development',
-    });
-  }, [locale, pageType, pageSubtype, pathName]); // Triggers whenever route OR props change
+    setPageContext({ locale, page_type: pageType, page_subtype: pageSubtype });
+  }, [locale, pageType, pageSubtype, pathName]);
 
   return null;
 }

@@ -4,6 +4,7 @@ import type { Format } from '@/utils/formats';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import type { InputMessage, OutputMessage } from '@/types/workers';
 import type { CompressionInput } from '@/types/compressor';
+import type { TaskErrorKind } from '@/types/analytics';
 
 export default function useCompressor(type: CompressionInput) {
   const workerRef = useRef<Worker>(null);
@@ -73,6 +74,7 @@ export default function useCompressor(type: CompressionInput) {
         format: Format,
         configName: string,
         message: string,
+        kind: TaskErrorKind,
       ) => void,
     ): void {
       if (!workerRef.current) {
@@ -104,8 +106,8 @@ export default function useCompressor(type: CompressionInput) {
           const { jobId, configName, format, content: progress } = ev.data;
           onProgress(jobId, format, configName, progress);
         } else if (ev.data.type === 'error') {
-          const { jobId, configName, format, content: message } = ev.data;
-          onError(jobId, format, configName, message);
+          const { jobId, configName, format, content: message, kind } = ev.data;
+          onError(jobId, format, configName, message, kind);
         } else {
           throw new Error('Unknown message type from worker:' + ev.data);
         }

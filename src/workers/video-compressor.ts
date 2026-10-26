@@ -1,4 +1,5 @@
 import type { InputMessage } from '@/types/workers';
+import type { TaskErrorKind } from '@/types/analytics';
 import { compressImage } from '@/utils/compressor/image';
 import { compressVideo, extractFirstFrame } from '@/utils/compressor/video';
 import {
@@ -45,7 +46,13 @@ self.addEventListener('message', async (ev) => {
           imageFormatsByConfig,
         )) {
           for (const format of configFormats) {
-            sendErrorMessage(jobId, configName, format, errorMessage);
+            sendErrorMessage(
+              jobId,
+              configName,
+              format,
+              errorMessage,
+              'frame_extraction_failed',
+            );
           }
         }
         return undefined;
@@ -61,8 +68,13 @@ self.addEventListener('message', async (ev) => {
     (compressedFile: File, configName: string, format: VideoFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
     },
-    (configName: string, format: VideoFormat, errorMessage: string) => {
-      sendErrorMessage(jobId, configName, format, errorMessage);
+    (
+      configName: string,
+      format: VideoFormat,
+      errorMessage: string,
+      errorKind: TaskErrorKind,
+    ) => {
+      sendErrorMessage(jobId, configName, format, errorMessage, errorKind);
     },
     (configName: string, format: VideoFormat, progress: number) => {
       sendProgressMessage(jobId, configName, format, progress);
@@ -78,8 +90,13 @@ self.addEventListener('message', async (ev) => {
       (compressedFile: File, configName: string, format: ImageFormat) => {
         sendResultMessage(jobId, configName, format, compressedFile);
       },
-      (configName: string, format: ImageFormat, errorMessage: string) => {
-        sendErrorMessage(jobId, configName, format, errorMessage);
+      (
+        configName: string,
+        format: ImageFormat,
+        errorMessage: string,
+        errorKind: TaskErrorKind,
+      ) => {
+        sendErrorMessage(jobId, configName, format, errorMessage, errorKind);
       },
       (configName: string, format: ImageFormat) => {
         sendProgressMessage(jobId, configName, format);

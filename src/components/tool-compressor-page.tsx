@@ -102,9 +102,15 @@ export default function ToolCompressorPage({
         />
       )}
       configIsValid={formatConfigIsValid}
-      createJob={(file, config) =>
-        createFormatJob(file, config, shell.unresizedName)
+      createJob={(file, config, ids) =>
+        createFormatJob(file, config, shell.unresizedName, ids)
       }
+      describeConfig={(config) => ({
+        resize: config.resize,
+        // Thumbnails have no audio, and images ignore it.
+        keep_audio: audioTranslation ? config.keepAudio : undefined,
+        original_format: config.originalFormat,
+      })}
     />
   );
 }

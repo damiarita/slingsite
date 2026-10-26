@@ -91,6 +91,8 @@ Path alias: `@/*` → `src/*`; `contentlayer/generated` → `.contentlayer/gener
 ## Directory map
 
 ```
+analytics/gtm-container.json                GTM container export (import into GTM), versioned with the events
+analytics/sync-gtm-container.mjs            Rebuilds its per-event triggers/tags/DLVs from AnalyticsEventParams
 content/
   page-content/<locale>/{image,video}.mdx   SEO copy + <FAQ> blocks under each compressor
   page-content/<locale>/<type>-<tool>[-<slug>].mdx
@@ -119,6 +121,7 @@ src/
   components/                               UI (see "Compressor pipeline" for the key ones)
   content/lib.ts                            Queries over contentlayer posts (translations, folders)
   hooks/use-compressor.ts                   Owns the Web Worker, exposes compress/abort/status
+  hooks/use-job-tracking.ts                 Conversion/job/task started+finished events
   i18n/
     routing.ts                              Locales, default locale, typed pathnames, RTL helper
     navigation.ts                           Wrapped Link (locale REQUIRED), getPathname, redirect…
@@ -127,6 +130,8 @@ src/
     dictioraries/<name>/<locale>.json       Translation JSON (sic: "dictioraries")
   types/                                    Shared types (job, config, workers, persistence…)
   utils/
+    analytics.ts                            The only dataLayer writer: setPageContext, trackEvent, item builders
+    tag-manager.ts                          GTM id, consent defaults, inline <head> bootstrap
     formats.ts                              Format lists + type guards
     tool-pages.ts                           Tool registry: pathnames, output formats, which pages exist (getToolPages), URL slugs, labels
     jobs.ts                                 Job creators (createDimensionsJob/createFormatJob), output file names, config validity, job helpers
@@ -292,9 +297,127 @@ in the UI, and they appear in output filenames. `iconType` (`mobile` |
   it. `toAbsoluteUrl` adds the trailing slash that `getPathname` drops on
   locale roots (`/en` → `/en/`).
 - `public/llms.txt` and `public/robots.txt` are hand-maintained.
-- Analytics: GTM `GTM-THHRLH4N` in `components/body.tsx`. Every page renders
-  `<BaseDatalayer pageType pageSubtype>`, which pushes a `page_view`. Consent
-  Mode v2 defaults are set in `components/cookie-consent.tsx`.
+- Analytics: see "Analytics" below.
+
+### Analytics (GTM → GA4)
+
+- **Bootstrap.** `Body` puts an inline script in `<head>`
+  (`utils/tag-manager.ts`). It runs while the HTML is parsed, before React.
+  In order, it pushes the consent default, then `{env}`, then loads GTM
+  (`gtm.js`). GTM's "needs tracking" check (`env === 'production'`, not
+  localhost, or GTM Preview) needs `env` before `gtm.js`. gtag commands
+  (`gtag()` in `utils/analytics.ts`) are pushed as an `arguments` object,
+  because GTM ignores arrays. `cookie-consent.tsx` only sends the updates.
+- **Page context.** Every page renders
+  `<BaseDatalayer locale pageType pageSubtype>`, and `pageType` is typed
+  (`PageType` in `types/analytics.ts`). On mount and on every pathname change
+  it calls `setPageContext`, which pushes
+  `{event: 'page_context', locale, page_type, page_subtype}`. GTM sends it as
+  GA4's `page_view`, and GA4 fills in the URL itself. The Google tag has
+  `send_page_view=false`. The same page and context twice in a row is
+  skipped (StrictMode). Events never repeat the context: GTM's data model
+  keeps it, and every tag reads it through `VAR-GA4-EVENT_CONFIG`.
+- **Events.** Only `trackEvent` writes events. `AnalyticsEventParams` is the
+  exact payload of each event. Three rules keep the pushes correct:
+  1. **Every event pushes all of its own keys every time.** GTM keeps old
+     values, so a completed `task_finished` without `error_kind` would
+     inherit an earlier error. When a value doesn't apply, the key is still
+     pushed as `undefined`, which the GA4 tag drops. Missing values are
+     typed `T | undefined`, never `?:`, so `tsc` enforces this.
+  2. **Arrays are cleared first.** GTM merges arrays by index, so
+     `trackEvent` pushes `{files: null}` / `{tasks: null}` right before an
+     event that carries one. It also splits arrays into pushes of 200
+     (GA4's item limit).
+  3. **An event carries an array only for entities with no event of their
+     own**, so nothing is described twice:
+     - files have no per-file event, so `files_added` carries `files`
+     - downloads and Drive uploads carry a slim `tasks`
+     - conversion and job events carry counts, totals and timing only
+     - task events are flat and complete (input and output), so they can
+       be reported on in GA4 without joins
+
+  Array entries are GA4 items as pushed: each starts with `item_id` (the
+  file or task id, also repeated as `file_id`/`task_id`) and `item_name`
+  (`'file'`/`'task'`), because GA4 drops items without them.
+
+  Naming: inputs use `file_*` (`file_type`, `file_format`), outputs use
+  `output_*` (`output_format`, `output_width`, `output_size_bytes`), and
+  counts are `<entity>_count`. `input_size_bytes` / `output_size_bytes` are
+  the bytes in and out; `total_size_bytes` is what the action moved.
+
+  | Event                                            | When                                                               | Array   |
+  | ------------------------------------------------ | ------------------------------------------------------------------ | ------- |
+  | `files_added`                                    | Drop or pick                                                       | `files` |
+  | `conversion_started`                             | Start click (formats as a sorted CSV, resize, keep audio…)         | –       |
+  | `conversion_finished`                            | Each job of the conversion finished or removed (`removed_count`)   | –       |
+  | `job_started`                                    | The job is sent to the worker (once, even after an abort)          | –       |
+  | `job_finished`                                   | A job has no waiting/running task left                             | –       |
+  | `task_started`                                   | First progress message (or the end, if it fails before one)        | –       |
+  | `task_finished`                                  | Each output, completed or errored (`error_kind`)                   | –       |
+  | `files_downloaded`                               | Download click (`scope`: all/job/file)                             | `tasks` |
+  | `drive_upload_started` / `drive_upload_finished` | Drive click, and once every file has settled (`upload_id`)         | `tasks` |
+  | `newsletter_subscribe`                           | Brevo's `#success-message` turns active (`newsletter-tracker.tsx`) | –       |
+
+- **Lifecycle.** `useJobTracking` owns the six conversion/job/task events.
+  `CompressorApp` marks the starts as they happen: `conversionStarted`
+  after the Start click, `jobStarted` before `compress()`, and
+  `taskProgressed` on each progress message (the first one is the task's
+  start time). The rest is derived from the jobs' state in an effect, with
+  refs so each event fires once. Every `*_finished` has a matching
+  `*_started` before it, and its `elapsed_ms` counts from that start. A
+  job removed before it finishes never sends `job_finished`; its
+  conversion counts it in `removed_count`.
+- **Ids.**
+  - `file_id` is created when a file is added (`PendingFile`), described
+    once in `files_added`, and copied onto its `Job` (`fileId`,
+    `conversionId`).
+  - Task ids live in `Job.taskIds[config][format]`.
+  - The chain is `file_id` → `job_id` (job events carry `file_id` and
+    `conversion_id`) → `task_id` (task events, downloads, Drive), so events
+    join by id (in BigQuery).
+  - Only anonymous data is sent: format, media type, width, height, size,
+    status, error kind, timings. **Never file names or raw error messages**
+    (they can contain the file name). Error kinds come from the workers
+    (`TaskErrorKind`, passed to `sendErrorMessage`).
+- **GTM.** `analytics/gtm-container.json` is generated by
+  `analytics/sync-gtm-container.mjs`, which reads `AnalyticsEventParams`.
+  Keep each event a `{…}` and/or named types joined by `&`, because that is
+  all the script parses. Per event, it creates:
+  - one trigger (`TRI-<EVENT>-NEEDS_TRACKING`: custom event equals the
+    name, plus the needs-tracking filter)
+  - one GA4 tag (`TAG-GA4-<EVENT>`) mapping only that event's keys from
+    their DLVs (`VAR-DL-<KEY>`)
+  - for the array, an `items` row fed straight by its DLV
+    (`items` = `{{VAR-DL-FILES}}`). The script fails if the entry type lacks
+    `item_id` or `item_name`.
+
+  Existing ids are kept. Variables nothing references are dropped from the
+  JSON and listed.
+
+- **GA4 custom definitions** (Admin → Custom definitions). Ids are not
+  registered: they only make sense in BigQuery, and the items' ids already
+  land in GA4's built-in Item ID.
+  - Event-scoped dimensions: `locale`, `page_type`, `page_subtype`,
+    `compressor_type`, `file_type`, `file_format`, `output_type`,
+    `output_format`, `output_formats`, `status`, `error_kind`, `scope`,
+    `resize`, `keep_audio`, `original_format`.
+  - Event-scoped metrics: `file_count`, `job_count`, `task_count`,
+    `failed_count`, `config_count`, `removed_count`, `completed_count`,
+    `errored_count`, `total_size_bytes`, `input_size_bytes`,
+    `output_size_bytes`, `output_width`, `output_height` (unit: standard),
+    and `elapsed_ms` (unit: milliseconds).
+  - Item-scoped dimensions (a standard property allows 10): `file_type`,
+    `file_format`, `width`, `height`, `size_bytes`, `output_type`,
+    `output_format`, `output_size_bytes`, `upload_status`.
+- **Adding an event or parameter.**
+  1. Add it to `AnalyticsEventParams` (and the entry types if it goes in an
+     array).
+  2. Fire it with `trackEvent`.
+  3. Run `node analytics/sync-gtm-container.mjs && npx prettier --write
+analytics/`, then import the JSON into GTM (merge, overwrite
+     conflicting). An import never deletes, so also delete in GTM what the
+     script lists as removed.
+  4. Register the GA4 custom definition.
 
 ### Layout
 
@@ -430,6 +553,12 @@ files with an empty MIME type as video.
   format pages: `useSelectedLayoutSegments` doesn't split catch-alls.
 - The subscribe page embeds raw Brevo HTML/JS (with reCAPTCHA `hl=es`).
   Edit it as an opaque blob.
+- `public/.well-known/appspecific/com.chrome.devtools.json` (`{}`) is on
+  purpose. Chrome DevTools requests it on localhost; without the file, the
+  path falls into `[locale]/[slug1]/[slug2]`, and `next dev` with
+  `output: 'export'` throws "missing param … in generateStaticParams()" on
+  every request. Keep it empty: a `workspace` entry would publish a local
+  path.
 
 ## Known issues (found in the 2026-10-24 review, not fixed yet)
 
@@ -443,32 +572,36 @@ files with an empty MIME type as video.
    codecs for nothing).
 3. `utils/google-drive.ts`: `uploadSingleFileToGoogleDrive` returns `false`
    after the last retry instead of throwing, so failed uploads are shown as
-   "completed". The auth callback also lacks a `return` after `reject`.
-4. Errors thrown inside `compressImage`/`compressVideo` (e.g. a WASM encoder
-   failure, or `conversion.execute()` rejecting) aren't caught per task. The
-   worker never sends `ready`, so the compressor stays `working` forever.
-5. `app/[locale]/[slug1]/page.tsx` `generateMetadata` builds post hreflang
+   "completed" (and counted as completed in `drive_upload_finished`). The
+   auth callback also lacks a `return` after `reject`.
+4. `app/[locale]/[slug1]/page.tsx` `generateMetadata` builds post hreflang
    URLs with `slugs: [translation.slugPath]` (an array inside an array). It
    should be `slugs: translation.slugPath`.
-6. `components/language-selector.tsx` is a client component importing
+5. `components/language-selector.tsx` is a client component importing
    `@/content/lib`, which bundles every post (`allPosts`) into the client JS.
-7. `@ffmpeg/*` is installed and copied by CopyPlugin, but nothing imports it
+6. `@ffmpeg/*` is installed and copied by CopyPlugin, but nothing imports it
    (video uses mediabunny). It's dead weight.
-8. Object URLs leak: the files grid in `CompressorApp` calls
+7. Object URLs leak: the files grid in `CompressorApp` calls
    `URL.createObjectURL` on every render, and `Job.originalFileObjectURL` is never revoked.
-9. The upload-status panel strings in `components/results.tsx` are hard-coded
+8. The upload-status panel strings in `components/results.tsx` are hard-coded
    English.
-10. `README.md` describes only the image flow (3 formats × 3 sizes).
-11. `dictioraries/compression/image/metadata/ar.json`: the Arabic description
+9. `README.md` describes only the image flow (3 formats × 3 sizes).
+10. `dictioraries/compression/image/metadata/ar.json`: the Arabic description
     has a fragment of the video description pasted into it.
-12. `PageContent` slugs `image-format`/`video-format` (the base format
+11. `PageContent` slugs `image-format`/`video-format` (the base format
     pages) have no MDX article yet. Video outputs keep the internal format as
     extension (`clip-resized.avc.mp4`), on every page.
-13. Older content has grammar slips in the how-to steps: Italian
+12. Older content has grammar slips in the how-to steps: Italian
     "i tuoi immagini … sceglierli" and Spanish "tus imágenes … elegirlos" in
     the `image-format-*` MDX files.
-14. `llms.txt` "Video Compression" says videos are produced "in WEBM and
+13. `llms.txt` "Video Compression" says videos are produced "in WEBM and
     AVIF formats" (it's MP4 H.264/H.265 and WebM).
+14. GA4 documents `items` for ecommerce events. Our custom events send
+    `files`/`tasks` as `items` too (visible in DebugView and BigQuery), but
+    item-level reports in the GA4 UI may not use them for custom event
+    names.
+15. The Brevo form's scripts (inside `dangerouslySetInnerHTML`) only run on
+    a full page load of `/subscribe/`, not after a client navigation.
 
 ## Next steps (planned)
 
@@ -535,3 +668,50 @@ Nothing scheduled.
 - 2026-10-25: Legal posts: bare and bracketed URLs (`[https://…]` in every
   plain-language terms page, and a URL glued to Chinese text that turned the
   rest of the sentence into a broken link) are now explicit Markdown links.
+- 2026-10-25: Analytics rework. GTM now loads from an inline `<head>` script
+  that first sets the consent default (previously pushed as an array, which
+  GTM ignores, and after the first page push) and `env`. `BaseDatalayer`
+  pushes `page_context` (snake_case keys, typed `PageType`; `/subscribe/`
+  subtype fixed to `subscribe`) on every load and navigation. New events
+  (`utils/analytics.ts`, `hooks/use-job-tracking.ts`):
+  - `files_added`, `conversion_started`, `task_finished`, `job_finished`
+  - `files_downloaded`, `drive_upload_started`/`finished`
+  - `newsletter_subscribe`
+
+  All of them use ecommerce-style items and file/job/task ids (`PendingFile`,
+  `Job.fileId`/`conversionId`/`taskIds`). Worker errors carry a
+  `TaskErrorKind`. Encoder errors are caught per task, so the worker always
+  reports `ready` again (was known issue #4). Removed `@next/third-parties`
+  (its `[key: string]: any` on Window hid untyped globals; they are now
+  declared in `global.d.ts`). GTM container export in
+  `analytics/gtm-container.json`.
+
+- 2026-10-26: GTM container: the catch-all app-event trigger and tag are
+  split into one trigger and one GA4 tag per event, each tag mapping only
+  its event's parameters (`files_added` reuses the old ids, so an
+  overwriting import replaces them).
+- 2026-10-26: Lifecycle pairs: `conversion_finished`, `job_started` and
+  `task_started` join `conversion_started`, `job_finished` and
+  `task_finished` (`useJobTracking` now owns all six). Every `elapsed_ms`
+  now counts from the matching start, so a task's value is its own
+  duration, no longer the time since its job started. `job_finished` reports
+  `task_count` instead of `item_count`. New `removed_count` parameter. The
+  GTM container is now generated by `analytics/sync-gtm-container.mjs`.
+- 2026-10-26: Lean dataLayer. Events push exactly their own keys: no page
+  context, no `ecommerce`, no reset of other events' keys. Missing values
+  are pushed as `undefined`. Arrays are named for what they hold
+  (`files`, `tasks`), are cleared right before their event, and appear
+  only where the entity has no event of its own: conversion and job events
+  are counts only, and task events are flat and complete (input format and
+  size, `output_*` fields). Dropped `add_id`, `page_location` and
+  `page_referrer`. Renamed `item_count` → `file_count`/`job_count`/
+  `task_count`, `output_config_count` → `config_count`, and sizes →
+  `input_size_bytes`/`output_size_bytes`. The sync script now resolves
+  named types, sends arrays as GA4 `items` through `VAR-JS-<KEY>_AS_ITEMS`,
+  and drops unreferenced variables.
+- 2026-10-26: Array entries carry GA4's `item_id`/`item_name` from the
+  code, so GTM sends `files`/`tasks` as `items` directly; the
+  `VAR-JS-*_AS_ITEMS` mapping variables are gone.
+- 2026-10-26: Added an empty
+  `public/.well-known/appspecific/com.chrome.devtools.json`, so Chrome
+  DevTools' request no longer makes `next dev` throw on the post route.

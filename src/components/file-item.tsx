@@ -14,7 +14,7 @@ import { persistenceType } from '@/types/persistence';
 type FileItemProps = {
   onRemove: () => void;
   onDownloadAll: (type: persistenceType) => void;
-  onDownloadOne: (file: File) => void;
+  onDownloadOne: (configName: string, format: Format) => void;
   job: Job;
   translation: ResultsDictionary;
 };
@@ -96,7 +96,7 @@ export const FileItem = ({
                   </div>
                   {task.status === 'completed' && (
                     <button
-                      onClick={() => onDownloadOne(task.result)}
+                      onClick={() => onDownloadOne(configName, format)}
                       className="p-0.5 rounded hover:bg-gray-200 text-gray-600"
                     >
                       <Download className="w-3 h-3" />

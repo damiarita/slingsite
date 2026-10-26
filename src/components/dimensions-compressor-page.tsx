@@ -55,6 +55,11 @@ export default function DimensionsCompressorPage({
       )}
       configIsValid={dimensionsConfigIsValid}
       createJob={createDimensionsJob}
+      describeConfig={(config) => ({
+        resize: true,
+        keep_audio: compressorType === 'video' ? config.keepAudio : undefined,
+        original_format: false,
+      })}
     />
   );
 }

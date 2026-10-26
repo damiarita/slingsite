@@ -5,23 +5,8 @@ import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import { acceptedCategory, run } from 'vanilla-cookieconsent';
 import { Locale, localeDirection } from '@/i18n/routing';
 import { CookieConsentTranslations } from '@/i18n/type';
-
-const defaultConsentMode = {
-  ad_personalization: 'denied',
-  ad_storage: 'denied',
-  ad_user_data: 'denied',
-  analytics_storage: 'denied',
-  functionality_storage: 'denied',
-  personalization_storage: 'denied',
-  security_storage: 'granted',
-  wait_for_update: 500,
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function gtag(...args: any[]) {
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(args);
-}
+import { gtag } from '@/utils/analytics';
+import { defaultConsentMode } from '@/utils/tag-manager';
 
 const updateGtagConsent = () => {
   gtag('consent', 'update', {
@@ -37,8 +22,8 @@ export default function CookieConsent({
   locale: Locale;
   translations: CookieConsentTranslations;
 }) {
+  // The consent default is set inline in <head> (Body), before GTM loads.
   useEffect(() => {
-    gtag('consent', 'default', defaultConsentMode);
     run({
       categories: {
         necessary: {

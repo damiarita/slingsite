@@ -9,6 +9,7 @@ import {
 } from '@/utils/workers';
 import { compressImage } from '@/utils/compressor/image';
 import type { InputMessage } from '@/types/workers';
+import type { TaskErrorKind } from '@/types/analytics';
 
 self.onmessage = async (ev) => {
   const { jobId, file, formats, mediaSizes, fileNames } =
@@ -35,8 +36,13 @@ self.onmessage = async (ev) => {
     (compressedFile: File, configName: string, format: ImageFormat) => {
       sendResultMessage(jobId, configName, format, compressedFile);
     },
-    (configName: string, format: ImageFormat, errorMessage: string) => {
-      sendErrorMessage(jobId, configName, format, errorMessage);
+    (
+      configName: string,
+      format: ImageFormat,
+      errorMessage: string,
+      errorKind: TaskErrorKind,
+    ) => {
+      sendErrorMessage(jobId, configName, format, errorMessage, errorKind);
     },
     (configName: string, format: ImageFormat) => {
       sendProgressMessage(jobId, configName, format);
