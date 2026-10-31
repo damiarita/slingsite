@@ -2,13 +2,38 @@ name: CI
 on:
   pull_request:
     branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Separate jobs, so a lint failure never hides whether the project builds
+# (the build is what tells us a dependency update is safe).
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm install
-      - run: npm run lint
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # `npm ci`, not `npm install`: it fails if package.json and the
+      # lockfile disagree or peer dependencies conflict, instead of
+      # silently resolving something else.
+      - run: npm ci
+      # Also type-checks. Runs without the Google secrets on purpose:
+      # Dependabot PRs can't read them, and the build doesn't need them.
       - run: npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
