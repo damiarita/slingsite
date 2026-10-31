@@ -1,0 +1,23 @@
+{
+  "filesNote": "Aperti in questo browser. Non viene caricato nulla.",
+  "addMore": "Aggiungi altri",
+  "removeFile": "Rimuovi {name}",
+  "counts": {
+    "image": {
+      "one": "# immagine",
+      "other": "# immagini"
+    },
+    "video": {
+      "one": "# video",
+      "other": "# video"
+    },
+    "file": {
+      "one": "# file",
+      "other": "# file"
+    },
+    "size": {
+      "one": "# dimensione",
+      "other": "# dimensioni"
+    }
+  }
+}

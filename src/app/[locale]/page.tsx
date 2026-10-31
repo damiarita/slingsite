@@ -2,7 +2,14 @@ import BaseDatalayer from '@/components/base-datalayer';
 import HomePage from '@/components/home-page';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
-import { getFormatLinksDictionary, getHomeDictionary } from '@/i18n/requests';
+import {
+  getDevicesDictionary,
+  getFormatLinksDictionary,
+  getHomeDictionary,
+  getNavBarDictionary,
+  getResultDictionary,
+  getSettingsDictionary,
+} from '@/i18n/requests';
 import { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
 import { toAbsoluteUrl, withDefault } from '@/utils/seo';
@@ -78,6 +85,10 @@ export default async function Home({ params }: Props) {
       <HomePage
         locale={locale}
         translation={translation}
+        navTranslation={await getNavBarDictionary(locale)}
+        settingsTranslation={await getSettingsDictionary(locale)}
+        resultsTranslation={await getResultDictionary(locale)}
+        deviceNames={await getDevicesDictionary(locale)}
         linksTranslation={await getFormatLinksDictionary(locale)}
       />
       <PageContent locale={locale} slug="home" />

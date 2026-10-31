@@ -1,182 +1,170 @@
 import { Logo } from './logo';
 import BlogLink from './blog-link';
-import { FooterTranslations } from '@/i18n/type';
+import { getNavGroups } from './nav-groups';
+import { FooterTranslations, NavBarTranslations } from '@/i18n/type';
 import { Locale } from '@/i18n/routing';
 import LanguageSelector from './language-selector';
 import { Link } from '@/i18n/navigation';
 
+const linkClass =
+  'inline-flex min-h-8 items-center text-sm text-ink-2 no-underline hover:text-ink hover:underline';
+
+const Column = ({
+  heading,
+  children,
+}: {
+  heading: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <div>
+    <h2 className="mb-3 text-sm font-semibold tracking-normal text-ink">
+      {heading}
+    </h2>
+    <ul className="grid gap-1">{children}</ul>
+  </div>
+);
+
+// A mast: the wordmark set large over every link of the site.
 export default function Footer({
   translations,
+  navTranslations,
   locale,
 }: {
   translations: FooterTranslations;
+  navTranslations: NavBarTranslations;
   locale: Locale;
 }) {
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-        <div className="space-y-8 xl:col-span-1">
-          <div className="flex items-center space-x-3">
-            <Logo />
-            <span className="text-2xl font-bold text-gray-800">SlingSite</span>
-          </div>
-          <p className="text-gray-500 text-base">{translations.claim}</p>
-        </div>
-        <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
-          <div className="md:grid md:grid-cols-2 md:gap-8">
-            <div>
+    <footer className="mt-auto border-t border-rule bg-paper-2 pt-24 pb-16">
+      <div className="page-container">
+        <Link
+          locale={locale}
+          href="/home/"
+          className="inline-flex items-center gap-4 text-[clamp(2.25rem,4vw+0.5rem,3.75rem)] leading-none font-semibold tracking-[-0.028em] text-ink no-underline"
+        >
+          <Logo className="size-14" />
+          SlingSite
+        </Link>
+        <p className="mt-4 max-w-[44ch] text-ink-2">{translations.claim}</p>
+
+        <div className="mt-16 grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-3 xl:grid-cols-6">
+          {getNavGroups(navTranslations).map((group) => (
+            <Column key={group.label} heading={group.label}>
+              {group.items.map((item) => (
+                <li key={item.label}>
+                  <Link locale={locale} href={item.href} className={linkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </Column>
+          ))}
+          <Column
+            heading={
               <Link
                 locale={locale}
                 href={{
                   pathname: '/content/[...slugs]',
                   params: { slugs: [translations.comparisonsSlug] },
                 }}
+                className="no-underline hover:underline"
               >
-                <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                  {translations.headings.comparisons}
-                </h2>
+                {translations.headings.comparisons}
               </Link>
-              <ul className="mt-4 space-y-4">
-                <li>
+            }
+          >
+            {[
+              'kraken.mdx',
+              'tiny-png.mdx',
+              'squoosh.mdx',
+              'shortpixel.mdx',
+              'cloudinary.mdx',
+            ].map((postId) => (
+              <li key={postId}>
+                <BlogLink
+                  postId={postId}
+                  className={linkClass}
+                  locale={locale}
+                />
+              </li>
+            ))}
+          </Column>
+          <Column heading={translations.headings.legal}>
+            {['privacy.mdx', 'short-t-and-c.mdx', 't-and-c.mdx'].map(
+              (postId) => (
+                <li key={postId}>
                   <BlogLink
-                    postId="kraken.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
+                    postId={postId}
+                    className={linkClass}
                     locale={locale}
                   />
                 </li>
-                <li>
-                  <BlogLink
-                    postId="tiny-png.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="squoosh.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="shortpixel.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="cloudinary.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-              </ul>
-            </div>
-            <div className="mt-12 md:mt-0">
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                {translations.headings.legal}
-              </h2>
-              <ul className="mt-4 space-y-4">
-                <li>
-                  <BlogLink
-                    postId="privacy.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="short-t-and-c.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <BlogLink
-                    postId="t-and-c.mdx"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    locale={locale}
-                  />
-                </li>
-                <li>
-                  <button
-                    data-cc="show-preferencesModal"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                  >
-                    {translations.cookies}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="md:grid md:grid-cols-2 md:gap-8">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                {translations.headings.development}
-              </h2>
-              <ul className="mt-4 space-y-4">
-                <li>
-                  <a
-                    href="https://github.com/damiarita/slingsite"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-base text-gray-500 hover:text-gray-900"
-                  >
-                    {translations.sourceCode}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/damiarita/slingsite/issues"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-base text-gray-500 hover:text-gray-900"
-                  >
-                    {translations.issues}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="mt-12 md:mt-0">
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase">
-                {translations.headings.connect}
-              </h2>
-              <ul className="mt-4 mb-4 space-y-4">
-                <li>
-                  <Link
-                    locale={locale}
-                    href="/subscribe/"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                  >
-                    {translations.subscribe}
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/damiarita/slingsite/issues"
-                    className="text-base text-gray-500 hover:text-gray-900"
-                    title="Issues · damiarita/slingsite"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {translations.contactUs}
-                  </a>
-                </li>
-              </ul>
-              <h2 className="text-sm font-semibold text-gray-500 tracking-wider uppercase mt-12">
-                {translations.headings.languages}
-              </h2>
-              <ul className="mt-4 space-y-4">
-                <li>
-                  <LanguageSelector currentLocale={locale} />
-                </li>
-              </ul>
-            </div>
+              ),
+            )}
+            <li>
+              <button
+                type="button"
+                data-cc="show-preferencesModal"
+                className={linkClass}
+              >
+                {translations.cookies}
+              </button>
+            </li>
+          </Column>
+          <Column heading={translations.headings.development}>
+            <li>
+              <a
+                href="https://github.com/damiarita/slingsite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                {translations.sourceCode}
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/damiarita/slingsite/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                {translations.issues}
+              </a>
+            </li>
+          </Column>
+          <Column heading={translations.headings.connect}>
+            <li>
+              <Link locale={locale} href="/subscribe/" className={linkClass}>
+                {translations.subscribe}
+              </Link>
+            </li>
+            <li>
+              <a
+                href="https://github.com/damiarita/slingsite/issues"
+                className={linkClass}
+                title="Issues · damiarita/slingsite"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {translations.contactUs}
+              </a>
+            </li>
+          </Column>
+        </div>
+
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-6 border-t border-rule pt-8">
+          <p className="text-sm text-muted">
+            © {new Date().getFullYear()} SlingSite. {translations.copyright}
+          </p>
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-normal tracking-normal text-muted">
+              {translations.headings.languages}
+            </h2>
+            <LanguageSelector currentLocale={locale} />
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   );
 }

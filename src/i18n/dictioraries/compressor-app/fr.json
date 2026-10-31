@@ -1,0 +1,23 @@
+{
+  "filesNote": "Ouverts dans ce navigateur. Rien n’est envoyé.",
+  "addMore": "Ajouter",
+  "removeFile": "Retirer {name}",
+  "counts": {
+    "image": {
+      "one": "# image",
+      "other": "# images"
+    },
+    "video": {
+      "one": "# vidéo",
+      "other": "# vidéos"
+    },
+    "file": {
+      "one": "# fichier",
+      "other": "# fichiers"
+    },
+    "size": {
+      "one": "# taille",
+      "other": "# tailles"
+    }
+  }
+}

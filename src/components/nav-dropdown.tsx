@@ -2,14 +2,10 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import NavLink, { hrefPathname, type AppHref } from './nav-link';
+import NavLink, { hrefPathname } from './nav-link';
+import type { NavGroup } from './nav-groups';
 import type { Locale } from '@/i18n/routing';
 import { usePathname } from '@/i18n/navigation';
-
-export type NavGroup = {
-  label: string;
-  items: { href: AppHref; label: string }[];
-};
 
 // Desktop nav entry that groups several pages. Opens on hover and on click
 // (for touch and keyboard).
@@ -74,15 +70,15 @@ export default function NavDropdown({
           }
           setOpen((v) => !v);
         }}
-        className={`inline-flex items-center px-2 py-1 text-sm transition-colors ${
+        className={`inline-flex min-h-11 items-center gap-1 rounded-input px-3 text-sm transition-colors duration-150 ${
           isActive
-            ? 'text-blue-800 font-semibold'
-            : 'text-gray-700 hover:text-blue-800'
+            ? 'text-ink underline decoration-accent decoration-2 underline-offset-[0.6em]'
+            : 'text-ink-2 hover:text-ink'
         }`}
       >
         {group.label}
         <ChevronDown
-          className={`w-4 h-4 ms-1 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`size-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       </button>
@@ -93,16 +89,16 @@ export default function NavDropdown({
          The padding (not margin) keeps the hover area continuous. */}
       <div
         id={menuId}
-        className={`absolute end-0 top-full pt-2 z-50 origin-top transition-all duration-150 ${
+        className={`absolute end-0 top-full z-50 origin-top pt-2 transition-[opacity,transform] duration-150 ${
           open
-            ? 'opacity-100 scale-100 pointer-events-auto'
-            : 'opacity-0 scale-95 pointer-events-none'
+            ? 'pointer-events-auto scale-100 opacity-100'
+            : 'pointer-events-none scale-95 opacity-0'
         }`}
         aria-hidden={!open}
         inert={!open}
       >
         <div
-          className="w-56 py-1 bg-white rounded-md shadow-md border border-gray-200"
+          className="w-60 rounded-card border border-rule bg-paper p-1 shadow-[0_16px_40px_-16px_var(--color-scrim)]"
           role="menu"
         >
           {group.items.map((item, i) => (
@@ -111,7 +107,6 @@ export default function NavDropdown({
               locale={locale}
               href={item.href}
               onLinkClick={() => setOpen(false)}
-              mobile
             >
               {item.label}
             </NavLink>

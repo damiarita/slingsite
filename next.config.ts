@@ -4,7 +4,11 @@ import CopyPlugin from 'copy-webpack-plugin';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // Only the build is exported. `next dev` with `output: 'export'` answers
+  // any URL missing from generateStaticParams with a 500 ("missing param"),
+  // ignoring `dynamicParams = false`; without it, unknown URLs get the 404
+  // page, as on GitHub Pages.
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   trailingSlash: true,
   images: {
     unoptimized: true,

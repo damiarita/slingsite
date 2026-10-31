@@ -1,18 +1,34 @@
 'use client';
 
-import CompressorApp from './compressor-app';
-import { FormatSettings } from './format-settings';
+import type { ReactNode } from 'react';
+import { useLocale } from 'next-intl';
+import CompressorApp, { type ConfigProblem } from './compressor-app';
+import {
+  FormatSettings,
+  getFormatPickerFieldId,
+  getVersionFieldId,
+} from './format-settings';
 import type {
   AudioSettingsDictionary,
+  CompressorAppDictionary,
   FormatSettingsDictionary,
   ResultsDictionary,
   UploadDictionary,
 } from '@/i18n/type';
 import type { CompressionInput } from '@/types/compressor';
 import type { FormatConfig } from '@/types/config';
-import type { Format } from '@/utils/formats';
-import { createFormatJob, formatConfigIsValid } from '@/utils/jobs';
+import {
+  type Format,
+  formatNames,
+  getOriginalOutputFormat,
+} from '@/utils/formats';
+import {
+  createFormatJob,
+  getFormatConfigProblem,
+  type ToolOutputNames,
+} from '@/utils/jobs';
 import type { Tool } from '@/utils/tool-pages';
+import { fill, formatCount, formatList } from '@/utils/i18n-format';
 
 // Format, resize and thumbnail pages. They share the config and the app; only
 // which section comes first, the wording and the output names change.
@@ -21,6 +37,9 @@ export default function ToolCompressorPage({
   compressorType,
   initialConfig,
   availableFormats,
+  intro,
+  samples,
+  appTranslation,
   uploadTranslation,
   formatSettingTranslation,
   formatsTranslation,
@@ -31,6 +50,9 @@ export default function ToolCompressorPage({
   compressorType: CompressionInput;
   initialConfig: FormatConfig;
   availableFormats: Format[];
+  intro: ReactNode;
+  samples?: boolean;
+  appTranslation: CompressorAppDictionary;
   uploadTranslation: UploadDictionary;
   formatSettingTranslation: FormatSettingsDictionary;
   formatsTranslation: Record<Format, string>;
@@ -38,59 +60,115 @@ export default function ToolCompressorPage({
   // Videos only (not thumbnails): shows the audio toggle.
   audioTranslation?: AudioSettingsDictionary;
 }) {
+  const locale = useLocale();
   const t = formatSettingTranslation;
-  const shell = {
+  const { counts } = appTranslation;
+  const showOriginalFormat = tool === 'resize';
+  // `names`: the outputs' translated names and their (English) file keys.
+  const shell: Record<
+    Tool,
+    { stepTitle: string; start: string; names: ToolOutputNames }
+  > = {
     format: {
-      filesTitle: t.filesToConvert,
+      stepTitle: t.stepFormats,
       start: t.startConversion,
-      unresizedName: t.converted,
-      versionName: t.resized,
-      resultsTitle: t.convertedFiles,
-      working: t.converting,
+      names: {
+        unresized: { name: t.converted, fileKey: 'converted' },
+        version: { name: t.resized, fileKey: 'resized' },
+      },
     },
     resize: {
-      filesTitle: t.filesToResize,
+      stepTitle: t.stepSizes,
       start: t.startResize,
-      unresizedName: t.resized,
-      versionName: t.resized,
-      resultsTitle: t.resizedFiles,
-      working: t.resizing,
+      names: {
+        unresized: { name: t.resized, fileKey: 'resized' },
+        version: { name: t.resized, fileKey: 'resized' },
+      },
     },
     thumbnail: {
-      filesTitle: t.videosForThumbnails,
+      stepTitle: t.stepFormats,
       start: t.startThumbnail,
-      unresizedName: t.thumbnail,
-      versionName: t.thumbnail,
-      resultsTitle: t.extractedThumbnails,
-      working: t.extracting,
+      names: {
+        unresized: { name: t.thumbnail, fileKey: 'thumbnail' },
+        version: { name: t.thumbnail, fileKey: 'thumbnail' },
+      },
     },
-  }[tool];
+  };
+  const { stepTitle, start, names } = shell[tool];
+
+  const getConfigProblem = (config: FormatConfig): ConfigProblem | null => {
+    const problem = getFormatConfigProblem(config);
+    if (!problem) return null;
+    switch (problem.kind) {
+      case 'noFormat':
+        return {
+          message: t.problems.noFormat,
+          fieldId: getFormatPickerFieldId(availableFormats, showOriginalFormat),
+        };
+      case 'sizeValue':
+        return {
+          message: t.problems.sizeValue,
+          fieldId: getVersionFieldId(problem.index),
+        };
+    }
+  };
+
+  // "3 images in WebP and AVIF: 6 files". With "original format", each file
+  // adds its own format unless it is already picked.
+  const describe = (config: FormatConfig, files: File[]) => {
+    const mediaCount = formatCount(
+      locale,
+      files.length,
+      compressorType === 'video' ? counts.video : counts.image,
+    );
+    const versions = config.resize ? config.versions.length : 1;
+    const total = files.reduce(
+      (sum, file) =>
+        sum +
+        versions *
+          new Set([
+            ...config.formats,
+            ...(config.originalFormat ? [getOriginalOutputFormat(file)] : []),
+          ]).size,
+      0,
+    );
+    const formats = formatList(locale, [
+      ...(config.originalFormat ? [t.ownFormat] : []),
+      ...config.formats.map((format) => formatNames[format]),
+    ]);
+    const values = {
+      files: mediaCount,
+      sizes: formatCount(locale, versions, counts.size),
+      formats,
+      total: formatCount(locale, total, counts.file),
+    };
+    return {
+      summary:
+        total === 0
+          ? ''
+          : fill(config.resize ? t.summarySizes : t.summary, values),
+      start: fill(start, { files: mediaCount }),
+    };
+  };
 
   return (
     <CompressorApp<FormatConfig>
       compressorType={compressorType}
       initialConfig={initialConfig}
-      translation={{
-        filesTitle: shell.filesTitle,
-        addMoreFiles: t.addMoreFiles,
-        removeFile: t.removeFile,
-        start: shell.start,
-      }}
+      intro={intro}
+      stepTitle={stepTitle}
+      samples={samples}
+      translation={appTranslation}
       uploadTranslation={uploadTranslation}
-      // The results dictionary words things for the compress pages
-      resultTranslation={{
-        ...resultTranslation,
-        compressedFiles: shell.resultsTitle,
-        compressing: shell.working,
-      }}
+      resultTranslation={resultTranslation}
       renderSettings={(props) => (
         <FormatSettings
           {...props}
           primary={tool === 'resize' ? 'resize' : 'formats'}
           initialConfig={initialConfig}
-          versionName={shell.versionName}
+          versionName={names.version.name}
           availableFormats={availableFormats}
-          showOriginalFormat={tool === 'resize'}
+          showOriginalFormat={showOriginalFormat}
           translation={t}
           formatsTranslation={formatsTranslation}
           audio={
@@ -101,9 +179,10 @@ export default function ToolCompressorPage({
           }
         />
       )}
-      configIsValid={formatConfigIsValid}
+      getConfigProblem={getConfigProblem}
+      describe={describe}
       createJob={(file, config, ids) =>
-        createFormatJob(file, config, shell.unresizedName, ids)
+        createFormatJob(file, config, names, ids)
       }
       describeConfig={(config) => ({
         resize: config.resize,

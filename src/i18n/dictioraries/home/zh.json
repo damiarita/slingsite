@@ -1,86 +1,106 @@
 {
   "metadata": {
-    "title": "SlingSite：免费的图片和视频优化、尺寸调整与格式转换工具",
+    "title": "免费图片和视频优化工具 🚀 无需上传 | SlingSite",
     "description": "在浏览器中免费压缩、调整尺寸和转换图片与视频，或提取视频缩略图。文件始终不离开您的设备。支持 JPG、PNG、WebP、AVIF、MP4 和 WebM。"
   },
   "hero": {
-    "title": "在浏览器中生成适合网页的图片和视频",
-    "subtitle": "只需几次点击，即可压缩、调整尺寸、转换格式，或获取视频缩略图。免费、无需注册，文件始终不离开您的设备。",
-    "ctaImages": "优化图片",
-    "ctaVideos": "优化视频",
-    "badges": ["完全免费", "无需注册", "文件不离开您的设备", "批量处理"]
+    "title": "适合网页的图片和视频，无需上传",
+    "subtitle": "在浏览器中批量压缩、转换和调整尺寸，完全免费。",
+    "checks": ["永久免费", "无需上传", "整批一次处理"]
   },
-  "features": {
-    "heading": "一套工具，处理所有媒体文件",
-    "subheading": "按需选择工具。每个工具都能一次处理任意数量的文件。",
-    "forImages": "图片",
-    "forVideos": "视频",
-    "optimize": {
-      "title": "网页优化",
-      "description": "上传一次，即可获得网站所需的全部尺寸和新一代格式。",
-      "points": [
-        "手机、平板和桌面尺寸",
-        "图片输出 JPG、WebP 和 AVIF",
-        "视频输出 MP4（H.264、H.265）和 WebM，并附封面图"
-      ]
+  "chooser": {
+    "label": "工具",
+    "compressImages": {
+      "label": "压缩图片",
+      "description": "三种屏幕尺寸，AVIF、WebP 和 JPG 格式"
     },
-    "resize": {
-      "title": "调整尺寸",
-      "description": "按百分比、宽度或高度缩小图片和视频，始终保持宽高比。",
-      "points": [
-        "一次生成多个尺寸",
-        "保留每个文件的原格式，或转换格式",
-        "从不放大，因此不会变模糊"
-      ]
+    "convertImages": {
+      "label": "转换图片",
+      "description": "JPG、PNG、WebP 或 AVIF，尺寸不变"
     },
-    "convert": {
-      "title": "格式转换",
-      "description": "将任意图片或视频转换为您需要的格式，保持原始尺寸。",
-      "points": [
-        "图片转 JPG、PNG、WebP 或 AVIF",
-        "视频转 MP4（H.264 或 H.265）或 WebM",
-        "可读取 PNG、GIF、MOV、MKV 等格式"
-      ]
+    "resizeImages": {
+      "label": "调整图片尺寸",
+      "description": "按百分比、宽度或高度"
     },
-    "thumbnail": {
-      "title": "视频缩略图",
-      "description": "将视频的第一帧提取为图片，可直接用作封面或海报。",
-      "points": [
-        "保存为 JPG、PNG、WebP 或 AVIF",
-        "原始分辨率或调整尺寸后输出",
-        "支持 MP4、WebM、MOV 和 MKV"
-      ],
-      "cta": "提取缩略图"
+    "compressVideos": {
+      "label": "压缩视频",
+      "description": "MP4、HEVC 和 WebM，附封面图"
+    },
+    "convertVideos": {
+      "label": "转换视频",
+      "description": "转为 MP4、HEVC 或 WebM"
+    },
+    "resizeVideos": {
+      "label": "调整视频尺寸",
+      "description": "更小的文件，便于嵌入"
+    },
+    "videoThumbnail": {
+      "label": "视频缩略图",
+      "description": "将第一帧保存为图片"
     }
   },
-  "steps": {
-    "heading": "使用方法",
+  "showcase": {
+    "title": "一张照片进，九个文件出",
+    "lead": "三种屏幕尺寸，每种都有 AVIF、WebP 和 JPG，文件名可直接用于你的 CMS。",
+    "screenshotAlt": "cardamom-buns.jpg 的处理结果：移动设备、平板和桌面三行，每行都有 AVIF、WebP 和 JPG 文件、文件大小和下载按钮",
+    "caption": "一张 1920 px 的照片，使用默认设置。",
+    "cmsLabel": "用于 CMS：",
+    "cms": "一个包含所有文件的 zip，或直接存到 Google Drive。",
+    "codeLabel": "用于代码：",
+    "code": "每张图片的 {picture} 代码，复制即可使用。"
+  },
+  "audiences": {
+    "title": "从 CMS 到代码",
     "items": [
       {
-        "title": "添加文件",
-        "description": "将图片或视频拖到页面上，或从设备中选择。"
+        "title": "内容团队",
+        "description": "代理商给的 PNG，压缩到足够轻，适合 WordPress、Shopify 或 Webflow。"
       },
       {
-        "title": "选择设置",
-        "description": "选择需要的尺寸和格式。已预设合理的默认值。"
+        "title": "开发者",
+        "description": "srcset 所需的每个宽度，AVIF、WebP 和 JPG 格式，命名统一。"
       },
       {
-        "title": "下载",
-        "description": "逐个或一次性保存全部文件，也可以发送到 Google Drive。"
+        "title": "客户项目",
+        "description": "文件始终留在你的电脑上，无需审核任何第三方。"
       }
     ]
   },
-  "privacy": {
-    "heading": "文件始终留在您的设备上",
-    "description": "SlingSite 的所有处理都在您的浏览器中完成，使用您自己的电脑或手机。不会上传任何内容，也没有服务器能看到您的文件，因此私密和机密文件也能放心使用。",
-    "points": [
-      "不会上传到任何服务器",
-      "无需账号，没有水印",
-      "速度取决于您的设备，而不是网络",
-      "免费，文件数量不限"
+  "layouts": {
+    "title": "指定图片的位置",
+    "lead": "选择一种版式，按比例查看每种屏幕尺寸。",
+    "tryIt": "用你的图片试试"
+  },
+  "needs": {
+    "title": "它需要你提供什么",
+    "rows": [
+      {
+        "label": "费用",
+        "value": "无。无需账号，没有套餐，没有水印。"
+      },
+      {
+        "label": "你的文件",
+        "value": "在浏览器中打开，绝不会发送到服务器。"
+      },
+      {
+        "label": "你的电脑",
+        "value": "编码由它完成，所以大批量文件和长视频需要一些时间。",
+        "cost": true
+      },
+      {
+        "label": "你的浏览器",
+        "value": "较新的浏览器即可，电脑或手机都行。HEVC 视频取决于你的硬件。"
+      }
     ]
   },
   "popular": {
     "heading": "热门工具"
+  },
+  "band": {
+    "title": "从你自己的图片开始",
+    "lead": "拖入一整批文件，取回一个 zip。在手机上也一样好用。",
+    "ctaImages": "压缩图片",
+    "ctaVideos": "压缩视频",
+    "phoneAlt": "手机上的图片压缩工具：标题下方是拖放区和“选择文件”按钮"
   }
 }

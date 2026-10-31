@@ -12,7 +12,8 @@ Guide for AI agents (and humans) working on SlingSite. Read this first.
 SlingSite (https://slingsite.github.io) resizes, compresses and converts
 images and videos, and extracts video thumbnails, **entirely in the browser**.
 There is no backend. The home page (`/<locale>/`) is a landing page that
-introduces every tool. The tool pages share the same app:
+introduces every tool (see "Home page" below). The tool pages share the same
+app:
 
 - **Compress pages** (`/image/`, `/video/`): the user picks target sizes (by
   default Mobile/Tablet/Desktop) and gets every size in every format:
@@ -42,17 +43,18 @@ multilingual MDX content (comparison articles, legal pages) for SEO.
 
 ## Commands
 
-| Task        | Command            | Notes                                                                                      |
-| ----------- | ------------------ | ------------------------------------------------------------------------------------------ |
-| Dev server  | `npm run dev`      | Uses **webpack** (`--webpack`). Turbopack is not supported by the config.                  |
-| Build       | `npm run build`    | Static export to `out/`. Also regenerates `.contentlayer/`.                                |
-| Serve build | `npm start`        | `serve out`                                                                                |
-| Format      | `npm run format`   | Prettier. Runs on staged files via the husky pre-commit hook (`lint-staged`).              |
-| Type-check  | `npx tsc --noEmit` | If it complains about missing files under `.next/types`, run `rm -rf .next` (stale build). |
-| Lint        | `npm run lint`     | **Currently broken**, see Known issues #1.                                                 |
+| Task        | Command            | Notes                                                                                                                                  |
+| ----------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Dev server  | `npm run dev`      | Uses **webpack** (`--webpack`). Turbopack is not supported by the config. Not exported (see below), so unknown URLs give the 404 page. |
+| Build       | `npm run build`    | Static export to `out/`. Also regenerates `.contentlayer/`.                                                                            |
+| Serve build | `npm start`        | `serve out`                                                                                                                            |
+| Format      | `npm run format`   | Prettier. Runs on staged files via the husky pre-commit hook (`lint-staged`).                                                          |
+| Type-check  | `npx tsc --noEmit` | If it complains about missing files under `.next/types`, run `rm -rf .next` (stale build).                                             |
+| Lint        | `npm run lint`     | **Currently broken**, see Known issues #1.                                                                                             |
 
 There are no tests. Verify changes with `npx tsc --noEmit` and
-`npm run build`, then check in `npm run dev`.
+`npm run build`, then check in `npm run dev`, in both themes (the theme
+switch in the nav, or the OS setting) and in Arabic (right to left).
 
 Browser checks can be scripted with Playwright's Chromium (not a project
 dependency; use it from a scratch folder). In the Flatpak VS Code setup, its
@@ -61,6 +63,15 @@ browsers live in `$XDG_CACHE_HOME/ms-playwright`
 VP9 and H.264 but not HEVC, so `hevc.mp4` needs real Chrome. Converting a VP9
 webm to `vp9.webm` at the same size skips re-encoding, so to see real
 progress, resize it or change the codec.
+
+The home page shows captures of the real app (`public/screens/<locale>/`,
+light and dark) and the OpenGraph images are captures too
+(`public/screenshots/`). After changing the results card or the image page's
+first screen, regenerate them from a served build:
+`PLAYWRIGHT=<path to playwright/index.mjs> [CHROME=<chromium binary>] node
+scripts/capture-home-screens.mjs http://localhost:<port>` (it loads the sample
+photos and runs a real compression per locale and theme, then writes the
+pixel sizes to `src/utils/home-screens.json`; rebuild afterwards).
 
 Env vars (in `.env.local`, git-ignored): `NEXT_PUBLIC_GOOGLE_CLIENT_ID`,
 `NEXT_PUBLIC_GOOGLE_API_KEY` (Google Drive), and optionally
@@ -77,12 +88,18 @@ Env vars (in `.env.local`, git-ignored): `NEXT_PUBLIC_GOOGLE_CLIENT_ID`,
 GitHub Pages implications: **`output: 'export'` (static only)**, no server
 code, no API routes, no middleware, no runtime redirects, no custom headers
 (so no COOP/COEP and no `SharedArrayBuffer`). `trailingSlash: true`: all
-internal paths end in `/`.
+internal paths end in `/`. `next.config.ts` sets `output: 'export'` for
+`next build` only (`NODE_ENV === 'production'`): `next dev` in export mode
+answers every URL missing from `generateStaticParams` with a 500 ("missing
+param"), even with `dynamicParams = false`. So `npm run dev` doesn't enforce
+the export rules; `npm run build` does (CI runs it). `[locale]/layout.tsx`
+sets `dynamicParams = false`, so in dev, as on GitHub Pages, any URL that
+isn't generated is a 404.
 
 ## Stack
 
 Next.js 16 (App Router, static export, webpack) · React 19 · TypeScript
-(strict) · Tailwind CSS 4 (+ typography) · next-intl 4 · contentlayer2 +
+(strict) · Tailwind CSS 4 (+ typography) · IBM Plex (next/font) · next-intl 4 · contentlayer2 +
 next-mdx-remote · mediabunny (video) · @jsquash/{jpeg,webp,avif} (WASM image
 encoders) · lucide-react icons · vanilla-cookieconsent · GTM/GA4.
 
@@ -100,9 +117,15 @@ content/
   page-content/<locale>/home.mdx            Article + FAQs under the home page
   posts/<locale>/<folder>/<file>.mdx        Articles (vs/…, legal/…)
 contentlayer.config.ts                      Post + PageContent document types
+scripts/capture-home-screens.mjs            Captures the app for the home page and OpenGraph (see Commands)
+public/samples/                             The two sample photos (Wikimedia Commons, credited in the UI)
+public/screens/<locale>/                    Home page captures: results-{light,dark}.webp, phone-{light,dark}.webp
 next.config.ts                              Static export, webpack tweaks, next-intl plugin
 src/
   app/
+    globals.css                             Design tokens (@theme), the dark theme, base styles (see "Design system")
+    logo.svg, icon.svg, favicon.ico, apple-icon.png
+                                            The sling logo (icon.svg switches stroke colour in dark mode)
     layout.tsx                              Root layout: only metadataBase, returns children
     page.tsx                                "/" → client redirect to /<browser-locale>/ (home)
     not-found.tsx                           Single 404.html for the whole site (default locale)
@@ -119,6 +142,10 @@ src/
     [locale]/[slug1]/page.tsx               Root post OR folder listing
     [locale]/[slug1]/[slug2]/page.tsx       Post inside a folder
   components/                               UI (see "Compressor pipeline" for the key ones)
+    body.tsx                                <html>: fonts, theme + GTM bootstrap scripts
+    nav-groups.ts                           Every tool page by media type (nav, footer, tool tabs)
+    theme-switcher.tsx                      System / light / dark radio group (nav bar, mobile drawer)
+    home-page.tsx, layout-demo.tsx          Home page; its live size-preset demo
   content/lib.ts                            Queries over contentlayer posts (translations, folders)
   hooks/use-compressor.ts                   Owns the Web Worker, exposes compress/abort/status
   hooks/use-job-tracking.ts                 Conversion/job/task started+finished events
@@ -134,6 +161,12 @@ src/
     tag-manager.ts                          GTM id, consent defaults, inline <head> bootstrap
     formats.ts                              Format lists + type guards
     tool-pages.ts                           Tool registry: pathnames, output formats, which pages exist (getToolPages), URL slugs, labels
+    theme.ts                                Theme choice: head bootstrap script, read/apply (localStorage `theme`)
+    i18n-format.ts                          `{placeholder}` filling, plurals, lists, numbers, bytes (see i18n)
+    size-presets.ts                         Compress-page presets (recommended, blog, hero, grid) and size helpers
+    picture-markup.ts                       The <picture> snippet of a finished image compress job
+    samples.ts                              The sample photos: URLs, credits, fetch
+    home-screens.json                       Pixel sizes of the home captures (written by the capture script)
     jobs.ts                                 Job creators (createDimensionsJob/createFormatJob), output file names, config validity, job helpers
     mediaDimensions.ts                      getMediumSize (reads original size), scaleToWidth/Height (never upscale)
     compressor/{all,image,video}.ts         Encoding logic (runs inside workers) + default configs
@@ -150,32 +183,52 @@ src/
 
 1. The server page (`app/[locale]/{image,video}/page.tsx` or
    `.../format/[[...slugs]]/page.tsx`) loads dictionaries and the initial
-   config, then renders `CompressorPage` (server: H1, subtitle, JSON-LD) with a
-   **client wrapper** as children:
+   config, then renders a **client wrapper**, passing it the page heading as
+   `intro`: `CompressorIntro` (server: the type's tools as tabs, H1,
+   subtitle, JSON-LD), shown beside the dropzone.
    - `DimensionsCompressorPage` (compress pages): `DimensionsSettings` +
-     `createDimensionsJob` + `dimensionsConfigIsValid`, config
-     `DimensionsConfig` (`{sizes: SizingConfigs, keepAudio}`) from
-     `getDefaultCompressionConfig`.
+     `createDimensionsJob` + `getSizesProblem`, config `DimensionsConfig`
+     (`{sizes: SizingConfig[], keepAudio}`) from
+     `getDefaultCompressionConfig` (the "recommended" preset).
    - `ToolCompressorPage` (format, resize and thumbnail pages, prop `tool`):
-     `FormatSettings` + `createFormatJob` + `formatConfigIsValid`, config
+     `FormatSettings` + `createFormatJob` + `getFormatConfigProblem`, config
      `FormatConfig` from `getDefaultFormatConfig` (built per tool and page in
      `tool-route.tsx` `getInitialConfig`).
 
    The wrappers exist because the settings component and job creator are
-   functions, which can't be passed from a server component.
+   functions, which can't be passed from a server component. They also turn
+   the problems into translated messages (`ConfigProblem`: message + the id
+   of the field to focus) and build the line above Start (`describe`: "2
+   images, 3 sizes each, in JPG, WebP and AVIF: 18 files") and its label.
 
 2. Both wrappers render the generic `CompressorApp<Config>` (client). It owns
-   the state (`files` picked but not started, `jobs`, `config`) and the shell:
-   `FileUpload` → files grid + `renderSettings({config, setConfig})` + Start
-   button (disabled while `configIsValid(config)` is false) →
-   `Results`/`FileItem`. Settings come in as a **render prop**, not a
-   component, so wrappers can define them inline without remounting them.
+   the state (`files` picked but not started, `jobs`, `config`, the current
+   problem) and the page, in three steps:
+   1. the hero: `intro` beside `FileUpload` (the dropzone; image pages
+      whose source is JPG or unspecified also offer two sample photos,
+      credited by `SampleCredit` while they are on the page);
+   2. "Choose …" (once files are picked): the files grid, then
+      `renderSettings({config, setConfig, invalidFieldId})`, then the
+      summary and Start. Start is never disabled: on click,
+      `getConfigProblem(config)` either returns a problem (shown next to the
+      button, its field focused and marked `aria-invalid`; an
+      `AdvancedSettings` holding it opens via `revealed`) or the jobs start.
+      Any config change clears the problem;
+   3. "Your files": `Results`/`FileItem`.
+
+   Each step that opens is scrolled into view (`focus`). Settings come in as
+   a **render prop**, not a component, so wrappers can define them inline
+   without remounting them.
+
 3. "Start" → `createJob(file, config)` per file (`utils/jobs.ts`). Both
    creators read the original dimensions with `getMediumSize`, compute
    `requestedDimensions` and `requestedFormats` **per config name**, and build
    `tasks[configName][format] = {status:'waiting'}`:
-   - `createDimensionsJob`: one entry per enabled device; formats come from the
-     file type (image → image formats; video → video + image formats).
+   - `createDimensionsJob`: one entry per size; formats come from the file
+     type (image → image formats; video → video + image formats). For
+     images it also sets `Job.pictureSizes`, the `sizes` attribute of the
+     `<picture>` snippet the results offer ("Get HTML",
+     `utils/picture-markup.ts`).
    - `createFormatJob`: with resizing off, one entry named `unresizedName`
      (`format-settings.converted`, or `thumbnail` on thumbnail pages) at the
      original size; otherwise one per `FormatConfig.versions[]` entry. Every
@@ -207,23 +260,44 @@ src/
      config asks for an image format does it call `extractFirstFrame()`
      (mediabunny `CanvasSink`) and run `compressImage()` on the poster frame.
      Thumbnail jobs only ask for image formats, so no video is encoded.
-7. Output filenames come from the job (`Job.outputFileNames`): compress
-   pages `<name>-compressed-<configName>.<format>` (posters
-   `<name>-thumbnail-compressed-<configName>.<format>`), tool pages
-   `<name>-<kebab(configName)>.<format>` (`getToolFileName`:
-   `photo-converted.webp`, `photo-resized-2.jpg`, `clip-thumbnail.jpg`).
+7. Output filenames come from the job (`Job.outputFileNames`) and end in an
+   ASCII slug (`toFileSlug`: lowercase, accents dropped, anything else a
+   dash), the same in every language. Compress pages:
+   `<name>-compressed-<fileKey>.<format>` (posters
+   `<name>-thumbnail-compressed-<fileKey>.<format>`), where `fileKey` is
+   the size's English `id` (`mobile`, `tablet`, `desktop`, `large-screen`)
+   or, once the visitor renames it, the slug of its name
+   (`getSizeFileKey`). Tool pages: `<name>-<fileKey>.<format>`
+   (`getToolFileName`: `photo-converted.webp`, `photo-resized-2.jpg`,
+   `clip-thumbnail.jpg`), with English keys whatever the page language
+   (`ToolOutputNames` in `utils/jobs.ts`). The original file's own name is
+   kept as is.
    When the browser can't encode a video codec (typically HEVC), the task
    errors with a readable message.
 
-Sizing (`types/config.ts`): each `SizingConfig` has `sizingType`
-`percentage` (screenWidth × percentage, the default), `width`, or `height`.
-In a `FormatConfig` version, `percentage` is a percentage **of the original**.
-The other dimension always keeps the aspect ratio, and nothing is upscaled.
+Sizing (`types/config.ts`): `DimensionsConfig.sizes` is an ordered list of
+`SizingConfig` (`id`, editable `name`, `screenWidth`, `sizingType`
+`percentage` | `width` | `height`, and all three values, so switching back
+restores one). `percentage` is the layout share of `screenWidth`: the UI
+offers 1, ½, ⅓, ¼ (100, 50, 33.33, 25) or an exact width or height. Names
+must be non-empty and unique ignoring case, and their file keys unique too
+(`getSizesProblem`: "Móvil" and a renamed "Movil!" would both be `movil`).
+Editing a name sets `renamed`; added sizes get readable ids
+(`large-screen`, `large-screen-2`…). Presets
+(`utils/size-presets.ts`) set the three default devices; `matchPreset`
+tells whether the sizes still match one ("Custom sizes" otherwise). In a
+`FormatConfig` version, `percentage` is a percentage **of the original**. The
+other dimension always keeps the aspect ratio, and nothing is upscaled.
 
-`format-settings.tsx` exports `FormatPicker` (format toggles, plus the
+`DimensionsSettings` (compress pages): presets, one row per size (name,
+screens up to, width on the page, output), "Add a screen size", and
+`ScalePreview` (every size drawn to scale; also used by the home page).
+
+`format-settings.tsx` exports `FormatPicker` (format checkboxes, plus the
 "Original format" row with `showOriginalFormat`) and `ResizeSettings`
-(resize switch + one card per `versions[]` entry, with a "More sizes"
-button; `required` drops the switch). Version names are output config
+(resize switch + one row per `versions[]` entry: 100/75/50/25 % or a custom
+width, height or percentage, with an "Add a size" button; `required` drops
+the switch). Version names are output config
 names, so they must stay unique: new ones are `<versionName>-2`, `-3`…
 (`versionName` is "Resized", or "Thumbnail" on thumbnail pages).
 `FormatSettings` has two layouts (`primary`): `'formats'` (format and
@@ -231,23 +305,26 @@ thumbnail pages) shows the picker first and puts `ResizeSettings` (and, for
 videos, `AudioSettings`) behind a collapsible "Advanced settings";
 `'resize'` (resize pages) shows `ResizeSettings` (required) first and puts
 the picker and audio behind it. Badges compare against `initialConfig`.
-`ToolCompressorPage` also replaces the compress wording of the results
-panel (`compressedFiles`, `compressing`) with per-tool strings from the
-`format-settings` dictionary.
+`ToolCompressorPage` picks the per-tool step title and Start label
+("Convert 2 images", "Resize 2 images", "Get thumbnails of 2 videos").
 
-Shared settings pieces: `switch.tsx` (the toggle), `advanced-settings.tsx`
-(the collapsible; `activeLabels` are badges for settings that differ from
-the page defaults, shown while collapsed, and open it on mount) and
-`audio-settings.tsx` (`AudioSettings` card + `getAudioActiveLabels`). Both
+Shared settings pieces: `settings-section.tsx` (`SettingsSection`, the
+title-and-note beside its controls, and `StepHeading`), `switch.tsx` (the
+toggle), `advanced-settings.tsx` (the collapsible, lined up under the
+controls; `activeLabels` are badges for settings that differ from the page
+defaults, shown while collapsed, and open it on mount) and
+`audio-settings.tsx` (`AudioSettings` + `SwitchRow`, a labelled switch, and
+`getAudioActiveLabels`). Both
 settings components take an optional `audio` prop (`defaultKeepAudio` =
 `initialConfig.keepAudio`, plus the `audio-settings` dictionary); only the
 video pages pass it, so image pages show no audio toggle (and `/image/` has
 no advanced section at all).
 
-**Config names are the translated device labels** (from
-`dictioraries/devices`). They are the keys of `SizingConfigs`, they are shown
-in the UI, and they appear in output filenames. `iconType` (`mobile` |
-`tablet` | `desktop`) selects the icon.
+**Config names start as the translated device labels** (from
+`dictioraries/devices`) and the visitor can rename them or add sizes
+("Large screen"). The trimmed name keys `requestedDimensions`, `tasks` and
+the other per-config records of a job and is shown in the results; the
+output file names use the file key instead (step 7).
 
 ### i18n
 
@@ -260,6 +337,20 @@ in the UI, and they appear in output filenames. `iconType` (`mobile` |
   receives `messages={{}}`: we do not use `useTranslations`.
 - Translations are plain JSON loaded by server components through getters in
   `i18n/requests.ts` and passed to client components as props.
+- Strings with values use `{name}` placeholders, filled with `fill` (or
+  `fillNodes` when a value is an element) from `utils/i18n-format.ts`.
+  Counts are plural objects keyed by `Intl.PluralRules` category with `#`
+  for the number (`{"one": "# image", "other": "# images"}`; Arabic also
+  has `zero`/`two`/`few`/`many`), formatted with `formatCount`. Lists use
+  `formatList` ("JPG, WebP and AVIF"), sizes `formatBytes` (decimal KB/MB).
+  Arabic pages show Latin digits, like their inputs. Avoid templates where
+  a word must agree with a count ("{files} ready" in Spanish): word them so
+  it doesn't ("Para descargar: {files}").
+- `compressor-app` holds the shell strings shared by every compressor page,
+  including the `counts` nouns (image, video, file, size). Device names
+  (`devices`) and the `resized`/`converted`/`thumbnail` names only label
+  the results: file names use English keys (step 7 of the pipeline), so
+  translations can change freely.
 - Typed pathnames (`routing.pathnames`): `/home/`, `/image/`, `/video/`,
   `/image/format/[[...slugs]]`, `/video/format/[[...slugs]]`,
   `/image/resize/[[...slugs]]`, `/video/resize/[[...slugs]]`,
@@ -421,11 +512,65 @@ analytics/`, then import the JSON into GTM (merge, overwrite
 
 ### Layout
 
-`components/layout.tsx` renders `<html>/<body>` (via `Body`), the nav bar,
-the footer and the cookie consent. The root `app/layout.tsx` only returns
+`components/layout.tsx` renders `<html>/<body>` (via `Body`), a skip link,
+the nav bar, `<main id="main">`, the footer (a mast: the wordmark set large
+over every tool, comparison, legal and project link, and the language
+selector) and the cookie consent. `<main>` doesn't constrain the width:
+each page wraps its content in `page-container` so sections can run
+full-bleed. The root `app/layout.tsx` only returns
 children; `app/page.tsx` uses `Body` directly. The language selector renders
 all locale links in the static HTML (hidden with CSS) on purpose, so crawlers
 see them.
+
+### Design system
+
+- **Tokens** live in `app/globals.css` under `@theme static` (so each is a
+  Tailwind utility and a CSS variable): colours (`paper`, `paper-2`,
+  `paper-3` surfaces; `ink`, `ink-2`, `muted` text; `rule`, `dash`;
+  `accent` signal green for fills, `accent-deep` for green text, `accent-wash`,
+  `accent-ink` on green; `focus`; `warn`, `error` and their washes; `code-*`
+  for code blocks, dark in both themes; `band` for the home page's closing
+  band), the type scale (`text-display`, `text-section`, `text-title`,
+  `text-lead` plus `xs`…`2xl`), `rounded-card`/`rounded-input`, and the
+  `page-container` utility (max 90rem, 16/32/64px gutters). Use them, never
+  Tailwind's default palette (`gray-*`, `blue-*`): those don't change in dark
+  mode.
+- **Dark mode**: the same tokens re-derived, in two identical blocks
+  (`:root[data-theme='dark']` and the `prefers-color-scheme: dark` media
+  query for `:root:not([data-theme='light'])`); change both together.
+  Without a stored choice the OS decides; `ThemeSwitcher` stores
+  `light`/`dark` in localStorage (`theme`) and `getThemeBootstrap` (inline
+  in `<head>`) applies it before the first paint. Images with a light and a
+  dark version use `theme-light-only`/`theme-dark-only`.
+- **Type**: IBM Plex Sans (400, 600) for everything, IBM Plex Mono only for
+  code; Arabic falls back to IBM Plex Sans Arabic, Chinese to system fonts
+  (all through next/font in `Body`).
+- **Components**: `buttonClass('primary' | 'quiet', 'md' | 'sm')` for
+  buttons and button-like links (one green action per step),
+  `IconButton` (44px), `fieldClass` for inputs. Icon-only buttons carry
+  their name as `sr-only` text plus a `title` tooltip, not `aria-label`
+  (text reaches every assistive tool and in-page translator). Every control
+  keeps a visible `:focus-visible` ring and a 44px target; use logical
+  properties (`ms-`, `pe-`, `start-`, `text-start`) so Arabic mirrors;
+  transitions name their properties (never `transition-all`); animations
+  stop under `prefers-reduced-motion`.
+- **Copy**: sentence case, no all-caps labels, H1s included (the tool
+  pages' MDX `heading`, the format dictionaries' `title`; German keeps its
+  capitalised nouns). Format names keep their spelling (WebP, HEVC). The
+  pages promise nothing is uploaded, so copy says "add" or "drop", never
+  "upload", for the visitor's files (uploading to Drive or to other sites
+  is fine). Meta titles follow
+  `<Action keyword> <emoji> <benefits> | SlingSite` (one emoji at most) on
+  the home, compress and base format pages.
+
+### Home page
+
+`components/home-page.tsx`: a tool chooser as the hero (beside the H1 and
+the free / no uploads / batches checks), the results of one sample photo
+(a capture, plus the real `<picture>` markup from the same functions as the
+app), who it is for, `LayoutDemo` (the presets and preview to scale, live),
+what it needs from the visitor (the cost: their computer), popular tool
+pages, a closing band, then the `home.mdx` article.
 
 ## Conventions
 
@@ -435,7 +580,8 @@ see them.
   as props.
 - File names: kebab-case for components. Types live in `src/types/`, pure
   helpers in `src/utils/`.
-- Tailwind utility classes inline. No CSS modules. Icons from `lucide-react`.
+- Tailwind utility classes inline, with the design tokens (see "Design
+  system"). No CSS modules. Icons from `lucide-react`.
 - The brand is written **SlingSite** everywhere in visible text. Lowercase
   `slingsite` only appears in URLs (`slingsite.github.io`, the GitHub repo).
   Post folder names are slugged lowercased first (`folderSlug` in
@@ -516,8 +662,9 @@ Video outputs report it (mediabunny `onProgress`); images don't.
 
 ### Navigation
 
-`nav-bar.tsx` groups pages into `NavGroup`s (Images: compressor, converter,
-resizer; Videos: the same plus thumbnail). The logo links to the home page. On desktop each
+`nav-bar.tsx` groups pages into `NavGroup`s from `nav-groups.ts` (Images:
+compressor, converter, resizer; Videos: the same plus thumbnail; the footer
+lists the same groups). The logo links to the home page. On desktop each
 group is a `NavDropdown` (opens on hover or click). In the mobile drawer it's
 a heading with its links. As with the language selector, the dropdown links
 are always in the DOM (hidden with CSS + `inert`) so crawlers see them. Both
@@ -555,10 +702,9 @@ files with an empty MIME type as video.
   Edit it as an opaque blob.
 - `public/.well-known/appspecific/com.chrome.devtools.json` (`{}`) is on
   purpose. Chrome DevTools requests it on localhost; without the file, the
-  path falls into `[locale]/[slug1]/[slug2]`, and `next dev` with
-  `output: 'export'` throws "missing param … in generateStaticParams()" on
-  every request. Keep it empty: a `workspace` entry would publish a local
-  path.
+  path falls into `[locale]/[slug1]/[slug2]` and logs a 404 on every
+  request (it threw "missing param" when dev ran in export mode). Keep it
+  empty: a `workspace` entry would publish a local path.
 
 ## Known issues (found in the 2026-10-24 review, not fixed yet)
 
@@ -581,27 +727,30 @@ files with an empty MIME type as video.
    `@/content/lib`, which bundles every post (`allPosts`) into the client JS.
 6. `@ffmpeg/*` is installed and copied by CopyPlugin, but nothing imports it
    (video uses mediabunny). It's dead weight.
-7. Object URLs leak: the files grid in `CompressorApp` calls
-   `URL.createObjectURL` on every render, and `Job.originalFileObjectURL` is never revoked.
-8. The upload-status panel strings in `components/results.tsx` are hard-coded
-   English.
-9. `README.md` describes only the image flow (3 formats × 3 sizes).
-10. `dictioraries/compression/image/metadata/ar.json`: the Arabic description
-    has a fragment of the video description pasted into it.
-11. `PageContent` slugs `image-format`/`video-format` (the base format
-    pages) have no MDX article yet. Video outputs keep the internal format as
-    extension (`clip-resized.avc.mp4`), on every page.
-12. Older content has grammar slips in the how-to steps: Italian
+7. Object URLs leak: `Job.originalFileObjectURL` is never revoked (the
+   files grid's previews are, by `FileThumb`).
+8. `README.md` describes only the image flow (3 formats × 3 sizes).
+9. `PageContent` slugs `image-format`/`video-format` (the base format
+   pages) have no MDX article yet. Video outputs keep the internal format as
+   extension (`clip-resized.avc.mp4`), on every page.
+10. Older content has grammar slips in the how-to steps: Italian
     "i tuoi immagini … sceglierli" and Spanish "tus imágenes … elegirlos" in
     the `image-format-*` MDX files.
-13. `llms.txt` "Video Compression" says videos are produced "in WEBM and
+11. `llms.txt` "Video Compression" says videos are produced "in WEBM and
     AVIF formats" (it's MP4 H.264/H.265 and WebM).
-14. GA4 documents `items` for ecommerce events. Our custom events send
+12. GA4 documents `items` for ecommerce events. Our custom events send
     `files`/`tasks` as `items` too (visible in DebugView and BigQuery), but
     item-level reports in the GA4 UI may not use them for custom event
     names.
-15. The Brevo form's scripts (inside `dangerouslySetInnerHTML`) only run on
+13. The Brevo form's scripts (inside `dangerouslySetInnerHTML`) only run on
     a full page load of `/subscribe/`, not after a client navigation.
+
+14. The compressor pages' JSON-LD (`CompressorIntro`) declares an
+    `aggregateRating` of 4.9 from 100 reviews that nothing backs.
+15. Tool child pages (MDX frontmatter) keep their old meta titles; only the
+    home, compress and base format pages use the new title pattern. Some
+    older copy states unchecked facts (the `/image/` article's "Tablet
+    (850px)", "Smart Analysis", browser-share percentages).
 
 ## Next steps (planned)
 
@@ -715,3 +864,33 @@ Nothing scheduled.
 - 2026-10-26: Added an empty
   `public/.well-known/appspecific/com.chrome.devtools.json`, so Chrome
   DevTools' request no longer makes `next dev` throw on the post route.
+- 2026-10-27: Redesign (the "Workbench" direction, from the
+  `design-proposals/` round 3 prototype). Design tokens in `globals.css`
+  (IBM Plex, signal green, OKLCH) with a dark theme that follows the OS or
+  a stored choice (`ThemeSwitcher`, `utils/theme.ts`). New sling logo and
+  icons. Tool pages: the dropzone is the hero beside `CompressorIntro`
+  (tool tabs, H1); settings and results open below as steps 2 and 3. Start
+  is never disabled: it explains the problem and focuses the field
+  (`getSizesProblem`, `getFormatConfigProblem`, `ConfigProblem`).
+  Compress-page sizes are an editable list (`SizingConfig[]` with `id` and
+  `name`, replacing the `SizingConfigs` record and its `enabled` and
+  `iconType`): presets, extra screen sizes and a preview to scale. Results
+  show a table per file, savings, and a `<picture>` snippet for images.
+  Sample photos on image pages. Home page rebuilt around a tool chooser,
+  real captures (`scripts/capture-home-screens.mjs`) and a live preset
+  demo. New `compressor-app` dictionary; `upload`, `settings`,
+  `format-settings`, `result` and `home` rewritten in all 7 locales; new
+  meta titles on the home, compress and base format pages. Fixed the known
+  issues of the hard-coded English upload panel, the Arabic image
+  description fragment and (in part) the object URL leak.
+- 2026-10-27: Review fixes. Unknown URLs in `npm run dev` now get the 404
+  page instead of a 500 (`output: 'export'` only for `next build`,
+  `dynamicParams = false` in `[locale]/layout.tsx`). Output file names are
+  ASCII and language-independent (`toFileSlug`, `getSizeFileKey`,
+  `ToolOutputNames`: `photo-compressed-mobile.avif`, never
+  `photo-compressed-Móvil.avif`), with a new `duplicateFileName` problem
+  in `settings`. Tool page H1s and the base format titles are in sentence
+  case in en/es/fr/it. Copy no longer says the visitor uploads files (the
+  compress articles, the base format subtitles, which now list PNG too, and
+  `llms.txt`). Icon-only buttons are named with hidden text; the post
+  breadcrumbs' "Breadcrumb"/"Home" are translated (`blog` dictionary).

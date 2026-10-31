@@ -1,16 +1,18 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import CompressorPage from '@/components/compressor-page';
+import CompressorIntro from '@/components/compressor-intro';
 import ToolCompressorPage from '@/components/tool-compressor-page';
 import ToolPageLinks from '@/components/tool-page-links';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
   getAudioSettingsDictionary,
+  getCompressorAppDictionary,
   getFormatLinksDictionary,
   getFormatSettingsDictionary,
   getFormatsDictionary,
   getImageFormatPageMetadataDictionary,
   getImageFormatPageSeoDictionary,
+  getNavBarDictionary,
   getResultDictionary,
   getUploadDictionary,
   getVideoFormatPageMetadataDictionary,
@@ -203,26 +205,38 @@ export default async function ToolRoute({
     type === 'video' && tool !== 'thumbnail'
       ? await getAudioSettingsDictionary(locale)
       : undefined;
+  const navBarTranslation = await getNavBarDictionary(locale);
   return (
     <>
-      <CompressorPage seoTranslation={seo}>
-        <ToolCompressorPage
-          tool={tool}
-          compressorType={type}
-          initialConfig={getInitialConfig(
-            tool,
-            type,
-            page,
-            formatSettingTranslation,
-          )}
-          availableFormats={toolOutputFormats(tool, type)}
-          uploadTranslation={await getUploadDictionary(locale)}
-          formatSettingTranslation={formatSettingTranslation}
-          formatsTranslation={await getFormatsDictionary(locale)}
-          resultTranslation={await getResultDictionary(locale)}
-          audioTranslation={audioTranslation}
-        />
-      </CompressorPage>
+      <ToolCompressorPage
+        tool={tool}
+        compressorType={type}
+        initialConfig={getInitialConfig(
+          tool,
+          type,
+          page,
+          formatSettingTranslation,
+        )}
+        availableFormats={toolOutputFormats(tool, type)}
+        intro={
+          <CompressorIntro
+            seoTranslation={seo}
+            type={type}
+            tool={tool}
+            locale={locale}
+            translation={navBarTranslation.tools}
+          />
+        }
+        // The sample photos are JPGs: not offered where the page is about
+        // another source format ("PNG to JPG").
+        samples={type === 'image' && (!page.source || page.source === 'jpg')}
+        appTranslation={await getCompressorAppDictionary(locale)}
+        uploadTranslation={await getUploadDictionary(locale)}
+        formatSettingTranslation={formatSettingTranslation}
+        formatsTranslation={await getFormatsDictionary(locale)}
+        resultTranslation={await getResultDictionary(locale)}
+        audioTranslation={audioTranslation}
+      />
       {/* Only the base page links to the children */}
       {!page.slug && (
         <ToolPageLinks

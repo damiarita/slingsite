@@ -1,5 +1,11 @@
 {
-  "clickToUpload": "Haz clic para subir",
-  "orDragAndDrop": "o arrastra y suelta",
-  "supports": "Soporta"
+  "dropImages": "Suelta tus imágenes aquí",
+  "dropVideos": "Suelta tus vídeos aquí",
+  "browse": "Elegir archivos",
+  "noteImages": "{formats}, todos los que quieras. Tu ordenador hace el trabajo, así que un lote grande tarda un momento.",
+  "noteVideos": "{formats}, todos los que quieras. Tu ordenador hace el trabajo, así que los vídeos largos tardan un rato.",
+  "sample": "Probar con dos fotos de ejemplo",
+  "sampleError": "No se han podido cargar las fotos de ejemplo. Añade tus propias imágenes.",
+  "sampleCredit": "Fotos de ejemplo de Wikimedia Commons: {photos}.",
+  "samplePhoto": "{title}, de {author} ({license})"
 }

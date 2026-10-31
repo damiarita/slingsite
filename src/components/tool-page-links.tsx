@@ -13,7 +13,7 @@ import {
 } from '@/utils/tool-pages';
 
 const cardClassName =
-  'group flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:border-blue-300 hover:bg-blue-50/50';
+  'group flex min-h-14 items-center justify-between gap-3 rounded-input border border-rule bg-paper px-4 py-3 no-underline transition-colors duration-150 hover:bg-paper-2';
 
 // Internal links to every child page of a tool, shown under the app on the
 // base page only. Plain links (no JS) so crawlers follow them. Deliberately
@@ -63,8 +63,11 @@ export default function ToolPageLinks({
   const hasSourcePages = pages.some((page) => page.source);
 
   return (
-    <nav className="max-w-4xl mx-auto px-4 pt-12">
-      <h2 className="text-lg font-semibold text-gray-700 mb-4">
+    <nav
+      aria-labelledby="tool-links-title"
+      className="page-container border-t border-rule py-16"
+    >
+      <h2 id="tool-links-title" className="mb-6 text-title">
         {copy.heading}
       </h2>
 
@@ -78,15 +81,15 @@ export default function ToolPageLinks({
             href={href(page)}
             className={cardClassName}
           >
-            <span className="flex items-center text-sm text-gray-600">
+            <span className="flex items-center gap-2 text-sm text-ink">
               <Icon
-                className="w-4 h-4 me-2 text-gray-400 group-hover:text-blue-600"
+                className="size-4 text-muted group-hover:text-ink"
                 aria-hidden="true"
               />
               {copy.to.replace('{to}', formatLabel(page.destination!))}
             </span>
             <ArrowRight
-              className="w-4 h-4 text-gray-300 transition-transform group-hover:text-blue-600 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+              className="size-4 text-dash transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-ink rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
               aria-hidden="true"
             />
           </Link>
@@ -105,18 +108,18 @@ export default function ToolPageLinks({
             return (
               <div
                 key={source}
-                className="flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3"
+                className="flex flex-wrap items-center gap-2 rounded-input border border-rule px-4 py-3"
               >
                 {sourcePage ? (
                   <Link
                     locale={locale}
                     href={href(sourcePage)}
-                    className="me-1 text-sm font-semibold text-gray-700 hover:text-blue-800"
+                    className="me-1 text-sm font-semibold text-ink underline-offset-[0.18em] hover:underline"
                   >
                     {copy.from.replace('{from}', from)}
                   </Link>
                 ) : (
-                  <span className="me-1 text-sm font-semibold text-gray-700">
+                  <span className="me-1 text-sm font-semibold text-ink">
                     {from}
                   </span>
                 )}
@@ -132,7 +135,7 @@ export default function ToolPageLinks({
                           <Link
                             locale={locale}
                             href={href(page)}
-                            className="inline-flex items-center rounded-md px-2 py-1 text-sm text-blue-700 transition-colors hover:bg-blue-50 hover:text-blue-900"
+                            className="inline-flex min-h-9 items-center rounded-input px-2 text-sm text-accent-deep no-underline transition-colors duration-150 hover:bg-paper-2 hover:text-ink"
                           >
                             {/* Full phrase for crawlers and screen readers */}
                             <span className="sr-only">
@@ -141,7 +144,7 @@ export default function ToolPageLinks({
                                 .replace('{to}', to)}
                             </span>
                             <ArrowRight
-                              className="w-3.5 h-3.5 me-1 text-gray-400 rtl:rotate-180"
+                              className="me-1 size-3.5 text-dash rtl:rotate-180"
                               aria-hidden="true"
                             />
                             <span aria-hidden="true">{to}</span>

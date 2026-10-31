@@ -66,6 +66,19 @@ export const inputFormats = {
 } as const satisfies Record<CompressionInput, readonly string[]>;
 export type InputFormat = (typeof inputFormats)[CompressionInput][number];
 
+// How the upload box lists them (proper names, the same in every language).
+export const inputFormatNames: Record<InputFormat, string> = {
+  jpg: 'JPG',
+  png: 'PNG',
+  webp: 'WebP',
+  gif: 'GIF',
+  avif: 'AVIF',
+  mp4: 'MP4',
+  webm: 'WebM',
+  mov: 'MOV',
+  mkv: 'MKV',
+};
+
 // URL name of each output format. `mp4` is H.264 (what people mean by "MP4"),
 // H.265 gets its own name.
 export const outputFormatSlugs: Record<Format, string> = {

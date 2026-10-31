@@ -1,15 +1,26 @@
-import { FileIcon, Download, X, Clock, Package, Info } from 'lucide-react';
-import type { Format } from '@/utils/formats';
+import { useState } from 'react';
+import { useLocale } from 'next-intl';
+import { Code, Download, Info, Package, X } from 'lucide-react';
+import { type Format, formatNames } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
 import {
-  jobIsRunning,
   jobProgress,
   jobProportionOfDoneTasks,
+  jobTaskEntries,
 } from '@/utils/jobs';
-import { SecondaryButton } from './buttons';
+import { IconButton, SecondaryButton } from './buttons';
 import { GoogleDriveButton } from './google-drive-button';
+import { PictureCode } from './picture-code';
 import { ResultsDictionary } from '@/i18n/type';
 import { persistenceType } from '@/types/persistence';
+import { getJobPictureMarkup } from '@/utils/picture-markup';
+import {
+  type PluralForms,
+  fill,
+  formatBytes,
+  formatCount,
+  formatNumber,
+} from '@/utils/i18n-format';
 
 type FileItemProps = {
   onRemove: () => void;
@@ -17,7 +28,79 @@ type FileItemProps = {
   onDownloadOne: (configName: string, format: Format) => void;
   job: Job;
   translation: ResultsDictionary;
+  fileCount: PluralForms;
 };
+
+const pillClass =
+  'rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap tabular-nums';
+
+// One output in the table: queued, working, its size and saving, or the error.
+function TaskCell({
+  task,
+  fileName,
+  originalSize,
+  onDownload,
+  translation,
+}: {
+  task: Task;
+  fileName: string;
+  originalSize: number;
+  onDownload: () => void;
+  translation: ResultsDictionary;
+}) {
+  const locale = useLocale();
+  switch (task.status) {
+    case 'waiting':
+      return <span className="text-muted">{translation.queued}</span>;
+    case 'running':
+      return (
+        <span className="inline-flex items-center gap-2 text-warn">
+          <span
+            className="size-2.5 animate-spin rounded-full border-2 border-current border-e-transparent"
+            aria-hidden="true"
+          />
+          {task.percentage ? `${task.percentage}%` : translation.working}
+        </span>
+      );
+    case 'errored':
+      return (
+        <span
+          className="inline-flex items-center gap-1 text-error"
+          title={task.errorMessage}
+        >
+          <Info className="size-4" aria-hidden="true" />
+          {translation.failed}
+          <span className="sr-only">: {task.errorMessage}</span>
+        </span>
+      );
+    case 'completed': {
+      const change = task.result.size / originalSize - 1;
+      return (
+        <span className="inline-flex items-center gap-2">
+          {formatBytes(locale, task.result.size)}
+          <span
+            className={
+              change < 0 ? 'font-semibold text-accent-deep' : 'text-muted'
+            }
+          >
+            {formatNumber(locale, change, {
+              style: 'percent',
+              signDisplay: 'exceptZero',
+              maximumFractionDigits: 0,
+            })}
+          </span>
+          <IconButton
+            label={fill(translation.downloadFile, { name: fileName })}
+            onClick={onDownload}
+            className="size-9 before:absolute before:-inset-1"
+          >
+            <Download className="size-4" aria-hidden="true" />
+          </IconButton>
+        </span>
+      );
+    }
+  }
+}
 
 export const FileItem = ({
   onRemove,
@@ -25,175 +108,182 @@ export const FileItem = ({
   onDownloadOne,
   job,
   translation,
+  fileCount,
 }: FileItemProps) => {
+  const locale = useLocale();
+  const [showCode, setShowCode] = useState(false);
   const { originalFile, originalFileObjectURL, tasks } = job;
-  const progress = jobProportionOfDoneTasks(job);
-  const progressPercentage = `${Math.floor(jobProgress(job) * 100)}%`;
-  const formatBytes = (bytes: number, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  };
-
-  const rendertTasks = (tasks: Job['tasks']) => (
-    <div className="space-y-2">
-      {Object.entries(tasks).map(([configName, formats]) => (
-        <div key={configName}>
-          <p className="text-xs font-bold text-gray-500 capitalize mb-1 flex items-center">
-            {configName}
-            <span className="ml-2 font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full text-[10px]">
-              {job.requestedDimensions[configName]?.width}x
-              {job.requestedDimensions[configName]?.height}
-            </span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {(Object.entries(formats) as [Format, Task][]).map(
-              ([format, task]) => (
-                <div
-                  key={format}
-                  className="flex items-center justify-between bg-gray-100 rounded-md py-1 px-2 flex-grow text-xs"
-                >
-                  <div className="flex items-center">
-                    <FileIcon className="w-3 h-3 mr-1.5 text-gray-500" />
-                    <span className="font-mono uppercase">{format}</span>
-                    {task.status === 'waiting' && (
-                      <span className="text-gray-500 ml-2">
-                        {translation.waiting}
-                      </span>
-                    )}
-                    {task.status === 'running' && !!task.percentage && (
-                      <span className="text-gray-500 ml-2">
-                        {task.percentage}%
-                      </span>
-                    )}
-                    {task.status === 'running' && !task.percentage && (
-                      <span className="text-gray-500 ml-2">
-                        {translation.running}
-                      </span>
-                    )}
-                    {task.status === 'errored' && (
-                      <span className="ml-2 flex items-center gap-2">
-                        <span className="text-red-500">
-                          {translation.error}
-                        </span>
-                        <span
-                          title={task.errorMessage ?? translation.error}
-                          className="text-red-500 hover:text-gray-600"
-                          aria-hidden={false}
-                        >
-                          <Info className="w-3 h-3" />
-                        </span>
-                      </span>
-                    )}
-                    {task.status === 'completed' && (
-                      <span className="text-gray-500 ml-2">
-                        {formatBytes(task.result.size)}
-                      </span>
-                    )}
-                  </div>
-                  {task.status === 'completed' && (
-                    <button
-                      onClick={() => onDownloadOne(configName, format)}
-                      className="p-0.5 rounded hover:bg-gray-200 text-gray-600"
-                    >
-                      <Download className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              ),
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const entries = jobTaskEntries(job);
+  const done = jobProportionOfDoneTasks(job) === 1;
+  const started = entries.some(({ task }) => task.status !== 'waiting');
+  const failed = entries.some(({ task }) => task.status === 'errored');
+  const progress = jobProgress(job);
+  const formats = [
+    ...new Set(Object.values(tasks).flatMap((t) => Object.keys(t))),
+  ] as Format[];
+  const markup = done ? getJobPictureMarkup(job) : undefined;
+  const completedCount = entries.filter(
+    ({ task }) => task.status === 'completed',
+  ).length;
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center min-w-0">
-          {originalFile.type.startsWith('video/') ? (
-            <video
-              src={originalFileObjectURL}
-              className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0"
-              disablePictureInPicture
-            />
-          ) : (
-            <img
-              src={originalFileObjectURL}
-              className="w-10 h-10 object-cover rounded-md mr-3 flex-shrink-0"
-            />
-          )}
-          <div className="flex-grow min-w-0">
-            <p
-              className="text-sm font-medium text-gray-800 truncate"
-              title={originalFile.name}
-            >
-              {originalFile.name}
-            </p>
-            <p className="text-xs text-gray-500 flex items-center flex-wrap">
-              <span>
-                {job.originalDimensions.width}x{job.originalDimensions.height}px
-              </span>
-              <span className="mx-1.5">·</span>
-              <span>{formatBytes(originalFile.size)}</span>
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onRemove}
-          className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="text-sm font-semibold text-gray-700">
-              {translation.compressedFiles}:
-            </h4>
-            {progress === 1 && (
-              <>
-                <SecondaryButton
-                  onClick={() => onDownloadAll('device')}
-                  small={true}
-                >
-                  <Package className="w-3 h-3 mr-1" />{' '}
-                  {translation.downloadAllFiles}
-                </SecondaryButton>
-                <GoogleDriveButton
-                  onClick={() => onDownloadAll('googleDrive')}
-                  className="p-1.5 ml-2"
-                />
-              </>
-            )}
-          </div>
-          {rendertTasks(tasks)}
-        </div>
-        {jobIsRunning(job) ? (
-          <div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                className="bg-blue-600 h-2.5 rounded-full"
-                style={{ width: progressPercentage }}
-              />
-            </div>
-            <p className="text-xs text-center text-gray-600 mt-1">
-              {translation.compressing} {progressPercentage}
-            </p>
-          </div>
+    <article
+      aria-label={originalFile.name}
+      className="overflow-hidden rounded-card border border-rule bg-paper"
+    >
+      <div className="flex items-center gap-3 px-4 py-3">
+        {originalFile.type.startsWith('video/') || !originalFile.type ? (
+          <video
+            src={originalFileObjectURL}
+            className="size-12 shrink-0 rounded-input object-cover"
+            disablePictureInPicture
+            muted
+          />
         ) : (
-          progress === 0 && (
-            <div className="mt-4 text-center text-sm text-gray-500 flex items-center justify-center bg-gray-100 p-2 rounded-md">
-              <Clock className="w-4 h-4 mr-2" /> {translation.inQueue}
-            </div>
-          )
+          <img
+            src={originalFileObjectURL}
+            alt=""
+            className="size-12 shrink-0 rounded-input object-cover"
+          />
         )}
+        <p className="min-w-0 flex-1">
+          <b className="block truncate font-semibold" title={originalFile.name}>
+            {originalFile.name}
+          </b>
+          <small className="text-sm text-muted tabular-nums">
+            {formatNumber(locale, job.originalDimensions.width)}
+            {' × '}
+            {formatNumber(locale, job.originalDimensions.height)},{' '}
+            {formatBytes(locale, originalFile.size)}
+          </small>
+        </p>
+        {done ? (
+          failed ? (
+            <span className={`${pillClass} bg-error-wash text-error`}>
+              {translation.doneWithErrors}
+            </span>
+          ) : (
+            <span className={`${pillClass} bg-accent-wash text-accent-deep`}>
+              {translation.done}
+            </span>
+          )
+        ) : started ? (
+          <span className={`${pillClass} bg-warn-wash text-warn`}>
+            {formatNumber(locale, progress, {
+              style: 'percent',
+              maximumFractionDigits: 0,
+            })}
+          </span>
+        ) : (
+          <span className={`${pillClass} bg-paper-2 text-muted`}>
+            {translation.inQueue}
+          </span>
+        )}
+        <IconButton
+          label={fill(translation.removeFile, { name: originalFile.name })}
+          onClick={onRemove}
+        >
+          <X className="size-5" aria-hidden="true" />
+        </IconButton>
       </div>
-    </div>
+      <div className="h-[3px] bg-paper-2" aria-hidden="true">
+        <i
+          className="block h-full origin-left bg-accent transition-transform duration-200 ease-linear rtl:origin-right"
+          style={{ transform: `scaleX(${progress})` }}
+        />
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm tabular-nums">
+          <thead>
+            <tr className="text-muted">
+              <th scope="col" className="px-4 py-2 text-start font-normal">
+                {translation.sizeColumn}
+              </th>
+              {formats.map((format) => (
+                <th
+                  key={format}
+                  scope="col"
+                  className="px-4 py-2 text-start font-normal whitespace-nowrap"
+                >
+                  {formatNames[format]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(tasks).map(([configName, configTasks]) => {
+              const dimensions = job.requestedDimensions[configName];
+              return (
+                <tr key={configName} className="border-t border-rule">
+                  <th
+                    scope="row"
+                    className="px-4 py-2 text-start font-normal whitespace-nowrap"
+                  >
+                    <b className="me-2 font-semibold">{configName}</b>
+                    {dimensions && (
+                      <small className="text-muted">
+                        {formatNumber(locale, dimensions.width)}
+                        {' × '}
+                        {formatNumber(locale, dimensions.height)}
+                      </small>
+                    )}
+                  </th>
+                  {formats.map((format) => {
+                    const task = configTasks[format];
+                    return (
+                      <td key={format} className="px-4 py-2 whitespace-nowrap">
+                        {task && (
+                          <TaskCell
+                            task={task}
+                            fileName={
+                              job.outputFileNames[configName]?.[format] ??
+                              format
+                            }
+                            originalSize={originalFile.size}
+                            onDownload={() => onDownloadOne(configName, format)}
+                            translation={translation}
+                          />
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {done && completedCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2 border-t border-rule bg-paper-2 px-4 py-3">
+          <span className="me-auto text-sm text-muted">
+            {fill(translation.filesReady, {
+              files: formatCount(locale, completedCount, fileCount),
+            })}
+          </span>
+          {markup && (
+            <SecondaryButton
+              size="sm"
+              aria-expanded={showCode}
+              onClick={() => setShowCode((v) => !v)}
+            >
+              <Code className="size-4" aria-hidden="true" />
+              {showCode ? translation.hideHtml : translation.getHtml}
+            </SecondaryButton>
+          )}
+          <SecondaryButton size="sm" onClick={() => onDownloadAll('device')}>
+            <Package className="size-4" aria-hidden="true" />
+            {translation.download}
+          </SecondaryButton>
+          <GoogleDriveButton
+            onClick={() => onDownloadAll('googleDrive')}
+            label={translation.saveToDrive}
+            iconOnly
+          />
+        </div>
+      )}
+      {markup && showCode && (
+        <PictureCode markup={markup} translation={translation} />
+      )}
+    </article>
   );
 };

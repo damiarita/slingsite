@@ -1,0 +1,23 @@
+{
+  "filesNote": "Opened in this browser. Nothing is uploaded.",
+  "addMore": "Add more",
+  "removeFile": "Remove {name}",
+  "counts": {
+    "image": {
+      "one": "# image",
+      "other": "# images"
+    },
+    "video": {
+      "one": "# video",
+      "other": "# videos"
+    },
+    "file": {
+      "one": "# file",
+      "other": "# files"
+    },
+    "size": {
+      "one": "# size",
+      "other": "# sizes"
+    }
+  }
+}

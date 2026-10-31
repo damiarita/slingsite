@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "Archivos a Comprimir",
-  "addMoreFiles": "Añadir Más Archivos",
-  "compressionSettings": "Ajustes de Compresión",
-  "advancedSettings": "Ajustes Avanzados",
-  "supportScreensUpTo": "Soportar pantallas hasta",
-  "removeFile": "Quitar Archivo",
-  "mobile": "Móvil",
-  "tablet": "Tablet",
-  "desktop": "Escritorio",
-  "percentWidth": "% de ancho",
-  "setPercentage": "Establecer Porcentaje",
-  "setWidth": "Establecer Ancho",
-  "setHeight": "Establecer Alto",
-  "configMode": {
-    "percentage": "Extensión",
-    "width": "Ancho de imagen",
-    "height": "Alto de imagen"
+  "stepTitle": "Elige los tamaños",
+  "whereTitle": "Dónde aparecen",
+  "whereNote": "Un archivo por tamaño de pantalla, para que los móviles nunca descarguen un archivo de escritorio.",
+  "presets": {
+    "label": "Plantillas",
+    "custom": "Tamaños personalizados",
+    "recommended": {
+      "label": "Recomendado",
+      "description": "La mayoría de páginas"
+    },
+    "blog": {
+      "label": "Artículo de blog",
+      "description": "Una columna de texto"
+    },
+    "hero": {
+      "label": "Banner principal",
+      "description": "Todo el ancho"
+    },
+    "grid": {
+      "label": "Cuadrícula de productos",
+      "description": "Tarjetas en fila"
+    }
   },
-  "startCompression": "Comprimir Todo"
+  "columns": {
+    "name": "Nombre",
+    "screen": "Pantallas de hasta",
+    "fills": "Ancho en la página",
+    "output": "Resultado"
+  },
+  "fills": {
+    "full": "todo el ancho",
+    "half": "la mitad",
+    "third": "un tercio",
+    "quarter": "un cuarto"
+  },
+  "exact": "Exacto",
+  "width": "Ancho",
+  "height": "Alto",
+  "widthOrHeight": "Ancho o alto",
+  "pixels": "Píxeles",
+  "outputWide": "{px} px de ancho",
+  "outputTall": "{px} px de alto",
+  "ofScreen": "{fraction} de {screen} px",
+  "exactSize": "tamaño exacto",
+  "addSize": "Añadir un tamaño de pantalla",
+  "newSizeName": "Pantalla grande",
+  "removeSize": "Quitar {name}",
+  "preview": {
+    "title": "Vista previa a escala",
+    "legend": "Lo verde es tu archivo",
+    "empty": "Añade un tamaño de pantalla para ver la vista previa.",
+    "caption": "{name}, hasta {screen} px"
+  },
+  "problems": {
+    "noSizes": "Añade al menos un tamaño de pantalla.",
+    "noName": "Ponle nombre a cada tamaño de pantalla.",
+    "duplicateName": "Hay dos tamaños de pantalla llamados «{name}». Cambia el nombre de uno.",
+    "duplicateFileName": "«{name}» y «{other}» darían los mismos nombres de archivo. Cambia el nombre de uno.",
+    "screenWidth": "El ancho de pantalla tiene que ser un número mayor que 0.",
+    "exactSize": "Los tamaños exactos tienen que ser un número mayor que 0."
+  },
+  "start": "Comprimir {files}",
+  "summary": "{files} en {sizes}, en {formats}: {total}",
+  "withPoster": "{formats}, más un póster en {posterFormats}",
+  "advancedSettings": "Ajustes avanzados"
 }

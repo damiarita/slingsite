@@ -1,5 +1,11 @@
 {
-  "clickToUpload": "点击上传",
-  "orDragAndDrop": "或拖放",
-  "supports": "支持"
+  "dropImages": "将图片拖放到这里",
+  "dropVideos": "将视频拖放到这里",
+  "browse": "选择文件",
+  "noteImages": "{formats}，数量不限。处理工作由你的电脑完成，所以大批量文件需要一点时间。",
+  "noteVideos": "{formats}，数量不限。处理工作由你的电脑完成，所以长视频需要一些时间。",
+  "sample": "用两张示例照片试试",
+  "sampleError": "示例照片无法加载。请改为添加你自己的图片。",
+  "sampleCredit": "示例照片来自 Wikimedia Commons：{photos}。",
+  "samplePhoto": "{title}，作者 {author}（{license}）"
 }

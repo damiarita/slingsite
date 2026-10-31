@@ -8,7 +8,7 @@ The home page [/en/](/en/) introduces every tool.
 
 Learn more about image compression at [/en/image/](/en/image/)
 
-- Upload multiple image files (JPG, PNG, WEBP, etc.)
+- Add multiple image files (JPG, PNG, WEBP, etc.)
 - Configure compression settings per device type: mobile, tablet, and desktop
 - Flexible sizing options: by screen percentage, number of columns, or exact pixel dimensions (width/height)
 - Generate multiple optimized formats for each original image: JPG, WEBP, and AVIF
@@ -18,7 +18,7 @@ Learn more about image compression at [/en/image/](/en/image/)
 
 Learn more about video compression at [/en/video/](/en/video/)
 
-- Upload video files and generate optimized cover images
+- Add video files and generate optimized cover images
 - Cover images are produced in JPG, WEBP, and AVIF formats
 - Videos are produced in WEBM and AVIF formats for broad compatibility
 - Configure compression settings per device type: mobile, tablet, and desktop
@@ -28,7 +28,7 @@ Learn more about video compression at [/en/video/](/en/video/)
 
 Convert images at [/en/image/format/](/en/image/format/)
 
-- Upload multiple image files and pick the output formats: JPG, WEBP, AVIF and/or PNG
+- Add multiple image files and pick the output formats: JPG, WEBP, AVIF and/or PNG
 - Files keep their original resolution by default
 - Optional resizing under "Advanced settings": by percentage of the original, exact width or exact height
 - Everything runs in the browser; files never leave the device
@@ -37,14 +37,14 @@ Convert images at [/en/image/format/](/en/image/format/)
 
 Convert videos at [/en/video/format/](/en/video/format/)
 
-- Upload video files and pick the output formats: MP4 (H.264/AVC), MP4 (H.265/HEVC) and/or WEBM (VP9)
+- Add video files and pick the output formats: MP4 (H.264/AVC), MP4 (H.265/HEVC) and/or WEBM (VP9)
 - Optional resizing under "Advanced settings": by percentage of the original, exact width or exact height
 
 ## Image Resizing
 
 Resize images at [/en/image/resize/](/en/image/resize/)
 
-- Upload multiple images and pick the new size: percentage of the original (50% by default), exact width or exact height; "More sizes" gives several versions at once
+- Add multiple images and pick the new size: percentage of the original (50% by default), exact width or exact height; "More sizes" gives several versions at once
 - The aspect ratio is always kept and images are never upscaled
 - Each image keeps its own format by default (JPG, PNG, WEBP, AVIF); formats that can't be written, like GIF, become WEBP. Other output formats are under "Advanced settings"
 - One page per output format, with that format preselected: [/en/image/resize/jpg/](/en/image/resize/jpg/), [/en/image/resize/png/](/en/image/resize/png/), [/en/image/resize/webp/](/en/image/resize/webp/), [/en/image/resize/avif/](/en/image/resize/avif/)

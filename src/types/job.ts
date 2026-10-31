@@ -26,6 +26,9 @@ export type Job = JobIds & {
   outputFileNames: Record<string, Partial<Record<Format, string>>>;
   taskIds: Record<string, Partial<Record<Format, string>>>;
   tasks: Record<string, Partial<Record<Format, Task>>>;
+  // Image compress jobs only: the `sizes` attribute of the <picture> snippet
+  // shown once the job is done.
+  pictureSizes?: string;
 };
 
 // A file picked but not started yet. The id follows it into its job.

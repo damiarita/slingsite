@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "ملفات للضغط",
-  "addMoreFiles": "إضافة المزيد من الملفات",
-  "compressionSettings": "إعدادات الضغط",
-  "advancedSettings": "إعدادات متقدمة",
-  "supportScreensUpTo": "دعم الشاشات حتى",
-  "removeFile": "إزالة الملف",
-  "mobile": "الجوال",
-  "tablet": "جهاز لوحي",
-  "desktop": "سطح المكتب",
-  "percentWidth": "العرض %",
-  "setPercentage": "تعيين النسبة المئوية",
-  "setWidth": "تعيين العرض",
-  "setHeight": "تعيين الارتفاع",
-  "configMode": {
-    "percentage": "الامتداد",
-    "width": "عرض الصورة",
-    "height": "ارتفاع الصورة"
+  "stepTitle": "اختر الأحجام",
+  "whereTitle": "أين تظهر",
+  "whereNote": "ملف لكل حجم شاشة، فلا تنزّل الهواتف أبدًا ملفًا بحجم سطح المكتب.",
+  "presets": {
+    "label": "إعدادات جاهزة",
+    "custom": "أحجام مخصّصة",
+    "recommended": {
+      "label": "موصى به",
+      "description": "لمعظم الصفحات"
+    },
+    "blog": {
+      "label": "مقال مدونة",
+      "description": "عمود نص"
+    },
+    "hero": {
+      "label": "لافتة رئيسية",
+      "description": "بعرض الصفحة"
+    },
+    "grid": {
+      "label": "شبكة منتجات",
+      "description": "بطاقات في صف"
+    }
   },
-  "startCompression": "ضغط الكل"
+  "columns": {
+    "name": "الاسم",
+    "screen": "للشاشات حتى",
+    "fills": "العرض في الصفحة",
+    "output": "الناتج"
+  },
+  "fills": {
+    "full": "كامل العرض",
+    "half": "النصف",
+    "third": "الثلث",
+    "quarter": "الربع"
+  },
+  "exact": "دقيق",
+  "width": "العرض",
+  "height": "الارتفاع",
+  "widthOrHeight": "العرض أو الارتفاع",
+  "pixels": "بكسل",
+  "outputWide": "عرض {px} بكسل",
+  "outputTall": "ارتفاع {px} بكسل",
+  "ofScreen": "{fraction} من {screen} بكسل",
+  "exactSize": "حجم دقيق",
+  "addSize": "إضافة حجم شاشة",
+  "newSizeName": "شاشة كبيرة",
+  "removeSize": "إزالة {name}",
+  "preview": {
+    "title": "معاينة بمقياس حقيقي",
+    "legend": "الأخضر هو ملفك",
+    "empty": "أضف حجم شاشة لرؤية المعاينة.",
+    "caption": "{name}، حتى {screen} بكسل"
+  },
+  "problems": {
+    "noSizes": "أضف حجم شاشة واحدًا على الأقل.",
+    "noName": "أعطِ كل حجم شاشة اسمًا.",
+    "duplicateName": "يوجد حجما شاشة باسم «{name}». غيّر اسم أحدهما.",
+    "duplicateFileName": "سيحصل «{name}» و«{other}» على أسماء الملفات نفسها. غيّر اسم أحدهما.",
+    "screenWidth": "يجب أن يكون عرض الشاشة رقمًا أكبر من 0.",
+    "exactSize": "يجب أن تكون الأحجام الدقيقة رقمًا أكبر من 0."
+  },
+  "start": "ضغط {files}",
+  "summary": "{files}، {sizes} لكل ملف، بصيغة {formats}: {total}",
+  "withPoster": "{formats}، مع صورة غلاف بصيغة {posterFormats}",
+  "advancedSettings": "إعدادات متقدمة"
 }

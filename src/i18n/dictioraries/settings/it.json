@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "File da Comprimere",
-  "addMoreFiles": "Aggiungi Altri File",
-  "compressionSettings": "Impostazioni di Compressione",
-  "advancedSettings": "Impostazioni Avanzate",
-  "supportScreensUpTo": "Supporta schermi fino a",
-  "removeFile": "Rimuovi File",
-  "mobile": "Mobile",
-  "tablet": "Tablet",
-  "desktop": "Desktop",
-  "percentWidth": "% larghezza",
-  "setPercentage": "Imposta Percentuale",
-  "setWidth": "Imposta Larghezza",
-  "setHeight": "Imposta Altezza",
-  "configMode": {
-    "percentage": "Copertura",
-    "width": "Larghezza immagine",
-    "height": "Altezza immagine"
+  "stepTitle": "Scegli le dimensioni",
+  "whereTitle": "Dove appaiono",
+  "whereNote": "Un file per ogni dimensione di schermo, così i telefoni non scaricano mai un file pensato per il desktop.",
+  "presets": {
+    "label": "Preimpostazioni",
+    "custom": "Dimensioni personalizzate",
+    "recommended": {
+      "label": "Consigliato",
+      "description": "La maggior parte delle pagine"
+    },
+    "blog": {
+      "label": "Articolo del blog",
+      "description": "Una colonna di testo"
+    },
+    "hero": {
+      "label": "Banner principale",
+      "description": "Larghezza piena"
+    },
+    "grid": {
+      "label": "Griglia di prodotti",
+      "description": "Schede in fila"
+    }
   },
-  "startCompression": "Comprimi Tutto"
+  "columns": {
+    "name": "Nome",
+    "screen": "Schermi fino a",
+    "fills": "Larghezza nella pagina",
+    "output": "Risultato"
+  },
+  "fills": {
+    "full": "tutta la larghezza",
+    "half": "metà",
+    "third": "un terzo",
+    "quarter": "un quarto"
+  },
+  "exact": "Esatta",
+  "width": "Larghezza",
+  "height": "Altezza",
+  "widthOrHeight": "Larghezza o altezza",
+  "pixels": "Pixel",
+  "outputWide": "{px} px di larghezza",
+  "outputTall": "{px} px di altezza",
+  "ofScreen": "{fraction} di {screen} px",
+  "exactSize": "dimensione esatta",
+  "addSize": "Aggiungi una dimensione di schermo",
+  "newSizeName": "Schermo grande",
+  "removeSize": "Rimuovi {name}",
+  "preview": {
+    "title": "Anteprima in scala",
+    "legend": "In verde il tuo file",
+    "empty": "Aggiungi una dimensione di schermo per vedere l’anteprima.",
+    "caption": "{name}, fino a {screen} px"
+  },
+  "problems": {
+    "noSizes": "Aggiungi almeno una dimensione di schermo.",
+    "noName": "Dai un nome a ogni dimensione di schermo.",
+    "duplicateName": "Due dimensioni di schermo si chiamano «{name}». Rinominane una.",
+    "duplicateFileName": "«{name}» e «{other}» avrebbero gli stessi nomi di file. Rinominane una.",
+    "screenWidth": "Le larghezze dello schermo devono essere maggiori di 0.",
+    "exactSize": "Le dimensioni esatte devono essere maggiori di 0."
+  },
+  "start": "Comprimi {files}",
+  "summary": "{files} in {sizes}, in {formats}: {total}",
+  "withPoster": "{formats}, più un poster in {posterFormats}",
+  "advancedSettings": "Impostazioni avanzate"
 }

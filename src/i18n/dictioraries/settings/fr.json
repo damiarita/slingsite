@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "Fichiers à Compresser",
-  "addMoreFiles": "Ajouter Plus de Fichiers",
-  "compressionSettings": "Paramètres de Compression",
-  "advancedSettings": "Paramètres Avancés",
-  "supportScreensUpTo": "Prendre en charge les écrans jusqu'à ",
-  "removeFile": "Retirer le Fichier",
-  "mobile": "Mobile",
-  "tablet": "Tablette",
-  "desktop": "Bureau",
-  "percentWidth": "% largeur",
-  "setPercentage": "Définir le Pourcentage",
-  "setWidth": "Définir la Largeur",
-  "setHeight": "Définir la Hauteur",
-  "configMode": {
-    "percentage": "Étendue",
-    "width": "Largeur de l'image",
-    "height": "Hauteur de l'image"
+  "stepTitle": "Choisissez les tailles",
+  "whereTitle": "Où elles s’affichent",
+  "whereNote": "Un fichier par taille d’écran : les téléphones ne téléchargent jamais un fichier prévu pour un ordinateur.",
+  "presets": {
+    "label": "Préréglages",
+    "custom": "Tailles personnalisées",
+    "recommended": {
+      "label": "Recommandé",
+      "description": "La plupart des pages"
+    },
+    "blog": {
+      "label": "Article de blog",
+      "description": "Une colonne de texte"
+    },
+    "hero": {
+      "label": "Bannière",
+      "description": "Pleine largeur"
+    },
+    "grid": {
+      "label": "Grille de produits",
+      "description": "Des cartes en ligne"
+    }
   },
-  "startCompression": "DTout Compresser"
+  "columns": {
+    "name": "Nom",
+    "screen": "Écrans jusqu’à",
+    "fills": "Largeur dans la page",
+    "output": "Résultat"
+  },
+  "fills": {
+    "full": "toute la largeur",
+    "half": "la moitié",
+    "third": "un tiers",
+    "quarter": "un quart"
+  },
+  "exact": "Exacte",
+  "width": "Largeur",
+  "height": "Hauteur",
+  "widthOrHeight": "Largeur ou hauteur",
+  "pixels": "Pixels",
+  "outputWide": "{px} px de large",
+  "outputTall": "{px} px de haut",
+  "ofScreen": "{fraction} de {screen} px",
+  "exactSize": "taille exacte",
+  "addSize": "Ajouter une taille d’écran",
+  "newSizeName": "Grand écran",
+  "removeSize": "Retirer {name}",
+  "preview": {
+    "title": "Aperçu à l’échelle",
+    "legend": "En vert : votre fichier",
+    "empty": "Ajoutez une taille d’écran pour voir l’aperçu.",
+    "caption": "{name}, jusqu’à {screen} px"
+  },
+  "problems": {
+    "noSizes": "Ajoutez au moins une taille d’écran.",
+    "noName": "Donnez un nom à chaque taille d’écran.",
+    "duplicateName": "Deux tailles d’écran s’appellent « {name} ». Renommez-en une.",
+    "duplicateFileName": "« {name} » et « {other} » donneraient les mêmes noms de fichier. Renommez-en une.",
+    "screenWidth": "Les largeurs d’écran doivent être supérieures à 0.",
+    "exactSize": "Les tailles exactes doivent être supérieures à 0."
+  },
+  "start": "Compresser {files}",
+  "summary": "{files}, {sizes} chacune, en {formats} : {total}",
+  "withPoster": "{formats}, plus une affiche en {posterFormats}",
+  "advancedSettings": "Paramètres avancés"
 }

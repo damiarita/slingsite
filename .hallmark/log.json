@@ -1,0 +1,30 @@
+[
+  {
+    "shape": "Workbench",
+    "theme": "brand",
+    "axes": "light/grotesk-sans/chromatic-green",
+    "hero": "Counter",
+    "nav": "edge-aligned",
+    "footer": "mast",
+    "imagery": "screenshots 6 (round 3 prototype, captured)",
+    "photos": ["Cardamom buns.jpg", "Winter in Tatry Mountains - Poland.jpg"],
+    "entry": "design-proposals/b3-hallmark/home.html",
+    "fingerprint": "workbench/counter/edge/mast/captures/restrained",
+    "sections": [
+      "Counter hero (tool chooser)",
+      "Showcase (results and markup captures)",
+      "Rows (who)",
+      "Switcher (presets)",
+      "Table (what it needs)",
+      "Band (close beside the phone)"
+    ],
+    "signature": "the tool chooser as the hero, then the prototype screens doing the work",
+    "waived": [],
+    "prompt": "SlingSite home and image compressor, round 3, brand kept",
+    "job": "try",
+    "draw": "568bf9",
+    "pages": ["home.html", "image.html (hero Counter, the dropzone)"],
+    "date": "2026-10-26",
+    "mode": "build"
+  }
+]

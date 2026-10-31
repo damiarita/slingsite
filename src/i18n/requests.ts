@@ -11,6 +11,7 @@ import {
   NavBarTranslations,
   FooterTranslations,
   UploadDictionary,
+  CompressorAppDictionary,
   SettingsDictionary,
   FormatSettingsDictionary,
   AudioSettingsDictionary,
@@ -159,6 +160,17 @@ export const getUploadDictionary = createDictionaryGetter<UploadDictionary>({
   zh: () => import('./dictioraries/upload/zh.json'),
   en: () => import('./dictioraries/upload/en.json'),
 });
+
+export const getCompressorAppDictionary =
+  createDictionaryGetter<CompressorAppDictionary>({
+    ar: () => import('./dictioraries/compressor-app/ar.json'),
+    de: () => import('./dictioraries/compressor-app/de.json'),
+    es: () => import('./dictioraries/compressor-app/es.json'),
+    fr: () => import('./dictioraries/compressor-app/fr.json'),
+    it: () => import('./dictioraries/compressor-app/it.json'),
+    zh: () => import('./dictioraries/compressor-app/zh.json'),
+    en: () => import('./dictioraries/compressor-app/en.json'),
+  });
 
 export const getSettingsDictionary = createDictionaryGetter<SettingsDictionary>(
   {

@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "待压缩文件",
-  "addMoreFiles": "添加更多文件",
-  "compressionSettings": "压缩设置",
-  "advancedSettings": "高级设置",
-  "supportScreensUpTo": "支持屏幕最大尺寸",
-  "removeFile": "移除文件",
-  "mobile": "移动设备",
-  "tablet": "平板电脑",
-  "desktop": "桌面",
-  "percentWidth": "宽度百分比",
-  "setPercentage": "设置百分比",
-  "setWidth": "设置宽度",
-  "setHeight": "设置高度",
-  "configMode": {
-    "percentage": "跨度",
-    "width": "图片宽度",
-    "height": "图片高度"
+  "stepTitle": "选择尺寸",
+  "whereTitle": "显示位置",
+  "whereNote": "每种屏幕尺寸一个文件，手机永远不会下载桌面尺寸的文件。",
+  "presets": {
+    "label": "预设",
+    "custom": "自定义尺寸",
+    "recommended": {
+      "label": "推荐",
+      "description": "适合大多数页面"
+    },
+    "blog": {
+      "label": "博客文章",
+      "description": "单栏文字"
+    },
+    "hero": {
+      "label": "首屏横幅",
+      "description": "全宽"
+    },
+    "grid": {
+      "label": "商品网格",
+      "description": "一行多张卡片"
+    }
   },
-  "startCompression": "全部压缩"
+  "columns": {
+    "name": "名称",
+    "screen": "屏幕最宽",
+    "fills": "页面中的宽度",
+    "output": "输出"
+  },
+  "fills": {
+    "full": "全宽",
+    "half": "一半",
+    "third": "三分之一",
+    "quarter": "四分之一"
+  },
+  "exact": "精确",
+  "width": "宽度",
+  "height": "高度",
+  "widthOrHeight": "宽度或高度",
+  "pixels": "像素",
+  "outputWide": "宽 {px} px",
+  "outputTall": "高 {px} px",
+  "ofScreen": "{screen} px 的{fraction}",
+  "exactSize": "精确尺寸",
+  "addSize": "添加屏幕尺寸",
+  "newSizeName": "大屏幕",
+  "removeSize": "移除 {name}",
+  "preview": {
+    "title": "按比例预览",
+    "legend": "绿色是你的文件",
+    "empty": "添加一个屏幕尺寸即可查看预览。",
+    "caption": "{name}，最宽 {screen} px"
+  },
+  "problems": {
+    "noSizes": "请至少添加一个屏幕尺寸。",
+    "noName": "请为每个屏幕尺寸命名。",
+    "duplicateName": "有两个屏幕尺寸都叫“{name}”，请重命名其中一个。",
+    "duplicateFileName": "“{name}”和“{other}”会生成相同的文件名，请重命名其中一个。",
+    "screenWidth": "屏幕宽度必须是大于 0 的数字。",
+    "exactSize": "精确尺寸必须是大于 0 的数字。"
+  },
+  "start": "压缩 {files}",
+  "summary": "{files}，每个 {sizes}，格式为 {formats}：共 {total}",
+  "withPoster": "{formats}，另加 {posterFormats} 格式的封面图",
+  "advancedSettings": "高级设置"
 }

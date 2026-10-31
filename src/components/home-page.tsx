@@ -1,31 +1,34 @@
-import {
-  ArrowRight,
-  Check,
-  Clapperboard,
-  Download,
-  Gauge,
-  type LucideIcon,
-  MousePointerClick,
-  RefreshCw,
-  Scaling,
-  ShieldCheck,
-  Upload,
-} from 'lucide-react';
+import { Check, Film, Image as ImageIcon } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import type {
   FormatLinksDictionary,
   HomeDictionary,
-  HomeFeature,
+  NavBarTranslations,
+  ResultsDictionary,
+  SettingsDictionary,
 } from '@/i18n/type';
 import type { AppHref } from '@/components/nav-link';
 import type { CompressionInput } from '@/types/compressor';
+import type { MediaDimensions } from '@/types/mediaDimensions';
+import { buttonClass } from './buttons';
+import LayoutDemo from './layout-demo';
+import { PictureCode } from './picture-code';
 import {
   type Tool,
   findToolPage,
   formatLabel,
   getToolPathname,
 } from '@/utils/tool-pages';
+import { type DeviceNames, getPresetSizes } from '@/utils/size-presets';
+import { getCompressedFileName } from '@/utils/compressor/all';
+import { getPictureSizes, getSizeFileKey } from '@/utils/jobs';
+import { getPictureMarkup } from '@/utils/picture-markup';
+import { scaleToWidth } from '@/utils/mediaDimensions';
+import { webImageFormats } from '@/utils/formats';
+import { fillNodes } from '@/utils/i18n-format';
+import { samplePhotos } from '@/utils/samples';
+import homeScreens from '@/utils/home-screens.json';
 
 const toolHref = (
   tool: Tool,
@@ -70,220 +73,317 @@ function popularLabel(
   return t.fromTo.replace('{from}', from!).replace('{to}', to!);
 }
 
-const FeatureCard = ({
+// The <picture> markup the image compressor gives for the cardamom buns
+// photo (1920 x 1322) with the default sizes: the same functions as the app.
+function getShowcaseMarkup(deviceNames: DeviceNames) {
+  const original: MediaDimensions = { width: 1920, height: 1322 };
+  const sizes = getPresetSizes('recommended', deviceNames);
+  const dimensions = Object.fromEntries(
+    sizes.map((size) => [
+      size.name,
+      scaleToWidth(original, (size.screenWidth * size.percentage) / 100),
+    ]),
+  );
+  const candidates = Object.fromEntries(
+    webImageFormats.map((format) => [
+      format,
+      sizes.map((size) => ({
+        fileName: getCompressedFileName(
+          samplePhotos[0].fileName,
+          getSizeFileKey(size),
+          format,
+        ),
+        ...dimensions[size.name],
+      })),
+    ]),
+  );
+  return getPictureMarkup(getPictureSizes(sizes, dimensions), candidates);
+}
+
+// [width, height] of each capture, written by the capture script.
+type ScreenSizes = Record<'results' | 'phone', number[]>;
+
+// Captures of the real app (scripts/capture-home-screens.mjs), one per
+// locale and theme; CSS shows the one that matches the theme.
+function Screenshot({
   locale,
-  icon: Icon,
-  feature,
-  links,
+  name,
+  alt,
 }: {
   locale: Locale;
-  icon: LucideIcon;
-  feature: HomeFeature;
-  links: { label: string; href: AppHref }[];
-}) => (
-  <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
-      <Icon className="h-6 w-6 text-blue-700" aria-hidden="true" />
-    </div>
-    <h3 className="text-xl font-semibold text-gray-900">{feature.title}</h3>
-    <p className="mt-2 text-gray-600">{feature.description}</p>
-    <ul className="mt-4 space-y-2 text-sm text-gray-600">
-      {feature.points.map((point) => (
-        <li key={point} className="flex items-start">
-          <Check
-            className="me-2 mt-0.5 h-4 w-4 flex-shrink-0 text-green-600"
-            aria-hidden="true"
-          />
-          {point}
-        </li>
-      ))}
-    </ul>
-    <div className="mt-auto flex flex-wrap gap-3 pt-6">
-      {links.map((link) => (
-        <Link
-          key={link.label}
-          locale={locale}
-          href={link.href}
-          className="group inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-800 transition-colors hover:bg-blue-50 hover:text-blue-800"
-        >
-          {link.label}
-          <ArrowRight
-            className="ms-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
-            aria-hidden="true"
-          />
-        </Link>
+  name: keyof ScreenSizes;
+  alt: string;
+}) {
+  const screens = homeScreens as Record<string, ScreenSizes>;
+  const [width, height] = (screens[locale] ?? screens.en)[name];
+  const folder = locale in screens ? locale : 'en';
+  return (
+    <div
+      className="overflow-hidden rounded-card bg-paper-2 outline-1 -outline-offset-1 outline-frame"
+      style={{ aspectRatio: `${width} / ${height}` }}
+    >
+      {(['light', 'dark'] as const).map((theme) => (
+        <img
+          key={theme}
+          src={`/screens/${folder}/${name}-${theme}.webp`}
+          width={width}
+          height={height}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className={`size-full object-cover theme-${theme}-only`}
+        />
       ))}
     </div>
-  </div>
-);
+  );
+}
 
-// Landing page: introduces every tool to newcomers and links to each one.
+const sectionHeadClass = 'max-w-[30ch] text-section';
+
+// Landing page: orients newcomers. The tool chooser is the hero; below, the
+// app's own output, who it is for, the size presets to try, and the cost.
 export default function HomePage({
   locale,
   translation,
+  navTranslation,
+  settingsTranslation,
+  resultsTranslation,
+  deviceNames,
   linksTranslation,
 }: {
   locale: Locale;
   translation: HomeDictionary;
+  navTranslation: NavBarTranslations;
+  settingsTranslation: SettingsDictionary;
+  resultsTranslation: ResultsDictionary;
+  deviceNames: DeviceNames;
   linksTranslation: FormatLinksDictionary;
 }) {
-  const { hero, features, steps, privacy, popular } = translation;
-  const stepIcons = [Upload, MousePointerClick, Download];
+  const { hero, chooser, showcase, audiences, layouts, needs, popular, band } =
+    translation;
+  const toolGroups = [
+    {
+      icon: ImageIcon,
+      label: navTranslation.images,
+      tools: [
+        { ...chooser.compressImages, href: '/image/' as AppHref, lead: true },
+        { ...chooser.convertImages, href: toolHref('format', 'image') },
+        { ...chooser.resizeImages, href: toolHref('resize', 'image') },
+      ],
+    },
+    {
+      icon: Film,
+      label: navTranslation.videos,
+      tools: [
+        { ...chooser.compressVideos, href: '/video/' as AppHref },
+        { ...chooser.convertVideos, href: toolHref('format', 'video') },
+        { ...chooser.resizeVideos, href: toolHref('resize', 'video') },
+        { ...chooser.videoThumbnail, href: toolHref('thumbnail', 'video') },
+      ],
+    },
+  ];
 
   return (
-    <div className="space-y-20">
-      {/* Hero */}
-      <section className="rounded-3xl bg-gradient-to-b from-blue-50 to-white px-6 py-16 text-center sm:py-20">
-        <h1 className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-          {hero.title}
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-          {hero.subtitle}
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link
-            locale={locale}
-            href="/image/"
-            className="inline-flex items-center justify-center rounded-md bg-blue-700 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
+    <>
+      {/* Hero: what it is, and every tool as the first choice */}
+      <section
+        aria-labelledby="home-title"
+        className="page-container grid items-center gap-10 py-10 sm:py-14 lg:min-h-[min(calc(100svh-4.0625rem),62.5rem)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20 lg:py-16"
+      >
+        <div className="lg:ps-10">
+          <h1
+            id="home-title"
+            className="max-w-[15ch] text-display tracking-[-0.022em]"
           >
-            {hero.ctaImages}
-          </Link>
-          <Link
-            locale={locale}
-            href="/video/"
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-800 shadow-sm transition-colors hover:border-blue-300 hover:text-blue-800"
-          >
-            {hero.ctaVideos}
-          </Link>
-        </div>
-        <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-600">
-          {hero.badges.map((badge) => (
-            <li key={badge} className="flex items-center">
-              <Check
-                className="me-1.5 h-4 w-4 text-green-600"
-                aria-hidden="true"
-              />
-              {badge}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Tools */}
-      <section>
-        <div className="mx-auto mb-10 max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            {features.heading}
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">{features.subheading}</p>
-        </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <FeatureCard
-            locale={locale}
-            icon={Gauge}
-            feature={features.optimize}
-            links={[
-              { label: features.forImages, href: '/image/' },
-              { label: features.forVideos, href: '/video/' },
-            ]}
-          />
-          <FeatureCard
-            locale={locale}
-            icon={Scaling}
-            feature={features.resize}
-            links={[
-              { label: features.forImages, href: toolHref('resize', 'image') },
-              { label: features.forVideos, href: toolHref('resize', 'video') },
-            ]}
-          />
-          <FeatureCard
-            locale={locale}
-            icon={RefreshCw}
-            feature={features.convert}
-            links={[
-              { label: features.forImages, href: toolHref('format', 'image') },
-              { label: features.forVideos, href: toolHref('format', 'video') },
-            ]}
-          />
-          <FeatureCard
-            locale={locale}
-            icon={Clapperboard}
-            feature={features.thumbnail}
-            links={[
-              {
-                label: features.thumbnail.cta,
-                href: toolHref('thumbnail', 'video'),
-              },
-            ]}
-          />
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section>
-        <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
-          {steps.heading}
-        </h2>
-        <ol className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {steps.items.map((step, index) => {
-            const Icon = stepIcons[index] ?? Check;
-            return (
-              <li key={step.title} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-700 text-white">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  <span className="sr-only">{index + 1}. </span>
-                  {step.title}
-                </h3>
-                <p className="mx-auto mt-2 max-w-xs text-gray-600">
-                  {step.description}
-                </p>
+            {hero.title}
+          </h1>
+          <p className="mt-5 max-w-[34ch] text-lead text-ink-2">
+            {hero.subtitle}
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-accent-deep">
+            {hero.checks.map((check) => (
+              <li key={check} className="inline-flex items-center gap-1.5">
+                <Check
+                  className="size-4"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                {check}
               </li>
-            );
-          })}
-        </ol>
+            ))}
+          </ul>
+        </div>
+        <nav
+          aria-label={chooser.label}
+          className="grid gap-8 rounded-card bg-paper-2 p-4 sm:grid-cols-2 sm:gap-6 sm:p-10"
+        >
+          {toolGroups.map((group) => (
+            <div key={group.label}>
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-normal text-ink-2">
+                <group.icon className="size-5" aria-hidden="true" />
+                {group.label}
+              </h2>
+              <ul className="grid gap-2">
+                {group.tools.map((tool) => (
+                  <li key={tool.label}>
+                    <Link
+                      locale={locale}
+                      href={tool.href}
+                      className={`grid min-h-24 content-center gap-0.5 rounded-input border px-4 py-3 no-underline transition-[background-color,transform] duration-200 active:translate-y-px ${
+                        'lead' in tool
+                          ? 'border-accent-deep bg-accent text-accent-ink hover:bg-accent-hover'
+                          : 'border-rule bg-paper text-ink hover:bg-paper-3'
+                      }`}
+                    >
+                      <b className="font-semibold">{tool.label}</b>
+                      <small
+                        className={`text-sm ${'lead' in tool ? '' : 'text-muted'}`}
+                      >
+                        {tool.description}
+                      </small>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
       </section>
 
-      {/* Privacy */}
-      <section className="rounded-2xl bg-gray-900 px-6 py-12 text-white sm:px-12">
-        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-[auto_1fr]">
-          <ShieldCheck
-            className="h-16 w-16 text-green-400 md:h-24 md:w-24"
-            aria-hidden="true"
+      {/* What one photo turns into */}
+      <section
+        aria-labelledby="showcase-title"
+        className="page-container py-24 lg:py-36"
+      >
+        <div className="mb-12 max-w-3xl">
+          <h2 id="showcase-title" className={sectionHeadClass}>
+            {showcase.title}
+          </h2>
+          <p className="mt-4 text-lead text-ink-2">{showcase.lead}</p>
+        </div>
+        <figure>
+          <Screenshot
+            locale={locale}
+            name="results"
+            alt={showcase.screenshotAlt}
           />
-          <div>
-            <h2 className="text-2xl font-bold sm:text-3xl">
-              {privacy.heading}
-            </h2>
-            <p className="mt-4 text-gray-300">{privacy.description}</p>
-            <ul className="mt-6 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-              {privacy.points.map((point) => (
-                <li key={point} className="flex items-start">
-                  <Check
-                    className="me-2 mt-0.5 h-4 w-4 flex-shrink-0 text-green-400"
-                    aria-hidden="true"
-                  />
-                  {point}
-                </li>
-              ))}
-            </ul>
+          <figcaption className="mt-3 text-sm text-muted">
+            {showcase.caption}
+          </figcaption>
+        </figure>
+        <div className="mt-10 grid items-center gap-8 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
+          <div className="min-w-0 overflow-hidden rounded-card">
+            <PictureCode
+              markup={getShowcaseMarkup(deviceNames)}
+              translation={resultsTranslation}
+            />
+          </div>
+          <div className="grid gap-4">
+            <p>
+              <b className="font-semibold">{showcase.cmsLabel}</b>{' '}
+              {showcase.cms}
+            </p>
+            <p>
+              <b className="font-semibold">{showcase.codeLabel}</b>{' '}
+              {fillNodes(showcase.code, {
+                picture: (
+                  <code className="font-mono text-sm">&lt;picture&gt;</code>
+                ),
+              })}
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Popular tools */}
-      <section className="mx-auto max-w-4xl">
-        <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
+      {/* Who it is for */}
+      <section
+        aria-labelledby="audiences-title"
+        className="page-container grid gap-10 pb-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-8 lg:pb-32"
+      >
+        <h2 id="audiences-title" className="max-w-[12ch] text-section">
+          {audiences.title}
+        </h2>
+        <dl className="border-b border-rule">
+          {audiences.items.map((item) => (
+            <div
+              key={item.title}
+              className="grid gap-2 border-t border-rule py-8 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:gap-8"
+            >
+              <dt className="text-title font-semibold tracking-[-0.015em]">
+                {item.title}
+              </dt>
+              <dd className="text-ink-2">{item.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      {/* The size presets, live */}
+      <section
+        aria-labelledby="layouts-title"
+        className="bg-paper-2 py-24 lg:py-32"
+      >
+        <div className="page-container">
+          <div className="mb-12 max-w-3xl">
+            <h2 id="layouts-title" className={sectionHeadClass}>
+              {layouts.title}
+            </h2>
+            <p className="mt-4 text-lead text-ink-2">{layouts.lead}</p>
+          </div>
+          <LayoutDemo
+            locale={locale}
+            deviceNames={deviceNames}
+            translation={settingsTranslation}
+            tryIt={layouts.tryIt}
+          />
+        </div>
+      </section>
+
+      {/* What it costs: the honest table */}
+      <section
+        aria-labelledby="needs-title"
+        className="page-container py-24 lg:py-36"
+      >
+        <h2 id="needs-title" className={`mb-12 ${sectionHeadClass}`}>
+          {needs.title}
+        </h2>
+        <table className="w-full border-collapse">
+          <tbody>
+            {needs.rows.map((row) => (
+              <tr
+                key={row.label}
+                className="grid border-t border-rule py-6 last:border-b sm:table-row sm:py-0"
+              >
+                <th
+                  scope="row"
+                  className={`text-start align-baseline text-title font-semibold tracking-[-0.015em] sm:w-1/3 sm:py-7 sm:pe-8 ${row.cost ? 'text-warn' : ''}`}
+                >
+                  {row.label}
+                </th>
+                <td className="align-baseline text-ink-2 sm:py-7">
+                  {row.value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Popular tools: direct links to pages people search for */}
+      <section
+        aria-labelledby="popular-title"
+        className="page-container pb-24 lg:pb-32"
+      >
+        <h2 id="popular-title" className="mb-6 text-title">
           {popular.heading}
         </h2>
-        <ul className="flex flex-wrap justify-center gap-2">
+        <ul className="flex flex-wrap gap-2">
           {popularPages.map((page) => (
             <li key={`${page.tool}-${page.type}-${page.slug}`}>
               <Link
                 locale={locale}
                 href={toolHref(page.tool, page.type, [page.slug])}
-                className="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-800"
+                className="inline-flex min-h-11 items-center rounded-full border border-rule px-4 text-sm text-ink-2 no-underline transition-colors duration-150 hover:bg-paper-2 hover:text-ink"
               >
                 {popularLabel(page, linksTranslation)}
               </Link>
@@ -291,6 +391,42 @@ export default function HomePage({
           ))}
         </ul>
       </section>
-    </div>
+
+      {/* Close: start, beside the phone */}
+      <section
+        aria-labelledby="band-title"
+        className="bg-band py-20 text-band-ink lg:py-28"
+      >
+        <div className="page-container grid items-center gap-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
+          <div>
+            <h2 id="band-title" className={sectionHeadClass}>
+              {band.title}
+            </h2>
+            <p className="mt-4 max-w-[40ch] text-lead text-band-muted">
+              {band.lead}
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link
+                locale={locale}
+                href="/image/"
+                className={`${buttonClass('primary')} focus-visible:outline-accent`}
+              >
+                {band.ctaImages}
+              </Link>
+              <Link
+                locale={locale}
+                href="/video/"
+                className="inline-flex min-h-12 items-center justify-center rounded-input border border-band-muted/40 px-6 leading-none font-semibold whitespace-nowrap text-band-ink no-underline transition-[background-color,transform] duration-200 ease-out hover:bg-band-ink/10 focus-visible:outline-accent active:translate-y-px"
+              >
+                {band.ctaVideos}
+              </Link>
+            </div>
+          </div>
+          <figure className="mx-auto w-full max-w-[320px] lg:ms-auto lg:me-0">
+            <Screenshot locale={locale} name="phone" alt={band.phoneAlt} />
+          </figure>
+        </div>
+      </section>
+    </>
   );
 }

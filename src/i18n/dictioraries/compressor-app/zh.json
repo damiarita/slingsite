@@ -1,0 +1,19 @@
+{
+  "filesNote": "在此浏览器中打开，不会上传任何内容。",
+  "addMore": "添加更多",
+  "removeFile": "移除 {name}",
+  "counts": {
+    "image": {
+      "other": "# 张图片"
+    },
+    "video": {
+      "other": "# 个视频"
+    },
+    "file": {
+      "other": "# 个文件"
+    },
+    "size": {
+      "other": "# 种尺寸"
+    }
+  }
+}

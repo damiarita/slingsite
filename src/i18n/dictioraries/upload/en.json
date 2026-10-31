@@ -1,5 +1,11 @@
 {
-  "clickToUpload": "Click to upload",
-  "orDragAndDrop": "or drag and drop",
-  "supports": "Supports"
+  "dropImages": "Drop your images here",
+  "dropVideos": "Drop your videos here",
+  "browse": "Browse files",
+  "noteImages": "{formats}, as many as you like. Your computer does the work, so a big batch takes a moment.",
+  "noteVideos": "{formats}, as many as you like. Your computer does the work, so long videos take a while.",
+  "sample": "Try two sample photos",
+  "sampleError": "The sample photos could not load. Add your own images instead.",
+  "sampleCredit": "Sample photos from Wikimedia Commons: {photos}.",
+  "samplePhoto": "{title} by {author} ({license})"
 }

@@ -2,21 +2,28 @@ import type { Format } from '@/utils/formats';
 
 export type ConfigMode = 'width' | 'height' | 'percentage';
 
+// One output size of the compress pages ("Mobile", "Desktop"…). `name` is
+// translated and shown in the results. The output file names use `id`, an
+// English slug (mobile, tablet, desktop, large-screen), so they are the same
+// in every language, until the visitor renames the size (`renamed`): then
+// they use the new name (getSizeFileKey). `percentage` is a share of
+// `screenWidth` (100 / 2 / 33.33 / 25: the layout fractions); `width` and
+// `height` are exact sizes. All three are kept while switching `sizingType`,
+// so going back restores the previous value.
 export type SizingConfig = {
-  enabled: boolean;
+  id: string;
+  name: string;
+  renamed?: boolean;
   screenWidth: number;
   sizingType: ConfigMode;
   percentage: number;
   width: number;
   height: number;
-  iconType?: string;
 };
-
-export type SizingConfigs = Record<string, SizingConfig>;
 
 // Only videos use `keepAudio`. Images ignore it.
 export type DimensionsConfig = {
-  sizes: SizingConfigs;
+  sizes: SizingConfig[];
   keepAudio: boolean;
 };
 

@@ -10,5 +10,20 @@
   "videoThumbnail": "صورة مصغرة للفيديو",
   "menu": "القائمة",
   "openMenu": "فتح القائمة",
-  "closeMenu": "إغلاق القائمة"
+  "closeMenu": "إغلاق القائمة",
+  "skipToContent": "انتقل إلى المحتوى",
+  "theme": {
+    "label": "المظهر",
+    "system": "حسب النظام",
+    "light": "فاتح",
+    "dark": "داكن"
+  },
+  "tools": {
+    "imageTools": "أدوات الصور",
+    "videoTools": "أدوات الفيديو",
+    "compress": "ضغط",
+    "convert": "تحويل",
+    "resize": "تغيير الحجم",
+    "thumbnail": "صورة مصغّرة"
+  }
 }

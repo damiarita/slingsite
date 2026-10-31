@@ -10,5 +10,20 @@
   "videoThumbnail": "Miniatura de Vídeo",
   "menu": "Menú",
   "openMenu": "Abrir menú",
-  "closeMenu": "Cerrar menú"
+  "closeMenu": "Cerrar menú",
+  "skipToContent": "Saltar al contenido",
+  "theme": {
+    "label": "Tema",
+    "system": "Como el sistema",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "tools": {
+    "imageTools": "Herramientas de imagen",
+    "videoTools": "Herramientas de vídeo",
+    "compress": "Comprimir",
+    "convert": "Convertir",
+    "resize": "Redimensionar",
+    "thumbnail": "Miniatura"
+  }
 }

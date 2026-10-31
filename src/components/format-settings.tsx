@@ -1,29 +1,32 @@
 'use client';
 
-import { FileImage, FileVideo, Plus, Scaling, Settings, X } from 'lucide-react';
-import { SecondaryButton } from './buttons';
-import { Switch } from './switch';
+import { useState } from 'react';
+import { Plus, X } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { IconButton } from './buttons';
 import { AdvancedSettings } from './advanced-settings';
-import { AudioSettings, getAudioActiveLabels } from './audio-settings';
+import {
+  AudioSettings,
+  SwitchRow,
+  getAudioActiveLabels,
+} from './audio-settings';
+import { SettingsSection } from './settings-section';
+import { fieldClass } from './dimension-settings';
 import type { ConfigMode, FormatConfig } from '@/types/config';
 import type { Format } from '@/utils/formats';
-import { isVideoFormat } from '@/utils/formats';
 import type {
   AudioSettingsDictionary,
   FormatSettingsDictionary,
 } from '@/i18n/type';
+import { fill, formatNumber } from '@/utils/i18n-format';
 
-const percentagePresets = [
-  { label: '100%', value: 100 },
-  { label: '75%', value: 75 },
-  { label: '50%', value: 50 },
-  { label: '25%', value: 25 },
-];
+const percentagePresets = [100, 75, 50, 25];
 
 type Props = {
   config: FormatConfig;
   setConfig: (config: FormatConfig) => void;
   translation: FormatSettingsDictionary;
+  invalidFieldId?: string;
 };
 
 type FormatPickerProps = Props & {
@@ -33,10 +36,18 @@ type FormatPickerProps = Props & {
   showOriginalFormat?: boolean;
 };
 
+// The first field a "no format" problem focuses.
+export const getFormatPickerFieldId = (
+  availableFormats: Format[],
+  showOriginalFormat?: boolean,
+) => (showOriginalFormat ? 'format-original' : `format-${availableFormats[0]}`);
+export const getVersionFieldId = (index: number) => `version-value-${index}`;
+
 export const FormatPicker = ({
   config,
   setConfig,
   translation,
+  invalidFieldId,
   availableFormats,
   formatsTranslation,
   showOriginalFormat,
@@ -47,65 +58,49 @@ export const FormatPicker = ({
       : [...config.formats, format];
     setConfig({ ...config, formats });
   };
+  const noFormat = config.formats.length === 0 && !config.originalFormat;
 
   return (
-    <>
+    <div className="grid gap-3">
       {showOriginalFormat && (
-        <div
-          className={`flex items-center justify-between gap-4 p-4 mb-4 rounded-lg transition-all duration-300 ${config.originalFormat ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
-        >
-          <div>
-            <label
-              htmlFor="format-original"
-              className="font-semibold text-gray-700"
-            >
-              {translation.originalFormat}
-            </label>
-            <p className="text-xs text-gray-500 mt-1">
-              {translation.originalFormatDescription}
-            </p>
-          </div>
-          <Switch
-            id="format-original"
-            checked={config.originalFormat}
-            onChange={() =>
-              setConfig({ ...config, originalFormat: !config.originalFormat })
-            }
-          />
-        </div>
+        <SwitchRow
+          id="format-original"
+          label={translation.originalFormat}
+          description={translation.originalFormatDescription}
+          checked={config.originalFormat}
+          onChange={() =>
+            setConfig({ ...config, originalFormat: !config.originalFormat })
+          }
+        />
       )}
       <div
-        className={`grid grid-cols-1 gap-4 mb-2 ${availableFormats.length === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'}`}
+        role="group"
+        aria-label={translation.outputFormats}
+        className={`grid gap-2 sm:grid-cols-2 ${availableFormats.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}
       >
-        {availableFormats.map((format) => {
-          const isSelected = config.formats.includes(format);
-          const Icon = isVideoFormat(format) ? FileVideo : FileImage;
-          return (
-            <div
-              key={format}
-              className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 ${isSelected ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
-            >
-              <div className="flex items-center font-semibold text-gray-700">
-                <Icon className="w-5 h-5 mr-2 flex-shrink-0" />
-                <label htmlFor={`format-${format}`}>
-                  {formatsTranslation[format] ?? format}
-                </label>
-              </div>
-              <Switch
-                id={`format-${format}`}
-                checked={isSelected}
-                onChange={() => handleFormatToggle(format)}
-              />
-            </div>
-          );
-        })}
+        {availableFormats.map((format) => (
+          <label
+            key={format}
+            className="flex min-h-14 cursor-pointer items-center gap-3 rounded-input border border-rule bg-paper px-4 py-2 transition-colors duration-150 hover:bg-paper-2 has-checked:border-accent-deep has-checked:bg-accent-wash"
+          >
+            <input
+              type="checkbox"
+              id={`format-${format}`}
+              checked={config.formats.includes(format)}
+              onChange={() => handleFormatToggle(format)}
+              aria-invalid={invalidFieldId === `format-${format}` || undefined}
+              className="size-5 shrink-0 accent-accent-deep"
+            />
+            <span className="font-semibold">
+              {formatsTranslation[format] ?? format}
+            </span>
+          </label>
+        ))}
       </div>
-      {config.formats.length === 0 && !config.originalFormat && (
-        <p className="text-sm text-red-600 mb-2">
-          {translation.selectFormatFirst}
-        </p>
+      {noFormat && (
+        <p className="text-sm text-error">{translation.problems.noFormat}</p>
       )}
-    </>
+    </div>
   );
 };
 
@@ -121,129 +116,152 @@ const getNewVersionName = (versions: Version[], base: string) => {
   return `${base}-${n}`;
 };
 
-const VersionSettings = ({
+const isPresetPercentage = (version: Version) =>
+  version.type === 'percentage' &&
+  percentagePresets.includes(version.value.percentage);
+
+const VersionRow = ({
   version,
+  index,
   onChange,
   onRemove,
+  invalidFieldId,
   translation,
 }: {
   version: Version;
+  index: number;
   onChange: (version: Version) => void;
   onRemove?: () => void;
+  invalidFieldId?: string;
   translation: FormatSettingsDictionary;
 }) => {
-  const handleModeChange = (mode: ConfigMode) => {
-    onChange({ ...version, type: mode });
-  };
-
-  const handleInputChange = (field: ConfigMode, value: number) => {
-    onChange({ ...version, value: { ...version.value, [field]: value } });
-  };
+  const locale = useLocale();
+  // "Custom" stays open while its percentage happens to match a preset.
+  const [custom, setCustom] = useState(!isPresetPercentage(version));
+  const fieldId = getVersionFieldId(index);
+  const value = version.value[version.type];
+  const segmentClass =
+    'min-h-11 min-w-14 bg-paper px-2 text-sm text-ink tabular-nums transition-colors duration-150 hover:bg-paper-2 focus-visible:-outline-offset-[3px] aria-pressed:bg-ink aria-pressed:text-paper [&+&]:border-s [&+&]:border-rule';
+  const output =
+    version.type === 'percentage'
+      ? fill(translation.outputPercent, {
+          percent: formatNumber(locale, value || 0),
+        })
+      : fill(
+          version.type === 'width'
+            ? translation.outputWide
+            : translation.outputTall,
+          { px: formatNumber(locale, value || 0) },
+        );
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold text-gray-700">
-          {version.name}
-        </span>
-        {onRemove && (
+    <div className="grid grid-cols-[minmax(0,1fr)_2.75rem] items-center gap-3 border-b border-rule py-3 lg:grid-cols-[minmax(0,1fr)_19rem_minmax(8rem,auto)_2.75rem]">
+      <span className="font-semibold">{version.name}</span>
+      <div className="col-span-2 row-start-2 lg:col-span-1 lg:row-start-auto">
+        <div
+          role="group"
+          aria-label={translation.sizeLabel}
+          className="inline-flex flex-wrap overflow-hidden rounded-input border border-rule"
+        >
+          {percentagePresets.map((percentage) => (
+            <button
+              key={percentage}
+              type="button"
+              aria-pressed={
+                !custom &&
+                version.type === 'percentage' &&
+                version.value.percentage === percentage
+              }
+              onClick={() => {
+                setCustom(false);
+                onChange({
+                  ...version,
+                  type: 'percentage',
+                  value: { ...version.value, percentage },
+                });
+              }}
+              className={segmentClass}
+            >
+              {formatNumber(locale, percentage)}%
+            </button>
+          ))}
           <button
             type="button"
-            onClick={onRemove}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            aria-label={translation.removeSize}
-            title={translation.removeSize}
+            aria-pressed={custom}
+            onClick={() => setCustom(true)}
+            className={segmentClass}
           >
-            <X className="w-4 h-4" />
+            {translation.custom}
           </button>
-        )}
-      </div>
-      <label className="text-sm font-medium text-gray-600">
-        {translation.configMode[version.type]}
-      </label>
-      {version.type === 'percentage' ? (
-        <>
-          <div className="grid grid-cols-4 gap-2 mt-1">
-            {percentagePresets.map((preset) => (
-              <button
-                key={preset.value}
-                onClick={() => handleInputChange('percentage', preset.value)}
-                className={`text-xs p-2 rounded-md transition-colors ${Math.round(preset.value) === Math.round(version.value.percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-          <div className="mt-2">
-            <input
-              type="range"
-              min="1"
-              max="100"
-              value={version.value.percentage}
+        </div>
+        {custom && (
+          <div className="mt-2 flex gap-2">
+            <select
+              value={version.type}
               onChange={(e) =>
-                handleInputChange('percentage', parseInt(e.target.value))
+                onChange({ ...version, type: e.target.value as ConfigMode })
               }
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="text-center text-sm text-gray-600 mt-1">
-              {Math.round(version.value.percentage)}
-              {translation.percentWidth}
+              aria-label={translation.sizeLabel}
+              className={`${fieldClass} shrink-0`}
+            >
+              <option value="width">{translation.width}</option>
+              <option value="height">{translation.height}</option>
+              <option value="percentage">{translation.percent}</option>
+            </select>
+            <div className="relative min-w-24 flex-1">
+              <input
+                id={fieldId}
+                type="number"
+                inputMode="numeric"
+                min={1}
+                // Nothing is upscaled, so more than 100% changes nothing.
+                max={version.type === 'percentage' ? 100 : undefined}
+                value={Number.isFinite(value) ? value : ''}
+                onChange={(e) =>
+                  onChange({
+                    ...version,
+                    value: {
+                      ...version.value,
+                      [version.type]: e.target.valueAsNumber,
+                    },
+                  })
+                }
+                aria-label={`${translation.sizeLabel} (${version.type === 'percentage' ? '%' : 'px'})`}
+                aria-invalid={invalidFieldId === fieldId || undefined}
+                className={`${fieldClass} w-full pe-10`}
+              />
+              <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-muted">
+                {version.type === 'percentage' ? '%' : 'px'}
+              </span>
             </div>
           </div>
-        </>
-      ) : (
-        <div className="relative mt-1">
-          <input
-            type="number"
-            placeholder={`e.g., ${version.type === 'width' ? 1200 : 800}`}
-            value={version.value[version.type]}
-            onChange={(e) =>
-              handleInputChange(version.type, parseFloat(e.target.value))
-            }
-            className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
-            px
-          </span>
-        </div>
-      )}
-      <div className="flex space-x-2 mt-3 text-xs">
-        {version.type === 'percentage' || (
-          <button
-            onClick={() => handleModeChange('percentage')}
-            className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-          >
-            {translation.setPercentage}
-          </button>
         )}
-        {version.type === 'width' || (
-          <button
-            onClick={() => handleModeChange('width')}
-            className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
+      </div>
+      <span className="col-span-2 font-semibold tabular-nums lg:col-span-1 lg:text-end">
+        {output}
+      </span>
+      <div className="col-start-2 row-start-1 lg:col-start-auto lg:row-start-auto">
+        {onRemove && (
+          <IconButton
+            label={fill(translation.removeSize, { name: version.name })}
+            onClick={onRemove}
           >
-            {translation.setWidth}
-          </button>
-        )}
-        {version.type === 'height' || (
-          <button
-            onClick={() => handleModeChange('height')}
-            className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-          >
-            {translation.setHeight}
-          </button>
+            <X className="size-5" aria-hidden="true" />
+          </IconButton>
         )}
       </div>
     </div>
   );
 };
 
-// One output size per version. Starts with one; "More sizes" adds another.
+// One output size per version. Starts with one; "Add a size" adds another.
 // `required` (resize pages) drops the on/off switch: resizing is the point.
 // `versionName` is the base name of new versions (default "Resized").
 export const ResizeSettings = ({
   config,
   setConfig,
   translation,
+  invalidFieldId,
   required,
   versionName = translation.resized,
 }: Props & { required?: boolean; versionName?: string }) => {
@@ -279,53 +297,47 @@ export const ResizeSettings = ({
   };
 
   const versions = (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div>
+      <div className="border-t border-rule">
         {config.versions.map((version, index) => (
-          <VersionSettings
+          <VersionRow
             key={version.name}
             version={version}
+            index={index}
             onChange={(newVersion) => updateVersion(index, newVersion)}
             onRemove={
               config.versions.length > 1
                 ? () => removeVersion(index)
                 : undefined
             }
+            invalidFieldId={invalidFieldId}
             translation={translation}
           />
         ))}
       </div>
-      <div className="flex justify-end mt-4">
-        <SecondaryButton onClick={addVersion}>
-          <Plus className="w-4 h-4 me-2" />
-          {translation.moreSizes}
-        </SecondaryButton>
-      </div>
-    </>
+      <button
+        type="button"
+        onClick={addVersion}
+        className="mt-2 inline-flex min-h-12 items-center gap-2 font-semibold text-accent-deep hover:text-ink"
+      >
+        <Plus className="size-5" aria-hidden="true" />
+        {translation.addSize}
+      </button>
+    </div>
   );
 
   if (required) return versions;
 
   return (
-    <div
-      className={`rounded-lg transition-all duration-300 ${config.resize ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100'}`}
-    >
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center font-semibold text-gray-700">
-          <label htmlFor="resize-toggle">{translation.resize}</label>
-        </div>
-        <Switch
-          id="resize-toggle"
-          checked={config.resize}
-          onChange={() => setConfig({ ...config, resize: !config.resize })}
-        />
-      </div>
-      {!config.resize && (
-        <p className="px-4 pb-3 -mt-2 text-xs text-gray-500">
-          {translation.resizeDescription}
-        </p>
-      )}
-      {config.resize && <div className="px-4 pb-4">{versions}</div>}
+    <div className="grid gap-4">
+      <SwitchRow
+        id="resize-toggle"
+        label={translation.resize}
+        description={config.resize ? undefined : translation.resizeDescription}
+        checked={config.resize}
+        onChange={() => setConfig({ ...config, resize: !config.resize })}
+      />
+      {config.resize && versions}
     </div>
   );
 };
@@ -357,6 +369,7 @@ export const FormatSettings = (
     config,
     setConfig,
     translation,
+    invalidFieldId,
     audio,
     primary,
     initialConfig,
@@ -368,6 +381,7 @@ export const FormatSettings = (
       config={config}
       setConfig={setConfig}
       translation={translation}
+      invalidFieldId={invalidFieldId}
       required={primary === 'resize'}
       versionName={versionName}
     />
@@ -386,19 +400,24 @@ export const FormatSettings = (
         audio.translation,
       )
     : [];
-  const Icon = primary === 'resize' ? Scaling : Settings;
 
   return (
     <>
-      <div className="flex items-center mb-4">
-        <Icon className="w-6 h-6 text-gray-600 mr-3" />
-        <h3 className="text-xl font-semibold text-gray-800">
-          {primary === 'resize'
-            ? translation.outputSizes
-            : translation.outputFormats}
-        </h3>
-      </div>
-      {primary === 'resize' ? resizeSettings : <FormatPicker {...props} />}
+      {primary === 'resize' ? (
+        <SettingsSection
+          title={translation.outputSizes}
+          note={translation.sizesNote}
+        >
+          {resizeSettings}
+        </SettingsSection>
+      ) : (
+        <SettingsSection
+          title={translation.outputFormats}
+          note={translation.formatsNote}
+        >
+          <FormatPicker {...props} />
+        </SettingsSection>
+      )}
       <AdvancedSettings
         label={translation.advancedSettings}
         activeLabels={[
@@ -411,8 +430,20 @@ export const FormatSettings = (
               : []),
           ...audioLabels,
         ]}
+        revealed={invalidFieldId?.startsWith(
+          primary === 'resize' ? 'format-' : 'version-',
+        )}
       >
-        {primary === 'resize' ? <FormatPicker {...props} /> : resizeSettings}
+        {primary === 'resize' ? (
+          <div className="grid gap-3">
+            <h3 className="font-semibold tracking-normal">
+              {translation.outputFormats}
+            </h3>
+            <FormatPicker {...props} />
+          </div>
+        ) : (
+          resizeSettings
+        )}
         {audioSettings}
       </AdvancedSettings>
     </>

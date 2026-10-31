@@ -1,5 +1,11 @@
 {
-  "clickToUpload": "Cliquez pour télécharger",
-  "orDragAndDrop": "ou glissez-déposez",
-  "supports": "Supporte"
+  "dropImages": "Déposez vos images ici",
+  "dropVideos": "Déposez vos vidéos ici",
+  "browse": "Parcourir les fichiers",
+  "noteImages": "{formats}, autant que vous voulez. Votre ordinateur fait le travail : un gros lot prend donc un moment.",
+  "noteVideos": "{formats}, autant que vous voulez. Votre ordinateur fait le travail : les longues vidéos prennent donc du temps.",
+  "sample": "Essayer avec deux photos d’exemple",
+  "sampleError": "Impossible de charger les photos d’exemple. Ajoutez plutôt vos propres images.",
+  "sampleCredit": "Photos d’exemple issues de Wikimedia Commons : {photos}.",
+  "samplePhoto": "{title} par {author} ({license})"
 }

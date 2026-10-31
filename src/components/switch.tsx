@@ -8,26 +8,25 @@ export function Switch({
   onChange: () => void;
 }) {
   return (
-    <div className="relative inline-block w-12 h-6 align-middle select-none">
+    <span className="relative inline-flex h-7 w-12 shrink-0 select-none">
       <input
         type="checkbox"
         id={id}
         checked={checked}
         onChange={onChange}
-        className="absolute inset-0 w-full h-full m-0 p-0 opacity-0 cursor-pointer peer z-10"
-        aria-checked={checked}
+        className="peer absolute inset-0 z-10 m-0 size-full cursor-pointer opacity-0"
         role="switch"
       />
       {/* track */}
-      <div
-        className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors"
+      <span
+        className="size-full rounded-full bg-paper-3 ring-1 ring-rule transition-colors duration-200 ring-inset peer-checked:bg-accent-deep peer-checked:ring-accent-deep peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus"
         aria-hidden="true"
       />
       {/* knob */}
-      <div
-        className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"
+      <span
+        className="absolute start-1 top-1 size-5 rounded-full bg-paper shadow-sm transition-transform duration-200 ease-out peer-checked:translate-x-5 rtl:peer-checked:-translate-x-5"
         aria-hidden="true"
       />
-    </div>
+    </span>
   );
 }

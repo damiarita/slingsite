@@ -1,29 +1,314 @@
-// This component provides the UI for configuring the compression dimensions for each viewport.
+// Size settings of the compress pages: where the image appears (a preset, or
+// one row per screen size), drawn to scale.
 'use client';
-import { ReactElement } from 'react';
-import { Smartphone, Tablet, Monitor, Settings } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { AdvancedSettings } from './advanced-settings';
 import { AudioSettings, getAudioActiveLabels } from './audio-settings';
+import { SettingsSection } from './settings-section';
+import { ScalePreview, describeOutput } from './scale-preview';
+import { IconButton } from './buttons';
 import type { AudioSettingsDictionary, SettingsDictionary } from '@/i18n/type';
-import type {
-  ConfigMode,
-  DimensionsConfig,
-  SizingConfigs,
-} from '@/types/config';
+import type { DimensionsConfig, SizingConfig } from '@/types/config';
+import {
+  type DeviceNames,
+  type PresetId,
+  createSize,
+  fractions,
+  getFraction,
+  getPresetSizes,
+  getTargetWidth,
+  matchPreset,
+  presetIds,
+} from '@/utils/size-presets';
+import { fill, formatNumber } from '@/utils/i18n-format';
+import { getSizeFileKey } from '@/utils/jobs';
 
-const createPercentageFromColumns = (columns: number) => {
-  if (columns <= 0) return 100;
-  return 100 / columns;
+// Width is up to each use (full for inputs, its content for selects).
+export const fieldClass =
+  'min-h-11 rounded-input border border-muted bg-paper px-3 text-base text-ink tabular-nums aria-[invalid=true]:border-error aria-[invalid=true]:bg-error-wash';
+
+const fractionKeys = ['full', 'half', 'third', 'quarter'] as const;
+const fractionGlyphs = ['1', '½', '⅓', '¼'];
+
+// Little layout drawings: which column the image takes.
+const pictograms: Record<PresetId, { grow: number; on?: boolean }[]> = {
+  recommended: [{ grow: 1, on: true }, { grow: 1 }, { grow: 1 }],
+  blog: [{ grow: 1 }, { grow: 3, on: true }, { grow: 1 }],
+  hero: [{ grow: 1, on: true }],
+  grid: [{ grow: 1, on: true }, { grow: 1 }, { grow: 1 }, { grow: 1 }],
 };
+
+export function PresetPicker({
+  sizes,
+  deviceNames,
+  translation,
+  onSelect,
+  className = 'flex flex-wrap items-center gap-2',
+}: {
+  sizes: SizingConfig[];
+  deviceNames: DeviceNames;
+  translation: SettingsDictionary;
+  onSelect: (preset: PresetId) => void;
+  className?: string;
+}) {
+  const current = matchPreset(sizes, deviceNames);
+  return (
+    <div
+      role="group"
+      aria-label={translation.presets.label}
+      className={className}
+    >
+      {presetIds.map((preset) => (
+        <button
+          key={preset}
+          type="button"
+          aria-pressed={current === preset}
+          onClick={() => onSelect(preset)}
+          className="inline-flex min-h-14 items-center gap-3 rounded-input border border-rule bg-paper py-2 ps-3 pe-4 text-start text-ink transition-colors duration-200 hover:bg-paper-2 active:translate-y-px aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+        >
+          <span
+            className="flex h-[26px] w-9 flex-none gap-0.5 rounded-[3px] border-[1.5px] border-current p-0.5"
+            aria-hidden="true"
+          >
+            {pictograms[preset].map((cell, i) => (
+              <i
+                key={i}
+                className={`rounded-[1px] ${cell.on ? 'bg-accent' : 'bg-current opacity-20'}`}
+                style={{ flexGrow: cell.grow, flexBasis: 0 }}
+              />
+            ))}
+          </span>
+          <span>
+            <b className="block text-sm font-semibold">
+              {translation.presets[preset].label}
+            </b>
+            <small className="block text-xs opacity-80">
+              {translation.presets[preset].description}
+            </small>
+          </span>
+        </button>
+      ))}
+      {!current && (
+        <span className="text-sm text-muted">{translation.presets.custom}</span>
+      )}
+    </div>
+  );
+}
+
+// The unique "Large screen", "Large screen 2"… for a new row.
+// "Large screen", then "Large screen 2"…, with the ids large-screen,
+// large-screen-2… (ids name the output files, see getSizeFileKey).
+const newSizeId = 'large-screen';
+const createNewSize = (sizes: SizingConfig[], baseName: string) => {
+  const names = new Set(sizes.map((size) => size.name.trim().toLowerCase()));
+  const keys = new Set(
+    sizes.flatMap((size) => [size.id, getSizeFileKey(size)]),
+  );
+  for (let n = 1; ; n++) {
+    const name = n === 1 ? baseName : `${baseName} ${n}`;
+    const id = n === 1 ? newSizeId : `${newSizeId}-${n}`;
+    if (!names.has(name.toLowerCase()) && !keys.has(id))
+      return createSize(id, name, 2560, 2);
+  }
+};
+
+const numberValue = (value: number) => (Number.isFinite(value) ? value : '');
+
+function SizeRow({
+  size,
+  onChange,
+  onRemove,
+  invalidFieldId,
+  translation,
+  locale,
+}: {
+  size: SizingConfig;
+  onChange: (size: SizingConfig) => void;
+  onRemove: () => void;
+  invalidFieldId?: string;
+  translation: SettingsDictionary;
+  locale: string;
+}) {
+  const ids = {
+    name: `size-name-${size.id}`,
+    screen: `size-screen-${size.id}`,
+    px: `size-px-${size.id}`,
+  };
+  const fraction =
+    size.sizingType === 'percentage' ? getFraction(size) : undefined;
+  const exact = size.sizingType !== 'percentage';
+  const segmentClass =
+    'min-h-11 min-w-11 bg-paper px-2 text-ink transition-colors duration-150 hover:bg-paper-2 focus-visible:-outline-offset-[3px] aria-pressed:bg-ink aria-pressed:text-paper [&+&]:border-s [&+&]:border-rule';
+
+  return (
+    <div
+      role="row"
+      className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_2.75rem] items-center gap-3 border-b border-rule py-3 lg:grid-cols-[minmax(0,1.2fr)_8.5rem_15rem_minmax(6rem,0.8fr)_2.75rem]"
+    >
+      <div
+        role="cell"
+        className="col-start-1 row-start-1 lg:col-auto lg:row-auto"
+      >
+        <input
+          id={ids.name}
+          type="text"
+          value={size.name}
+          onChange={(e) =>
+            onChange({ ...size, name: e.target.value, renamed: true })
+          }
+          aria-label={translation.columns.name}
+          aria-invalid={invalidFieldId === ids.name || undefined}
+          autoComplete="off"
+          className={`${fieldClass} w-full`}
+        />
+      </div>
+      <div
+        role="cell"
+        className="relative col-start-2 row-start-1 lg:col-auto lg:row-auto"
+      >
+        <input
+          id={ids.screen}
+          type="number"
+          inputMode="numeric"
+          min={1}
+          value={numberValue(size.screenWidth)}
+          onChange={(e) =>
+            onChange({
+              ...size,
+              screenWidth: Math.round(e.target.valueAsNumber),
+            })
+          }
+          aria-label={`${translation.columns.screen} (px)`}
+          aria-invalid={invalidFieldId === ids.screen || undefined}
+          className={`${fieldClass} w-full pe-10`}
+        />
+        <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-muted">
+          px
+        </span>
+      </div>
+      <div role="cell" className="col-span-3 lg:col-span-1">
+        <div
+          role="group"
+          aria-label={translation.columns.fills}
+          className="inline-flex overflow-hidden rounded-input border border-rule"
+        >
+          {fractions.map((n, i) => (
+            <button
+              key={n}
+              type="button"
+              aria-pressed={fraction === n}
+              aria-label={translation.fills[fractionKeys[i]]}
+              title={translation.fills[fractionKeys[i]]}
+              onClick={() =>
+                onChange({
+                  ...size,
+                  sizingType: 'percentage',
+                  percentage: 100 / n,
+                })
+              }
+              className={segmentClass}
+            >
+              {fractionGlyphs[i]}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-pressed={exact}
+            onClick={() => {
+              if (!exact)
+                onChange({
+                  ...size,
+                  sizingType: 'width',
+                  width: getTargetWidth(size) ?? size.width,
+                });
+            }}
+            className={`${segmentClass} text-sm`}
+          >
+            {translation.exact}
+          </button>
+        </div>
+        {exact && (
+          <div className="mt-2 flex gap-2">
+            <select
+              value={size.sizingType}
+              onChange={(e) =>
+                onChange({
+                  ...size,
+                  sizingType: e.target.value as 'width' | 'height',
+                })
+              }
+              aria-label={translation.widthOrHeight}
+              className={`${fieldClass} shrink-0`}
+            >
+              <option value="width">{translation.width}</option>
+              <option value="height">{translation.height}</option>
+            </select>
+            <div className="relative min-w-24 flex-1">
+              <input
+                id={ids.px}
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={numberValue(size[size.sizingType])}
+                onChange={(e) =>
+                  onChange({
+                    ...size,
+                    [size.sizingType]: Math.round(e.target.valueAsNumber),
+                  })
+                }
+                aria-label={`${translation.pixels} (px)`}
+                aria-invalid={invalidFieldId === ids.px || undefined}
+                className={`${fieldClass} w-full pe-10`}
+              />
+              <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-muted">
+                px
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+      <div
+        role="cell"
+        className="col-span-3 font-semibold tabular-nums lg:col-span-1 lg:text-end"
+      >
+        {describeOutput(size, translation, locale)}
+        <small className="block text-xs font-normal text-muted">
+          {fraction
+            ? fill(translation.ofScreen, {
+                fraction: translation.fills[fractionKeys[fraction - 1]],
+                screen: formatNumber(locale, size.screenWidth || 0),
+              })
+            : translation.exactSize}
+        </small>
+      </div>
+      <div
+        role="cell"
+        className="col-start-3 row-start-1 lg:col-auto lg:row-auto"
+      >
+        <IconButton
+          label={fill(translation.removeSize, { name: size.name })}
+          onClick={onRemove}
+        >
+          <X className="size-5" aria-hidden="true" />
+        </IconButton>
+      </div>
+    </div>
+  );
+}
 
 export const DimensionsSettings = ({
   config: dimensionsConfig,
   setConfig: setDimensionsConfig,
+  invalidFieldId,
+  deviceNames,
   translation,
   audio,
 }: {
   config: DimensionsConfig;
   setConfig: (config: DimensionsConfig) => void;
+  invalidFieldId?: string;
+  deviceNames: DeviceNames;
   translation: SettingsDictionary;
   // Only for videos. Without it there are no advanced settings.
   audio?: {
@@ -31,239 +316,72 @@ export const DimensionsSettings = ({
     translation: AudioSettingsDictionary;
   };
 }) => {
-  const config = dimensionsConfig.sizes;
-  const setConfig = (sizes: SizingConfigs) =>
-    setDimensionsConfig({ ...dimensionsConfig, sizes });
+  const locale = useLocale();
+  const sizes = dimensionsConfig.sizes;
+  const setSizes = (newSizes: SizingConfig[]) =>
+    setDimensionsConfig({ ...dimensionsConfig, sizes: newSizes });
 
-  const icons: Record<string, ReactElement> = {
-    mobile: <Smartphone className="w-5 h-5 mr-2" />,
-    tablet: <Tablet className="w-5 h-5 mr-2" />,
-    desktop: <Monitor className="w-5 h-5 mr-2" />,
-  };
-
-  const columnOptions = [
-    { label: '1', columns: 1 },
-    { label: '1/2', columns: 2 },
-    { label: '1/3', columns: 3 },
-    { label: '1/4', columns: 4 },
-  ];
-
-  const handleToggle = (configName: string) => {
-    const newConfig = { ...config };
-    newConfig[configName] = {
-      ...newConfig[configName],
-      enabled: !newConfig[configName].enabled,
-    };
-    setConfig(newConfig);
-  };
-
-  const handleModeChange = (configName: string, mode: ConfigMode) => {
-    const newConfig = { ...config };
-    const deviceConf = { ...newConfig[configName], sizingType: mode };
-    newConfig[configName] = deviceConf;
-    setConfig(newConfig);
-  };
-
-  const handleInputChange = (
-    configName: string,
-    field: 'width' | 'height' | 'percentage' | 'screenWidth',
-    value: number,
-  ) => {
-    const newConfig = { ...config };
-    const deviceConf = { ...newConfig[configName], [field]: value };
-    if (field === 'width') {
-      deviceConf.width = value;
-      deviceConf.percentage = (100 * value) / deviceConf.screenWidth;
-    }
-    if (field === 'percentage') {
-      deviceConf.percentage = value;
-      deviceConf.width = (deviceConf.screenWidth * value) / 100;
-    }
-    if (field === 'screenWidth') {
-      deviceConf.screenWidth = value;
-      deviceConf.width = (deviceConf.screenWidth * deviceConf.percentage) / 100;
-    }
-    if (field === 'height') {
-      deviceConf.height = value;
-    }
-    newConfig[configName] = deviceConf;
-    setConfig(newConfig);
-  };
+  const addSize = () =>
+    setSizes([...sizes, createNewSize(sizes, translation.newSizeName)]);
 
   return (
     <>
-      <div className="flex items-center mb-4">
-        <Settings className="w-6 h-6 text-gray-600 mr-3" />
-        <h3 className="text-xl font-semibold text-gray-800">
-          {translation.compressionSettings}
-        </h3>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4">
-        {Object.entries(config).map(([configName, deviceConfig]) => {
-          const icon = deviceConfig.iconType && icons[deviceConfig.iconType];
-          return (
-            <div
-              key={configName}
-              className={`rounded-lg transition-all duration-300 ${deviceConfig.enabled ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100 opacity-70'}`}
-            >
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center font-semibold text-gray-700 capitalize">
-                  {icon}
-                  <label htmlFor={configName}>{configName}</label>
-                </div>
-                <div className="relative inline-block w-12 h-6 mr-2 align-middle select-none">
-                  <input
-                    type="checkbox"
-                    id={configName}
-                    checked={deviceConfig.enabled}
-                    onChange={() => handleToggle(configName)}
-                    className="absolute inset-0 w-full h-full m-0 p-0 opacity-0 cursor-pointer peer z-10"
-                    aria-checked={deviceConfig.enabled}
-                    role="switch"
-                  />
-                  {/* track */}
-                  <div
-                    className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors"
-                    aria-hidden="true"
-                  />
-                  {/* knob */}
-                  <div
-                    className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
-              <div
-                className={`transition-all duration-500 ease-in-out overflow-hidden ${deviceConfig.enabled ? 'max-h-[500px]' : 'max-h-0'}`}
-              >
-                <div className="px-4 pb-4 space-y-4">
-                  {deviceConfig.sizingType === 'percentage' && (
-                    <div>
-                      <label
-                        className="text-sm font-medium text-gray-600"
-                        htmlFor={`screen-width${configName}`}
-                      >
-                        {translation.supportScreensUpTo}:
-                      </label>
-                      <div className="relative mt-1">
-                        <input
-                          id={`screen-width${configName}`}
-                          type="number"
-                          value={deviceConfig.screenWidth}
-                          onChange={function (e) {
-                            handleInputChange(
-                              configName,
-                              'screenWidth',
-                              parseFloat(e.target.value),
-                            );
-                          }}
-                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
-                          px
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">
-                      {translation.configMode[deviceConfig.sizingType]}
-                    </label>
-                    {deviceConfig.sizingType === 'percentage' ? (
-                      <>
-                        <div className="grid grid-cols-4 gap-2 mt-1">
-                          {columnOptions.map((opt) => (
-                            <button
-                              key={opt.columns}
-                              onClick={() =>
-                                handleInputChange(
-                                  configName,
-                                  'percentage',
-                                  createPercentageFromColumns(opt.columns),
-                                )
-                              }
-                              className={`text-xs p-2 rounded-md transition-colors ${Math.round(createPercentageFromColumns(opt.columns)) === Math.round(deviceConfig.percentage) ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="mt-2">
-                          <input
-                            type="range"
-                            min="1"
-                            max="100"
-                            value={deviceConfig.percentage}
-                            onChange={(e) =>
-                              handleInputChange(
-                                configName,
-                                'percentage',
-                                parseInt(e.target.value),
-                              )
-                            }
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                          />
-                          <div className="text-center text-sm text-gray-600 mt-1">
-                            {Math.round(deviceConfig.percentage)}
-                            {translation.percentWidth}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="relative mt-1">
-                        <input
-                          type="number"
-                          placeholder={`e.g., ${deviceConfig.sizingType === 'width' ? 800 : 600}`}
-                          value={deviceConfig[deviceConfig.sizingType]}
-                          onChange={(e) =>
-                            handleInputChange(
-                              configName,
-                              deviceConfig.sizingType,
-                              parseFloat(e.target.value),
-                            )
-                          }
-                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
-                          px
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex space-x-2 mt-3 text-xs">
-                      {deviceConfig.sizingType === 'percentage' || (
-                        <button
-                          onClick={() =>
-                            handleModeChange(configName, 'percentage')
-                          }
-                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                        >
-                          {translation.setPercentage}
-                        </button>
-                      )}
-                      {deviceConfig.sizingType === 'width' || (
-                        <button
-                          onClick={() => handleModeChange(configName, 'width')}
-                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                        >
-                          {translation.setWidth}
-                        </button>
-                      )}
-                      {deviceConfig.sizingType === 'height' || (
-                        <button
-                          onClick={() => handleModeChange(configName, 'height')}
-                          className="flex-1 py-1 px-2 border rounded-md hover:bg-gray-100"
-                        >
-                          {translation.setHeight}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <SettingsSection
+        title={translation.whereTitle}
+        note={translation.whereNote}
+      >
+        <PresetPicker
+          sizes={sizes}
+          deviceNames={deviceNames}
+          translation={translation}
+          onSelect={(preset) => setSizes(getPresetSizes(preset, deviceNames))}
+        />
+        <div role="table" aria-label={translation.whereTitle} className="mt-6">
+          <div
+            role="row"
+            className="hidden grid-cols-[minmax(0,1.2fr)_8.5rem_15rem_minmax(6rem,0.8fr)_2.75rem] gap-3 border-b border-rule py-2 text-sm text-muted lg:grid"
+          >
+            <span role="columnheader">{translation.columns.name}</span>
+            <span role="columnheader">{translation.columns.screen}</span>
+            <span role="columnheader">{translation.columns.fills}</span>
+            <span role="columnheader" className="text-end">
+              {translation.columns.output}
+            </span>
+            <span />
+          </div>
+          <div role="rowgroup">
+            {sizes.map((size, index) => (
+              <SizeRow
+                key={size.id}
+                size={size}
+                onChange={(newSize) =>
+                  setSizes(sizes.map((s, i) => (i === index ? newSize : s)))
+                }
+                onRemove={() => setSizes(sizes.filter((_, i) => i !== index))}
+                invalidFieldId={invalidFieldId}
+                translation={translation}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </div>
+        <button
+          id="size-add"
+          type="button"
+          onClick={addSize}
+          className="mt-2 inline-flex min-h-12 items-center gap-2 font-semibold text-accent-deep hover:text-ink"
+        >
+          <Plus className="size-5" aria-hidden="true" />
+          {translation.addSize}
+        </button>
+        <div className="mt-6">
+          <ScalePreview
+            sizes={sizes}
+            translation={translation}
+            locale={locale}
+          />
+        </div>
+      </SettingsSection>
       {audio && (
         <AdvancedSettings
           label={translation.advancedSettings}

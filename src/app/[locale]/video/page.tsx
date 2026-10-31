@@ -1,5 +1,5 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import CompressorPage from '@/components/compressor-page';
+import CompressorIntro from '@/components/compressor-intro';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
@@ -7,6 +7,9 @@ import {
   getVideoPageSeoDictionary,
   getUploadDictionary,
   getSettingsDictionary,
+  getCompressorAppDictionary,
+  getDevicesDictionary,
+  getNavBarDictionary,
   getResultDictionary,
   getAudioSettingsDictionary,
 } from '@/i18n/requests';
@@ -70,23 +73,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function App({ params }: Props) {
   const { locale } = await params;
   const seoTranslation = await getVideoPageSeoDictionary(locale);
-  const uploadTranslation = await getUploadDictionary(locale);
+  const navBarTranslation = await getNavBarDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
-  const resultTranslation = await getResultDictionary(locale);
   const audioTranslation = await getAudioSettingsDictionary(locale);
   const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
-      <CompressorPage seoTranslation={seoTranslation}>
-        <DimensionsCompressorPage
-          compressorType="video"
-          initialConfig={initialConfig}
-          uploadTranslation={uploadTranslation}
-          settingTranslation={settingTranslation}
-          resultTranslation={resultTranslation}
-          audioTranslation={audioTranslation}
-        />
-      </CompressorPage>
+      <DimensionsCompressorPage
+        compressorType="video"
+        initialConfig={initialConfig}
+        intro={
+          <CompressorIntro
+            seoTranslation={seoTranslation}
+            type="video"
+            tool="compress"
+            locale={locale}
+            translation={navBarTranslation.tools}
+          />
+        }
+        deviceNames={await getDevicesDictionary(locale)}
+        appTranslation={await getCompressorAppDictionary(locale)}
+        uploadTranslation={await getUploadDictionary(locale)}
+        settingTranslation={settingTranslation}
+        resultTranslation={await getResultDictionary(locale)}
+        audioTranslation={audioTranslation}
+      />
       <PageContent locale={locale} slug="video" />
       <BaseDatalayer locale={locale} pageType="video" pageSubtype="optimize" />
     </>

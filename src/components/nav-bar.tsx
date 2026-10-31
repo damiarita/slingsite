@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Logo } from './logo';
 import NavLink from './nav-link';
-import NavDropdown, { type NavGroup } from './nav-dropdown';
+import NavDropdown from './nav-dropdown';
+import ThemeSwitcher from './theme-switcher';
+import { getNavGroups } from './nav-groups';
 import type { Locale } from '@/i18n/routing';
 import type { NavBarTranslations } from '@/i18n/type';
 import { Link } from '@/i18n/navigation';
+
 export default function NavBar({
   locale,
   translation,
@@ -15,55 +18,7 @@ export default function NavBar({
   locale: Locale;
   translation: NavBarTranslations;
 }) {
-  const groups: NavGroup[] = [
-    {
-      label: translation.images,
-      items: [
-        { href: '/image/', label: translation.imageCompressor },
-        {
-          href: {
-            pathname: '/image/format/[[...slugs]]',
-            params: { slugs: [] },
-          },
-          label: translation.imageConverter,
-        },
-        {
-          href: {
-            pathname: '/image/resize/[[...slugs]]',
-            params: { slugs: [] },
-          },
-          label: translation.imageResizer,
-        },
-      ],
-    },
-    {
-      label: translation.videos,
-      items: [
-        { href: '/video/', label: translation.videoCompressor },
-        {
-          href: {
-            pathname: '/video/format/[[...slugs]]',
-            params: { slugs: [] },
-          },
-          label: translation.videoConverter,
-        },
-        {
-          href: {
-            pathname: '/video/resize/[[...slugs]]',
-            params: { slugs: [] },
-          },
-          label: translation.videoResizer,
-        },
-        {
-          href: {
-            pathname: '/video/thumbnail/[[...slugs]]',
-            params: { slugs: [] },
-          },
-          label: translation.videoThumbnail,
-        },
-      ],
-    },
-  ];
+  const groups = getNavGroups(translation);
   const [open, setOpen] = useState(false);
 
   // Lock background scroll while the drawer is open.
@@ -88,45 +43,50 @@ export default function NavBar({
 
   return (
     <>
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link
-              locale={locale}
-              href="/home/"
-              className="flex items-center space-x-3"
-            >
-              <Logo />
-              <span className="text-2xl font-bold text-gray-800">
-                SlingSite
-              </span>
-            </Link>
+      <a
+        href="#main"
+        className="absolute start-4 -top-24 z-[60] rounded-input bg-ink px-4 py-2 text-paper focus-visible:top-4"
+      >
+        {translation.skipToContent}
+      </a>
+      <header className="border-b border-rule bg-paper">
+        <div className="page-container flex min-h-16 items-center gap-6">
+          <Link
+            locale={locale}
+            href="/home/"
+            className="inline-flex items-center gap-2 text-lg font-semibold tracking-[-0.02em] text-ink no-underline"
+          >
+            <Logo />
+            SlingSite
+          </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden sm:flex space-x-6 text-sm font-medium">
-              {groups.map((group) => (
-                <NavDropdown key={group.label} group={group} locale={locale} />
-              ))}
-            </nav>
-
-            {/* Mobile hamburger */}
-            <div className="sm:hidden">
-              <button
-                type="button"
-                aria-label={open ? translation.closeMenu : translation.openMenu}
-                aria-expanded={open}
-                aria-controls="mobile-nav-drawer"
-                onClick={() => setOpen((v) => !v)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              >
-                {open ? (
-                  <X className="h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <Menu className="h-6 w-6" aria-hidden="true" />
-                )}
-              </button>
-            </div>
+          {/* Desktop nav */}
+          <nav className="ms-auto hidden items-center gap-1 sm:flex">
+            {groups.map((group) => (
+              <NavDropdown key={group.label} group={group} locale={locale} />
+            ))}
+          </nav>
+          <div className="hidden sm:block">
+            <ThemeSwitcher translation={translation.theme} />
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls="mobile-nav-drawer"
+            onClick={() => setOpen((v) => !v)}
+            className="ms-auto grid size-11 place-items-center rounded-input text-ink hover:bg-paper-2 sm:hidden"
+          >
+            {open ? (
+              <X className="size-6" aria-hidden="true" />
+            ) : (
+              <Menu className="size-6" aria-hidden="true" />
+            )}
+            <span className="sr-only">
+              {open ? translation.closeMenu : translation.openMenu}
+            </span>
+          </button>
         </div>
       </header>
 
@@ -134,7 +94,7 @@ export default function NavBar({
          for this one to mount/unmount with `open`. */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 sm:hidden"
+          className="fixed inset-0 z-40 bg-scrim sm:hidden"
           onClick={() => setOpen(false)}
           aria-hidden="true"
         />
@@ -146,29 +106,27 @@ export default function NavBar({
          adding/removing the links from the DOM. */}
       <div
         id="mobile-nav-drawer"
-        className={`fixed inset-y-0 right-0 z-50 w-72 max-w-[85%] bg-white shadow-xl sm:hidden transform transition-transform duration-300 ease-in-out ${
-          open ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed inset-y-0 end-0 z-50 flex w-80 max-w-[88%] flex-col border-s border-rule bg-paper transition-transform duration-300 ease-out sm:hidden ${
+          open ? 'translate-x-0' : 'translate-x-full rtl:-translate-x-full'
         }`}
         aria-hidden={!open}
         inert={!open}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <span className="text-lg font-semibold text-gray-800">
-            {translation.menu}
-          </span>
+        <div className="flex min-h-16 items-center justify-between border-b border-rule ps-4 pe-2">
+          <span className="font-semibold text-ink">{translation.menu}</span>
           <button
             type="button"
-            aria-label={translation.closeMenu}
             onClick={() => setOpen(false)}
-            className="p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            className="grid size-11 place-items-center rounded-input text-ink hover:bg-paper-2"
           >
-            <X className="h-5 w-5" aria-hidden="true" />
+            <X className="size-5" aria-hidden="true" />
+            <span className="sr-only">{translation.closeMenu}</span>
           </button>
         </div>
-        <nav className="py-2">
+        <nav className="flex-1 overflow-y-auto p-2">
           {groups.map((group) => (
-            <div key={group.label} className="pb-2">
-              <p className="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div key={group.label} className="pb-4">
+              <p className="px-3 pt-2 pb-1 text-sm font-semibold text-muted">
                 {group.label}
               </p>
               {group.items.map((item, i) => (
@@ -177,14 +135,16 @@ export default function NavBar({
                   locale={locale}
                   href={item.href}
                   onLinkClick={() => setOpen(false)}
-                  mobile
                 >
-                  <div className="px-4 py-2">{item.label}</div>
+                  {item.label}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
+        <div className="border-t border-rule p-4">
+          <ThemeSwitcher translation={translation.theme} labelled />
+        </div>
       </div>
     </>
   );

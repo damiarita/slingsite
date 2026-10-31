@@ -10,5 +10,20 @@
   "videoThumbnail": "Video Thumbnail",
   "menu": "Menu",
   "openMenu": "Open menu",
-  "closeMenu": "Close menu"
+  "closeMenu": "Close menu",
+  "skipToContent": "Skip to content",
+  "theme": {
+    "label": "Theme",
+    "system": "Match system",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "tools": {
+    "imageTools": "Image tools",
+    "videoTools": "Video tools",
+    "compress": "Compress",
+    "convert": "Convert",
+    "resize": "Resize",
+    "thumbnail": "Thumbnail"
+  }
 }

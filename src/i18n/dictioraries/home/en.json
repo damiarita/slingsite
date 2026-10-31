@@ -1,91 +1,106 @@
 {
   "metadata": {
-    "title": "SlingSite: Free Image and Video Optimizer, Resizer and Converter",
+    "title": "Free Image & Video Optimizer 🚀 No Uploads | SlingSite",
     "description": "Compress, resize and convert images and videos, or extract a video thumbnail, for free in your browser. Your files never leave your device. JPG, PNG, WebP, AVIF, MP4 and WebM."
   },
   "hero": {
-    "title": "Web-ready images and videos, right in your browser",
-    "subtitle": "Compress, resize and convert your media, or grab a video's thumbnail, in a few clicks. Free, with no sign-up, and your files never leave your device.",
-    "ctaImages": "Optimize images",
-    "ctaVideos": "Optimize videos",
-    "badges": [
-      "100% free",
-      "No sign-up",
-      "Files never leave your device",
-      "Batch processing"
-    ]
+    "title": "Web-ready images and videos, never uploaded",
+    "subtitle": "Compress, convert and resize whole batches in your browser, free.",
+    "checks": ["Free, forever", "No uploads", "Whole batches at once"]
   },
-  "features": {
-    "heading": "One toolbox for all your media",
-    "subheading": "Pick the tool that fits the job. Every tool handles as many files as you want at once.",
-    "forImages": "Images",
-    "forVideos": "Videos",
-    "optimize": {
-      "title": "Optimize for the web",
-      "description": "Get every size and next-gen format your website needs from a single upload.",
-      "points": [
-        "Mobile, tablet and desktop sizes",
-        "Images in JPG, WebP and AVIF",
-        "Videos in MP4 (H.264, H.265) and WebM, plus a poster image"
-      ]
+  "chooser": {
+    "label": "Tools",
+    "compressImages": {
+      "label": "Compress images",
+      "description": "Three screen sizes in AVIF, WebP and JPG"
     },
-    "resize": {
-      "title": "Resize",
-      "description": "Shrink images and videos by percentage, width or height. The aspect ratio is always kept.",
-      "points": [
-        "Several sizes in one go",
-        "Keeps each file in its own format, or converts it",
-        "Never upscales, so no blurry results"
-      ]
+    "convertImages": {
+      "label": "Convert images",
+      "description": "JPG, PNG, WebP or AVIF, same size"
     },
-    "convert": {
-      "title": "Convert formats",
-      "description": "Turn any image or video into the format you need, at its original size.",
-      "points": [
-        "Images to JPG, PNG, WebP or AVIF",
-        "Videos to MP4 (H.264 or H.265) or WebM",
-        "Reads PNG, GIF, MOV, MKV and more"
-      ]
+    "resizeImages": {
+      "label": "Resize images",
+      "description": "By percentage, width or height"
     },
-    "thumbnail": {
-      "title": "Video thumbnail",
-      "description": "Extract the first frame of a video as an image, ready to use as a cover or poster.",
-      "points": [
-        "Save it as JPG, PNG, WebP or AVIF",
-        "Full resolution, or resized",
-        "Works with MP4, WebM, MOV and MKV"
-      ],
-      "cta": "Extract a thumbnail"
+    "compressVideos": {
+      "label": "Compress videos",
+      "description": "MP4, HEVC and WebM, with a poster"
+    },
+    "convertVideos": {
+      "label": "Convert videos",
+      "description": "To MP4, HEVC or WebM"
+    },
+    "resizeVideos": {
+      "label": "Resize videos",
+      "description": "Smaller files for embeds"
+    },
+    "videoThumbnail": {
+      "label": "Video thumbnail",
+      "description": "The first frame as an image"
     }
   },
-  "steps": {
-    "heading": "How it works",
+  "showcase": {
+    "title": "One photo in, nine files out",
+    "lead": "Three screen sizes, each in AVIF, WebP and JPG, named for your CMS.",
+    "screenshotAlt": "The results for cardamom-buns.jpg: Mobile, Tablet and Desktop rows, each with its AVIF, WebP and JPG file, its size and a download button",
+    "caption": "A 1920 px photo after the default settings.",
+    "cmsLabel": "For the CMS:",
+    "cms": "one zip with every file, or straight to Google Drive.",
+    "codeLabel": "For the code:",
+    "code": "the {picture} markup for each image, ready to copy."
+  },
+  "audiences": {
+    "title": "From the CMS to the code",
     "items": [
       {
-        "title": "Add your files",
-        "description": "Drop images or videos onto the page, or pick them from your device."
+        "title": "Content teams",
+        "description": "Agency PNGs made light enough for WordPress, Shopify or Webflow."
       },
       {
-        "title": "Choose your settings",
-        "description": "Pick the sizes and formats you want. Sensible defaults are already set."
+        "title": "Developers",
+        "description": "Every srcset width in AVIF, WebP and JPG, named the same way."
       },
       {
-        "title": "Download",
-        "description": "Save each file or all of them at once, or send them to Google Drive."
+        "title": "Client work",
+        "description": "Files stay on your laptop, so there is no third party to vet."
       }
     ]
   },
-  "privacy": {
-    "heading": "Your files stay on your device",
-    "description": "SlingSite does all the work inside your browser, on your own computer or phone. Nothing is uploaded and no server ever sees your files, so it is safe for private and confidential media.",
-    "points": [
-      "Nothing is uploaded to a server",
-      "No account, no watermark",
-      "Speed depends on your device, not your connection",
-      "Free, with no limit on the number of files"
+  "layouts": {
+    "title": "Say where the image goes",
+    "lead": "Pick a layout and see every screen size drawn to scale.",
+    "tryIt": "Try it with your images"
+  },
+  "needs": {
+    "title": "What it needs from you",
+    "rows": [
+      {
+        "label": "Money",
+        "value": "None. No account, no plan, no watermark."
+      },
+      {
+        "label": "Your files",
+        "value": "Opened in your browser and never sent to a server."
+      },
+      {
+        "label": "Your computer",
+        "value": "It does the encoding, so big batches and long videos take a while.",
+        "cost": true
+      },
+      {
+        "label": "Your browser",
+        "value": "A current one, on a desktop or a phone. HEVC video depends on your hardware."
+      }
     ]
   },
   "popular": {
     "heading": "Popular tools"
+  },
+  "band": {
+    "title": "Start with your own images",
+    "lead": "Drop a whole batch and get one zip back. It works the same on a phone.",
+    "ctaImages": "Compress images",
+    "ctaVideos": "Compress videos",
+    "phoneAlt": "The image compressor on a phone: the heading, then the dropzone with its Browse files button"
   }
 }

@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "Files to Compress",
-  "addMoreFiles": "Add More Files",
-  "compressionSettings": "Compression Settings",
-  "advancedSettings": "Advanced Settings",
-  "supportScreensUpTo": "Support Screens Up To",
-  "removeFile": "Remove File",
-  "mobile": "Mobile",
-  "tablet": "Tablet",
-  "desktop": "Desktop",
-  "percentWidth": "% width",
-  "setPercentage": "Set Percentage",
-  "setWidth": "Set Width",
-  "setHeight": "Set Height",
-  "configMode": {
-    "percentage": "Span",
-    "width": "Image Width",
-    "height": "Image Height"
+  "stepTitle": "Choose sizes",
+  "whereTitle": "Where they appear",
+  "whereNote": "One file per screen size, so phones never download a desktop-sized file.",
+  "presets": {
+    "label": "Presets",
+    "custom": "Custom sizes",
+    "recommended": {
+      "label": "Recommended",
+      "description": "Most pages"
+    },
+    "blog": {
+      "label": "Blog post",
+      "description": "A text column"
+    },
+    "hero": {
+      "label": "Hero banner",
+      "description": "Full width"
+    },
+    "grid": {
+      "label": "Product grid",
+      "description": "Cards in a row"
+    }
   },
-  "startCompression": "Compress All"
+  "columns": {
+    "name": "Name",
+    "screen": "Screens up to",
+    "fills": "Width on the page",
+    "output": "Output"
+  },
+  "fills": {
+    "full": "the full width",
+    "half": "half",
+    "third": "a third",
+    "quarter": "a quarter"
+  },
+  "exact": "Exact",
+  "width": "Width",
+  "height": "Height",
+  "widthOrHeight": "Width or height",
+  "pixels": "Pixels",
+  "outputWide": "{px} px wide",
+  "outputTall": "{px} px tall",
+  "ofScreen": "{fraction} of {screen} px",
+  "exactSize": "exact size",
+  "addSize": "Add a screen size",
+  "newSizeName": "Large screen",
+  "removeSize": "Remove {name}",
+  "preview": {
+    "title": "Preview to scale",
+    "legend": "Green is your file",
+    "empty": "Add a screen size to see the preview.",
+    "caption": "{name}, up to {screen} px"
+  },
+  "problems": {
+    "noSizes": "Add at least one screen size.",
+    "noName": "Give every screen size a name.",
+    "duplicateName": "Two screen sizes are called “{name}”. Rename one.",
+    "duplicateFileName": "“{name}” and “{other}” would get the same file names. Rename one.",
+    "screenWidth": "Screen widths need a number above 0.",
+    "exactSize": "Exact sizes need a number above 0."
+  },
+  "start": "Compress {files}",
+  "summary": "{files}, {sizes} each, in {formats}: {total}",
+  "withPoster": "{formats}, plus a poster in {posterFormats}",
+  "advancedSettings": "Advanced settings"
 }

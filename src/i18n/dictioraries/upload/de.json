@@ -1,5 +1,11 @@
 {
-  "clickToUpload": "Zum Hochladen klicken",
-  "orDragAndDrop": "oder per Drag & Drop",
-  "supports": "Unterstützt"
+  "dropImages": "Bilder hier ablegen",
+  "dropVideos": "Videos hier ablegen",
+  "browse": "Dateien auswählen",
+  "noteImages": "{formats}, so viele Sie möchten. Ihr Computer erledigt die Arbeit, daher dauert ein großer Stapel einen Moment.",
+  "noteVideos": "{formats}, so viele Sie möchten. Ihr Computer erledigt die Arbeit, daher dauern lange Videos eine Weile.",
+  "sample": "Mit zwei Beispielfotos ausprobieren",
+  "sampleError": "Die Beispielfotos konnten nicht geladen werden. Fügen Sie stattdessen Ihre eigenen Bilder hinzu.",
+  "sampleCredit": "Beispielfotos von Wikimedia Commons: {photos}.",
+  "samplePhoto": "{title} von {author} ({license})"
 }

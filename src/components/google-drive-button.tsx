@@ -1,36 +1,29 @@
 import type { MouseEventHandler } from 'react';
 import { SiGoogledrive } from 'react-icons/si';
+import { buttonClass } from './buttons';
 
 type Props = {
   onClick: MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
-  /** Used for accessibility (aria-label/title) */
-  label?: string;
-  /** Tailwind classes to override styling (optional) */
-  className?: string;
+  label: string;
+  // Only the icon, with `label` as hidden text and a tooltip.
+  iconOnly?: boolean;
 };
 
 export const GoogleDriveButton = ({
   onClick,
   disabled,
-  label = 'Upload to Google Drive',
-  className = '',
-}: Props) => {
-  const base =
-    'p-2 rounded-full transition-colors flex items-center justify-center';
-  const enabled = 'hover:bg-gray-200';
-  const disabledCls = 'opacity-50 cursor-not-allowed';
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      title={label}
-      className={`${base} ${className} ${disabled ? disabledCls : enabled}`}
-    >
-      <SiGoogledrive className="w-4 h-4" />
-    </button>
-  );
-};
+  label,
+  iconOnly,
+}: Props) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    title={iconOnly ? label : undefined}
+    className={`${buttonClass('quiet', 'sm')} ${iconOnly ? 'w-11 px-0' : ''}`}
+  >
+    <SiGoogledrive className="size-4" aria-hidden="true" />
+    {iconOnly ? <span className="sr-only">{label}</span> : label}
+  </button>
+);

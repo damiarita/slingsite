@@ -134,23 +134,24 @@ export default function LanguageSelector({
         aria-expanded={open}
         aria-controls="language-selector-menu"
         onClick={() => setOpen((v) => !v)}
-        className="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center gap-2"
+        className="flex min-h-11 items-center gap-2 rounded-input border border-rule bg-paper px-3 text-sm text-ink transition-colors duration-150 hover:bg-paper-3"
       >
         {languageNames[currentLocale]}
         {open ? (
-          <ChevronUp className="w-4 h-4 text-gray-500" />
+          <ChevronDown className="size-4 text-muted" aria-hidden="true" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-500" />
+          <ChevronUp className="size-4 text-muted" aria-hidden="true" />
         )}
       </button>
 
       {/* Always rendered — even while "closed" — so every language link is
          present in the static HTML for crawlers. Open/closed is expressed
          with CSS (opacity/scale/pointer-events) plus aria-hidden/inert,
-         never by adding/removing the links from the DOM. */}
+         never by adding/removing the links from the DOM. It opens upwards:
+         the selector sits at the bottom of the footer. */}
       <div
         id="language-selector-menu"
-        className={`absolute left-0 mt-1 w-full bg-white rounded-md shadow-md z-50 border border-gray-300 origin-top transition-all duration-150 ${
+        className={`absolute end-0 bottom-full z-50 mb-1 min-w-full origin-bottom rounded-card border border-rule bg-paper p-1 shadow-[0_16px_40px_-16px_var(--color-scrim)] transition-[opacity,transform] duration-150 ${
           open
             ? 'opacity-100 scale-100 pointer-events-auto'
             : 'opacity-0 scale-95 pointer-events-none'
@@ -158,7 +159,7 @@ export default function LanguageSelector({
         aria-hidden={!open}
         inert={!open}
       >
-        <ul className="py-1" role="menu">
+        <ul role="menu">
           {(Object.entries(urls) as [Locale, string][]).map(([locale, url]) => (
             <li key={locale} role="none">
               <Link
@@ -166,10 +167,10 @@ export default function LanguageSelector({
                 hrefLang={locale}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className={`block px-3 py-2 text-sm transition-colors ${
+                className={`flex min-h-10 items-center rounded-[4px] px-3 text-sm whitespace-nowrap no-underline transition-colors duration-150 ${
                   locale === currentLocale
-                    ? 'text-gray-900 font-semibold bg-gray-100'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-paper-2 font-semibold text-ink'
+                    : 'text-ink-2 hover:bg-paper-2 hover:text-ink'
                 }`}
               >
                 {languageNames[locale] || locale}

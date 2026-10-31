@@ -10,5 +10,20 @@
   "videoThumbnail": "视频缩略图",
   "menu": "菜单",
   "openMenu": "打开菜单",
-  "closeMenu": "关闭菜单"
+  "closeMenu": "关闭菜单",
+  "skipToContent": "跳到内容",
+  "theme": {
+    "label": "主题",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "tools": {
+    "imageTools": "图片工具",
+    "videoTools": "视频工具",
+    "compress": "压缩",
+    "convert": "转换",
+    "resize": "调整尺寸",
+    "thumbnail": "缩略图"
+  }
 }

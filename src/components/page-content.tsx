@@ -35,12 +35,12 @@ export default function PageContent({
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="page-container border-t border-rule py-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="prose prose-lg mx-auto">
+      <article className="prose prose-lg mx-auto max-w-3xl">
         <MDXRemote source={pageContent.body.raw} components={mdxComponents} />
       </article>
     </div>

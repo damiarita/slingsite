@@ -25,41 +25,41 @@ export function PostListing({
   translations,
 }: PostListingProps) {
   return (
-    <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-      <header className="mb-20 text-center space-y-4">
-        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight">
+    <div className="page-container py-16 lg:py-24">
+      <header className="mb-12">
+        <h1 className="max-w-[20ch] text-display tracking-[-0.022em]">
           {title}
         </h1>
       </header>
 
-      <div className="grid gap-12">
+      <div className="grid max-w-4xl border-b border-rule">
         {posts.map((post) => (
           <article
             key={post._id}
-            className="group relative flex flex-col md:flex-row gap-8 bg-white p-8 rounded-3xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/5 border border-gray-100/50"
+            className="group relative border-t border-rule py-8"
           >
-            <div className="flex-1 space-y-4">
-              <div className="flex flex-wrap items-center gap-4 text-xs font-bold uppercase tracking-widest">
+            <div className="grid gap-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
                 {post.folder && (
-                  <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
+                  <span className="rounded-full bg-paper-2 px-3 py-0.5 text-ink-2">
                     {post.folder}
                   </span>
                 )}
-                <div className="flex items-center gap-1.5 text-gray-400">
-                  <Calendar className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="size-4" aria-hidden="true" />
                   <time dateTime={post.publicationDate}>
                     {formatDateTime(post.publicationDate, locale)}
                   </time>
                 </div>
-                <div className="flex items-center gap-1.5 text-gray-400">
-                  <Clock className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5">
+                  <Clock className="size-4" aria-hidden="true" />
                   <span>
                     {post.readingTime} {translations.read_time}
                   </span>
                 </div>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">
+              <h2 className="text-title transition-colors duration-150 group-hover:text-accent-deep">
                 <Link
                   locale={locale}
                   href={{
@@ -72,21 +72,24 @@ export function PostListing({
                 </Link>
               </h2>
 
-              <p className="text-gray-600 text-lg line-clamp-2 leading-relaxed">
+              <p className="line-clamp-2 max-w-[65ch] text-ink-2">
                 {post.description}
               </p>
 
-              <div className="pt-4">
+              <div>
                 <Link
                   locale={locale}
                   href={{
                     pathname: '/content/[...slugs]',
                     params: { slugs: post.slugPath },
                   }}
-                  className="inline-flex items-center text-sm font-bold text-blue-600 group-hover:translate-x-1 transition-transform"
+                  className="relative inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-accent-deep"
                 >
                   {translations.read_article}
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight
+                    className="size-4 rtl:rotate-180"
+                    aria-hidden="true"
+                  />
                 </Link>
               </div>
             </div>

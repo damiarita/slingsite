@@ -3,6 +3,10 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import Layout from '@/components/layout';
 
+// Only the generated pages exist (static export): any other URL is a 404, in
+// `next dev` too, instead of the dev server's "missing param" error.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
     locale,

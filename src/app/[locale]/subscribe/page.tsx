@@ -57,6 +57,7 @@ export default async function App({ params }: Props) {
   return (
     <>
       <div
+        className="page-container py-16"
         dangerouslySetInnerHTML={{
           __html: `
       <!-- Begin Brevo Form -->

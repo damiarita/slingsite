@@ -1,10 +1,13 @@
 import BaseDatalayer from '@/components/base-datalayer';
-import CompressorPage from '@/components/compressor-page';
+import CompressorIntro from '@/components/compressor-intro';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
   getImagePageMetadataDictionary,
   getImagePageSeoDictionary,
+  getCompressorAppDictionary,
+  getDevicesDictionary,
+  getNavBarDictionary,
   getResultDictionary,
   getSettingsDictionary,
   getUploadDictionary,
@@ -69,21 +72,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function App({ params }: Props) {
   const { locale } = await params;
   const seoTranslation = await getImagePageSeoDictionary(locale);
-  const uploadTranslation = await getUploadDictionary(locale);
+  const navBarTranslation = await getNavBarDictionary(locale);
   const settingTranslation = await getSettingsDictionary(locale);
-  const resultTranslation = await getResultDictionary(locale);
   const initialConfig = await getDefaultCompressionConfig(locale);
   return (
     <>
-      <CompressorPage seoTranslation={seoTranslation}>
-        <DimensionsCompressorPage
-          compressorType="image"
-          initialConfig={initialConfig}
-          uploadTranslation={uploadTranslation}
-          settingTranslation={settingTranslation}
-          resultTranslation={resultTranslation}
-        />
-      </CompressorPage>
+      <DimensionsCompressorPage
+        compressorType="image"
+        initialConfig={initialConfig}
+        intro={
+          <CompressorIntro
+            seoTranslation={seoTranslation}
+            type="image"
+            tool="compress"
+            locale={locale}
+            translation={navBarTranslation.tools}
+          />
+        }
+        deviceNames={await getDevicesDictionary(locale)}
+        appTranslation={await getCompressorAppDictionary(locale)}
+        uploadTranslation={await getUploadDictionary(locale)}
+        settingTranslation={settingTranslation}
+        resultTranslation={await getResultDictionary(locale)}
+      />
       <PageContent locale={locale} slug="image" />
       <BaseDatalayer locale={locale} pageType="image" pageSubtype="optimize" />
     </>

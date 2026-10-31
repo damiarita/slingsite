@@ -1,14 +1,21 @@
 import type { Job } from '@/types/job';
-import { jobProportionOfDoneTasks, jobTaskEntries } from '@/utils/jobs';
+import {
+  jobIsIncomplete,
+  jobProportionOfDoneTasks,
+  jobTaskEntries,
+} from '@/utils/jobs';
 import { FileItem } from './file-item';
 import type { Format } from '@/utils/formats';
 import type { PersistenceScope, TaskOutcome } from '@/types/analytics';
 import { sumBy, taskEntry, trackEvent } from '@/utils/analytics';
-import { Package } from 'lucide-react';
+import { Cpu, Package, X } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { downloadAllFiles, downloadResultFile } from '@/utils/persistence';
-import { PrimaryButton } from './buttons';
+import { IconButton, PrimaryButton } from './buttons';
 import { GoogleDriveButton } from './google-drive-button';
-import { ResultsDictionary } from '@/i18n/type';
+import { StepHeading } from './settings-section';
+import { CompressorAppDictionary, ResultsDictionary } from '@/i18n/type';
+import { fill, formatBytes, formatCount } from '@/utils/i18n-format';
 import { uploadFilesToGoogleDrive } from '@/utils/google-drive';
 import {
   FilePersistenceJob,
@@ -21,6 +28,7 @@ type Props = {
   jobs: Job[];
   handleRemoveJob: (index: number) => void;
   translation: ResultsDictionary;
+  counts: CompressorAppDictionary['counts'];
 };
 
 type CompletedTask = {
@@ -66,7 +74,14 @@ function chagePersistanceJobStatus(
   });
 }
 
-export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
+// Step 3: every job with its outputs, and the ways to save them.
+export const Results = ({
+  jobs,
+  handleRemoveJob,
+  translation,
+  counts,
+}: Props) => {
+  const locale = useLocale();
   const [persistenceJobs, setPersistenceJobs] = useState<FilePersistenceJob[]>(
     [],
   );
@@ -167,124 +182,125 @@ export const Results = ({ jobs, handleRemoveJob, translation }: Props) => {
     });
   };
 
+  const completed = getCompletedTasks(jobs);
+  const anyDone = jobs.some((job) => jobProportionOfDoneTasks(job) > 0);
+  const t = translation.upload;
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-[200px]">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">
-          {translation.yourFiles}
-        </h3>
-        <PrimaryButton
-          onClick={() => persistTasks(getCompletedTasks(jobs), 'device', 'all')}
-          disabled={!jobs.some((job) => jobProportionOfDoneTasks(job) > 0)}
-        >
-          <Package className="w-4 h-4 mr-2" /> {translation.downloadAllFiles}
-        </PrimaryButton>
-        <GoogleDriveButton
-          onClick={() =>
-            persistTasks(getCompletedTasks(jobs), 'googleDrive', 'all')
-          }
-          disabled={!jobs.some((job) => jobProportionOfDoneTasks(job) > 0)}
-          className="ml-2"
-        />
+    <>
+      <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <StepHeading number={3} id="results-title">
+          {translation.title}
+        </StepHeading>
+        <p className="text-sm text-muted" aria-live="polite">
+          {completed.length > 0 &&
+            fill(translation.totals, {
+              files: formatCount(locale, completed.length, counts.file),
+              size: formatBytes(
+                locale,
+                sumBy(completed, (task) => task.file.size),
+              ),
+            })}
+        </p>
+        <div className="flex flex-wrap gap-3 lg:ms-auto">
+          <PrimaryButton
+            size="sm"
+            onClick={() => persistTasks(completed, 'device', 'all')}
+            disabled={!anyDone}
+          >
+            <Package className="size-4" aria-hidden="true" />
+            {translation.downloadAll}
+          </PrimaryButton>
+          <GoogleDriveButton
+            onClick={() => persistTasks(completed, 'googleDrive', 'all')}
+            disabled={!anyDone}
+            label={translation.saveToDrive}
+          />
+        </div>
       </div>
-      {jobs.length === 0 ? (
-        <div className="text-center py-10 text-gray-500">
-          <p>{translation.uploadMoreFiles}</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {jobs.map((job, index) => (
-            <FileItem
-              key={job.id}
-              onRemove={() => handleRemoveJob(index)}
-              onDownloadOne={(configName, format) =>
-                persistTasks(
-                  getCompletedTasks([job], { configName, format }),
-                  'device',
-                  'file',
-                )
-              }
-              onDownloadAll={(persistenceType) =>
-                persistTasks(getCompletedTasks([job]), persistenceType, 'job')
-              }
-              job={job}
-              translation={translation}
-            />
-          ))}
-        </div>
+      {jobs.some(jobIsIncomplete) && (
+        <p className="mb-6 flex items-center gap-2 rounded-input bg-warn-wash px-4 py-3 text-sm text-warn">
+          <Cpu className="size-5 shrink-0" aria-hidden="true" />
+          {translation.keepTabOpen}
+        </p>
       )}
+      <div className="grid gap-4">
+        {jobs.map((job, index) => (
+          <FileItem
+            key={job.id}
+            onRemove={() => handleRemoveJob(index)}
+            onDownloadOne={(configName, format) =>
+              persistTasks(
+                getCompletedTasks([job], { configName, format }),
+                'device',
+                'file',
+              )
+            }
+            onDownloadAll={(persistenceType) =>
+              persistTasks(getCompletedTasks([job]), persistenceType, 'job')
+            }
+            job={job}
+            translation={translation}
+            fileCount={counts.file}
+          />
+        ))}
+      </div>
       {persistenceJobs.length > 0 && showPersistencePanel && (
-        <div className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[94vw] bg-white border border-gray-200 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-800">Upload status</p>
-            <button
-              type="button"
+        <div className="fixed end-4 bottom-4 z-50 w-[360px] max-w-[calc(100%-2rem)] overflow-hidden rounded-card border border-rule bg-paper shadow-[0_16px_40px_-16px_var(--color-scrim)]">
+          <div className="flex items-center justify-between border-b border-rule bg-paper-2 ps-4 pe-1 py-1">
+            <p className="text-sm font-semibold text-ink">{t.title}</p>
+            <IconButton
+              label={t.close}
               onClick={() => setShowPersistencePanel(false)}
-              className="p-1 rounded hover:bg-gray-200"
-              title="Close"
             >
-              <span className="sr-only">Close</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="w-4 h-4 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+              <X className="size-4" aria-hidden="true" />
+            </IconButton>
           </div>
-          <div className="max-h-72 overflow-auto p-4 space-y-3">
+          <ul className="grid max-h-72 gap-3 overflow-auto p-4">
             {persistenceJobs.map((job) => (
-              <div
-                key={job.id}
-                className="p-3 border border-gray-200 rounded-lg"
-              >
-                <p className="text-sm font-medium text-gray-700 mb-2 truncate">
+              <li key={job.id} className="rounded-input border border-rule p-3">
+                <p className="mb-2 truncate text-sm font-semibold text-ink">
                   {job.file.name}
                 </p>
                 {job.status.status === 'running' && (
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="h-2 overflow-hidden rounded-full bg-paper-3">
                     <div
-                      className="bg-blue-600 h-3 rounded-full"
-                      style={{ width: `${job.status.percentage}%` }}
+                      className="h-full origin-left bg-accent rtl:origin-right"
+                      style={{
+                        transform: `scaleX(${job.status.percentage / 100})`,
+                      }}
                     />
                   </div>
                 )}
                 {job.status.status === 'waiting' && (
-                  <p className="text-xs text-gray-500">Waiting to start...</p>
+                  <p className="text-xs text-muted">{t.waiting}</p>
                 )}
                 {job.status.status === 'completed' && (
-                  <p className="text-xs text-green-600 font-medium">
-                    Upload completed
+                  <p className="text-xs font-semibold text-accent-deep">
+                    {t.completed}
                   </p>
                 )}
                 {job.status.status === 'errored' && (
-                  <p className="text-xs text-red-600 font-medium">
-                    Upload failed: {job.status.errorMessage}
+                  <p className="text-xs font-semibold text-error">
+                    {fill(t.failed, { message: job.status.errorMessage })}
                   </p>
                 )}
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
       {persistenceJobs.length > 0 && !showPersistencePanel && (
         <button
           type="button"
           onClick={() => setShowPersistencePanel(true)}
-          className="fixed bottom-4 right-4 z-50 p-2 rounded-full bg-white border border-gray-200 shadow hover:bg-gray-50"
-          title="Show upload progress"
+          className="fixed end-4 bottom-4 z-50 grid size-12 place-items-center rounded-full border border-rule bg-paper text-ink shadow-[0_8px_24px_-12px_var(--color-scrim)] hover:bg-paper-2"
+          title={t.show}
         >
-          <Package className="w-4 h-4 text-gray-600" />
-          <span className="sr-only">Show upload progress</span>
+          <Package className="size-5" aria-hidden="true" />
+          <span className="sr-only">{t.show}</span>
         </button>
       )}
-    </div>
+    </>
   );
 };

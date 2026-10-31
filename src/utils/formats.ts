@@ -14,6 +14,18 @@ export type VideoFormat = (typeof videoFormats)[number];
 
 export type Format = ImageFormat | VideoFormat;
 
+// How the formats are named in sentences and table headings (proper names,
+// the same in every language).
+export const formatNames: Record<Format, string> = {
+  jpg: 'JPG',
+  webp: 'WebP',
+  avif: 'AVIF',
+  png: 'PNG',
+  'avc.mp4': 'MP4',
+  'hevc.mp4': 'HEVC',
+  'vp9.webm': 'WebM',
+};
+
 export function isImageFormat(format: Format) {
   return imageFormats.includes(format as ImageFormat);
 }

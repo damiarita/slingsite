@@ -20,23 +20,37 @@ export const AudioSettings = ({
   setKeepAudio: (keepAudio: boolean) => void;
   translation: AudioSettingsDictionary;
 }) => (
-  <div
-    className={`rounded-lg transition-all duration-300 ${keepAudio ? 'bg-gray-50 ring-2 ring-blue-200' : 'bg-gray-100'}`}
-  >
-    <div className="flex items-center justify-between p-4">
-      <div className="flex items-center font-semibold text-gray-700">
-        <label htmlFor="audio-toggle">{translation.keepAudio}</label>
-      </div>
-      <Switch
-        id="audio-toggle"
-        checked={keepAudio}
-        onChange={() => setKeepAudio(!keepAudio)}
-      />
+  <SwitchRow
+    id="audio-toggle"
+    label={translation.keepAudio}
+    description={keepAudio ? undefined : translation.keepAudioDescription}
+    checked={keepAudio}
+    onChange={() => setKeepAudio(!keepAudio)}
+  />
+);
+
+// A setting that is on or off: its name, a line on what "off" means, the
+// switch at the end.
+export const SwitchRow = ({
+  id,
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: () => void;
+}) => (
+  <div className="flex items-start justify-between gap-6 rounded-card bg-paper-2 p-4">
+    <div>
+      <label htmlFor={id} className="font-semibold text-ink">
+        {label}
+      </label>
+      {description && <p className="mt-1 text-sm text-muted">{description}</p>}
     </div>
-    {!keepAudio && (
-      <p className="px-4 pb-3 -mt-2 text-xs text-gray-500">
-        {translation.keepAudioDescription}
-      </p>
-    )}
+    <Switch id={id} checked={checked} onChange={onChange} />
   </div>
 );

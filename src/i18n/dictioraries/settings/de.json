@@ -1,21 +1,67 @@
 {
-  "filesToCompress": "Dateien zum Komprimieren",
-  "addMoreFiles": "Weitere Dateien hinzufügen",
-  "compressionSettings": "Komprimierungseinstellungen",
-  "advancedSettings": "Erweiterte Einstellungen",
-  "supportScreensUpTo": "Bildschirme unterstützen bis",
-  "removeFile": "Datei entfernen",
-  "mobile": "Mobil",
-  "tablet": "Tablet",
-  "desktop": "Desktop",
-  "percentWidth": "% Breite",
-  "setPercentage": "Prozentsatz festlegen",
-  "setWidth": "Breite festlegen",
-  "setHeight": "Höhe festlegen",
-  "configMode": {
-    "percentage": "Spannweite",
-    "width": "Bildbreite",
-    "height": "Bildhöhe"
+  "stepTitle": "Größen wählen",
+  "whereTitle": "Wo sie erscheinen",
+  "whereNote": "Eine Datei pro Bildschirmgröße, damit Smartphones nie eine Desktop-Datei laden.",
+  "presets": {
+    "label": "Vorlagen",
+    "custom": "Eigene Größen",
+    "recommended": {
+      "label": "Empfohlen",
+      "description": "Die meisten Seiten"
+    },
+    "blog": {
+      "label": "Blogartikel",
+      "description": "Eine Textspalte"
+    },
+    "hero": {
+      "label": "Hero-Banner",
+      "description": "Volle Breite"
+    },
+    "grid": {
+      "label": "Produktraster",
+      "description": "Karten in einer Reihe"
+    }
   },
-  "startCompression": "Alle komprimieren"
+  "columns": {
+    "name": "Name",
+    "screen": "Bildschirme bis",
+    "fills": "Breite auf der Seite",
+    "output": "Ergebnis"
+  },
+  "fills": {
+    "full": "die volle Breite",
+    "half": "die Hälfte",
+    "third": "ein Drittel",
+    "quarter": "ein Viertel"
+  },
+  "exact": "Exakt",
+  "width": "Breite",
+  "height": "Höhe",
+  "widthOrHeight": "Breite oder Höhe",
+  "pixels": "Pixel",
+  "outputWide": "{px} px breit",
+  "outputTall": "{px} px hoch",
+  "ofScreen": "{fraction} von {screen} px",
+  "exactSize": "exakte Größe",
+  "addSize": "Bildschirmgröße hinzufügen",
+  "newSizeName": "Großer Bildschirm",
+  "removeSize": "{name} entfernen",
+  "preview": {
+    "title": "Maßstabsgetreue Vorschau",
+    "legend": "Grün ist Ihre Datei",
+    "empty": "Fügen Sie eine Bildschirmgröße hinzu, um die Vorschau zu sehen.",
+    "caption": "{name}, bis {screen} px"
+  },
+  "problems": {
+    "noSizes": "Fügen Sie mindestens eine Bildschirmgröße hinzu.",
+    "noName": "Geben Sie jeder Bildschirmgröße einen Namen.",
+    "duplicateName": "Zwei Bildschirmgrößen heißen „{name}“. Benennen Sie eine um.",
+    "duplicateFileName": "„{name}“ und „{other}“ ergäben dieselben Dateinamen. Benennen Sie eine um.",
+    "screenWidth": "Bildschirmbreiten müssen größer als 0 sein.",
+    "exactSize": "Exakte Größen müssen größer als 0 sein."
+  },
+  "start": "{files} komprimieren",
+  "summary": "{files}, je {sizes}, als {formats}: {total}",
+  "withPoster": "{formats}, plus ein Posterbild als {posterFormats}",
+  "advancedSettings": "Erweiterte Einstellungen"
 }

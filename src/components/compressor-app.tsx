@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef, type ReactElement } from 'react';
-import { Files, X, FilePlus, Play } from 'lucide-react';
+import {
+  useState,
+  useEffect,
+  useId,
+  useRef,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { useLocale } from 'next-intl';
+import { Play, Plus, X } from 'lucide-react';
 import { FileUpload } from '@/components/file-upload';
 import { Results } from '@/components/results';
-import { PrimaryButton, SecondaryButton } from '@/components/buttons';
+import { PrimaryButton } from '@/components/buttons';
+import { SettingsSection, StepHeading } from '@/components/settings-section';
+import { SampleCredit } from '@/components/sample-credit';
 import useCompressor from '@/hooks/use-compressor';
 import useJobTracking from '@/hooks/use-job-tracking';
 import type { Format } from '@/utils/formats';
@@ -14,7 +24,12 @@ import type { CompressionInput } from '@/types/compressor';
 import type { AnalyticsEventParams, TaskErrorKind } from '@/types/analytics';
 import { getMediumSize } from '@/utils/mediaDimensions';
 import { fileEntry, sumBy, trackEvent } from '@/utils/analytics';
-import type { ResultsDictionary, UploadDictionary } from '@/i18n/type';
+import { fill, formatCount } from '@/utils/i18n-format';
+import type {
+  CompressorAppDictionary,
+  ResultsDictionary,
+  UploadDictionary,
+} from '@/i18n/type';
 
 function getJobWithUpdatedTask(
   jobs: Job[],
@@ -40,65 +55,144 @@ function getJobWithUpdatedTask(
 
 type Focus = 'initial' | 'upload' | 'settings' | 'results';
 
+// What is wrong with the settings, found on Start: the message shows next to
+// the button and `fieldId` gets the focus (and aria-invalid).
+export type ConfigProblem = { message: string; fieldId: string };
+
 export type SettingsComponentProps<Config> = {
   config: Config;
   setConfig: (newConfig: Config) => void;
+  invalidFieldId?: string;
 };
 
-// Strings of the shell around the settings component. Each page maps them
-// from its own settings dictionary ("compress" vs "convert" wording).
 // The settings of a Start click that the analytics can't read from the jobs.
 export type ConversionSettings = Pick<
   AnalyticsEventParams['conversion_started'],
   'resize' | 'keep_audio' | 'original_format'
 >;
 
-export type CompressorAppTranslation = {
-  filesTitle: string;
-  addMoreFiles: string;
-  removeFile: string;
-  start: string;
-};
+// A picked file's preview. The object URL lives as long as the thumbnail.
+function FileThumb({
+  file,
+  removeLabel,
+  onRemove,
+}: {
+  file: File;
+  removeLabel: string;
+  onRemove: () => void;
+}) {
+  const [url, setUrl] = useState<string>();
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+  const isVideo = file.type.startsWith('video/') || !file.type;
+  return (
+    <figure className="relative m-0 aspect-square overflow-hidden rounded-input bg-paper-3">
+      {url &&
+        (isVideo ? (
+          <video
+            src={url}
+            className="size-full object-cover"
+            disablePictureInPicture
+            muted
+          />
+        ) : (
+          <img src={url} alt="" className="size-full object-cover" />
+        ))}
+      <figcaption className="absolute inset-x-0 bottom-0 hidden truncate bg-linear-to-b from-transparent to-scrim px-2 pt-6 pb-1 text-xs text-paper sm:block">
+        {file.name}
+      </figcaption>
+      <button
+        type="button"
+        onClick={onRemove}
+        title={removeLabel}
+        className="absolute end-1 top-1 grid size-7 place-items-center rounded-full bg-paper text-ink before:absolute before:-inset-2 hover:bg-paper-3"
+      >
+        <X className="size-4" aria-hidden="true" />
+        <span className="sr-only">{removeLabel}</span>
+      </button>
+    </figure>
+  );
+}
 
 // Shared by every compressor page. Only the settings component, the job
-// creation and the config validation change between pages.
+// creation and the config validation change between pages. The flow: the
+// dropzone is the hero (step 1); picked files open the settings (step 2)
+// below it, and Start turns them into jobs (step 3). Each step that opens
+// is scrolled into view.
 export default function CompressorApp<Config>({
   compressorType,
   initialConfig,
+  intro,
+  stepTitle,
+  samples,
   translation,
   uploadTranslation,
   resultTranslation,
   renderSettings,
-  configIsValid,
+  getConfigProblem,
+  describe,
   createJob,
   describeConfig,
 }: {
   compressorType: CompressionInput;
   initialConfig: Config;
-  translation: CompressorAppTranslation;
+  // The page's heading, shown beside the dropzone.
+  intro: ReactNode;
+  stepTitle: string;
+  // Image pages: offer two sample photos.
+  samples?: boolean;
+  translation: CompressorAppDictionary;
   uploadTranslation: UploadDictionary;
   resultTranslation: ResultsDictionary;
   // A render prop rather than a component, so the wrappers can define it
   // inline without remounting the settings (and losing their state) on
   // every render.
   renderSettings: (props: SettingsComponentProps<Config>) => ReactElement;
-  configIsValid: (config: Config) => boolean;
+  getConfigProblem: (config: Config) => ConfigProblem | null;
+  // The line above Start ("2 images, 3 sizes each…") and its label.
+  describe: (
+    config: Config,
+    files: File[],
+  ) => { summary: string; start: string };
   createJob: (file: File, config: Config, ids: JobIds) => Promise<Job>;
   describeConfig: (config: Config) => ConversionSettings;
 }) {
+  const locale = useLocale();
   const [focus, setFocus] = useState<Focus>('initial');
   const [files, setFiles] = useState<PendingFile[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [config, setConfig] = useState<Config>(initialConfig);
+  const [problem, setProblem] = useState<ConfigProblem | null>(null);
+  // Bumped on every refused Start, so the same problem refocuses its field.
+  const [problemShown, setProblemShown] = useState(0);
+  // The sample photos, so their credit shows while they are on the page.
+  const sampleFiles = useRef(new WeakSet<File>());
+  const inputId = useId();
 
   const uploadRef = useRef<HTMLDivElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
 
   const compressor = useCompressor(compressorType);
   const tracking = useJobTracking(jobs);
 
-  const handleFilesAdded = (newFiles: File[]) => {
+  const counts = translation.counts;
+  const mediaCount = (n: number) =>
+    formatCount(
+      locale,
+      n,
+      compressorType === 'video' ? counts.video : counts.image,
+    );
+
+  const handleFilesAdded = (
+    newFiles: File[],
+    options?: { sample?: boolean },
+  ) => {
+    if (options?.sample)
+      newFiles.forEach((file) => sampleFiles.current.add(file));
     const added = newFiles.map((file) => ({ id: crypto.randomUUID(), file }));
     setFiles((prev) => [...prev, ...added]);
     setFocus('settings');
@@ -132,7 +226,18 @@ export default function CompressorApp<Config>({
     });
   };
 
+  const updateConfig = (newConfig: Config) => {
+    setConfig(newConfig);
+    setProblem(null);
+  };
+
   const handleProcessClick = () => {
+    const found = getConfigProblem(config);
+    if (found) {
+      setProblem(found);
+      setProblemShown((n) => n + 1);
+      return;
+    }
     const conversionId = crypto.randomUUID();
     Promise.allSettled(
       files.map(({ id, file }) =>
@@ -247,82 +352,135 @@ export default function CompressorApp<Config>({
       upload: uploadRef,
       results: resultsRef,
     };
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
     refToScroll[focus]?.current?.scrollIntoView({
-      behavior: 'smooth',
+      behavior: reduceMotion ? 'auto' : 'smooth',
       block: 'start',
     });
   }, [focus]);
 
+  // After the render that shows the problem (an advanced section may have
+  // just opened to reveal its field).
+  useEffect(() => {
+    if (problem) document.getElementById(problem.fieldId)?.focus();
+  }, [problem, problemShown]);
+
+  const { summary, start } = describe(
+    config,
+    files.map(({ file }) => file),
+  );
+  const showSampleCredit =
+    files.some(({ file }) => sampleFiles.current.has(file)) ||
+    jobs.some((job) => sampleFiles.current.has(job.originalFile));
+
   return (
     <>
-      <div ref={uploadRef} className="scroll-mt-20">
-        <FileUpload
-          onFilesAdded={handleFilesAdded}
-          type={compressorType}
-          translations={uploadTranslation}
-        />
-      </div>
-      {files.length > 0 && (
-        <div ref={settingsRef} className="scroll-mt-20">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center mb-4">
-              <Files className="w-6 h-6 text-gray-600 mr-3" />
-              <h3 className="text-xl font-semibold text-gray-800">
-                {translation.filesTitle}
-              </h3>
-            </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
-              {files.map(({ id, file }, index) => (
-                <div key={id} className="relative group aspect-square">
-                  {file.type.startsWith('video/') ? (
-                    <video
-                      src={URL.createObjectURL(file)}
-                      className="w-full h-full object-cover rounded-md shadow-sm"
-                      disablePictureInPicture
-                    />
-                  ) : (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      className="w-full h-full object-cover rounded-md shadow-sm"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-color duration-200 rounded-md" />
-                  <button
-                    onClick={() => handleRemoveFile(index)}
-                    className="absolute top-1 right-1 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    aria-label={translation.removeFile}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end items-center mb-4">
-              <SecondaryButton onClick={() => setFocus('upload')}>
-                <FilePlus className="w-4 h-4 mr-2" />
-                {translation.addMoreFiles}
-              </SecondaryButton>
-            </div>
-            {renderSettings({ config, setConfig })}
-            <div className="flex justify-end items-center mt-4">
-              <PrimaryButton
-                onClick={handleProcessClick}
-                disabled={!configIsValid(config)}
-              >
-                <Play className="w-4 h-4 mr-2" />
-                {translation.start}
-              </PrimaryButton>
-            </div>
-          </div>
-        </div>
-      )}
-      {jobs.length > 0 && (
-        <div ref={resultsRef} className="scroll-mt-20">
-          <Results
-            jobs={jobs}
-            handleRemoveJob={handleRemoveJob}
-            translation={resultTranslation}
+      <section
+        aria-labelledby="page-title"
+        className="page-container grid items-center gap-10 py-8 sm:py-12 lg:min-h-[min(calc(100svh-4.0625rem),62.5rem)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-24 lg:py-16"
+      >
+        <div>{intro}</div>
+        <div ref={uploadRef} className="scroll-mt-4">
+          <FileUpload
+            onFilesAdded={handleFilesAdded}
+            type={compressorType}
+            translations={uploadTranslation}
+            locale={locale}
+            inputId={inputId}
+            samples={samples}
           />
+        </div>
+      </section>
+      {(files.length > 0 || jobs.length > 0) && (
+        <div className="page-container">
+          {files.length > 0 && (
+            <section
+              ref={settingsRef}
+              aria-labelledby="settings-title"
+              className="scroll-mt-4 border-t border-rule py-16"
+            >
+              <div className="mb-10">
+                <StepHeading number={2} id="settings-title">
+                  {stepTitle}
+                </StepHeading>
+              </div>
+              <SettingsSection
+                title={mediaCount(files.length)}
+                note={translation.filesNote}
+              >
+                <ul className="grid grid-cols-4 gap-2 sm:grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] sm:gap-3">
+                  {files.map(({ id, file }, index) => (
+                    <li key={id}>
+                      <FileThumb
+                        file={file}
+                        removeLabel={fill(translation.removeFile, {
+                          name: file.name,
+                        })}
+                        onRemove={() => handleRemoveFile(index)}
+                      />
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById(inputId)?.click()}
+                      className="grid aspect-square w-full place-content-center justify-items-center gap-1 rounded-input border border-dashed border-muted bg-paper text-sm text-ink-2 transition-colors duration-150 hover:bg-paper-2"
+                    >
+                      <Plus className="size-5" aria-hidden="true" />
+                      {translation.addMore}
+                    </button>
+                  </li>
+                </ul>
+                {showSampleCredit && (
+                  <SampleCredit
+                    translation={uploadTranslation}
+                    locale={locale}
+                  />
+                )}
+              </SettingsSection>
+              {renderSettings({
+                config,
+                setConfig: updateConfig,
+                invalidFieldId: problem?.fieldId,
+              })}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-rule pt-10">
+                <p className="min-w-0 flex-1 basis-80">{summary}</p>
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="text-sm text-error"
+                >
+                  {problem?.message}
+                </p>
+                <PrimaryButton
+                  onClick={handleProcessClick}
+                  className="w-full sm:w-auto"
+                >
+                  <Play className="size-5" aria-hidden="true" />
+                  {start}
+                </PrimaryButton>
+              </div>
+            </section>
+          )}
+          {jobs.length > 0 && (
+            <section
+              ref={resultsRef}
+              aria-labelledby="results-title"
+              className="scroll-mt-4 border-t border-rule py-16"
+            >
+              <Results
+                jobs={jobs}
+                handleRemoveJob={handleRemoveJob}
+                translation={resultTranslation}
+                counts={counts}
+              />
+              {showSampleCredit && files.length === 0 && (
+                <SampleCredit translation={uploadTranslation} locale={locale} />
+              )}
+            </section>
+          )}
         </div>
       )}
     </>

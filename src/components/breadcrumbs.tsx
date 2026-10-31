@@ -1,5 +1,6 @@
 import { Link as IntlLink } from '@/i18n/navigation';
 import { Locale } from '@/i18n/routing';
+import type { BlogTranslations } from '@/i18n/type';
 import { ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 
@@ -11,34 +12,45 @@ interface BreadcrumbItem {
 interface BreadcrumbsProps {
   locale: Locale;
   items: BreadcrumbItem[];
+  translations: Pick<BlogTranslations, 'breadcrumb_label' | 'home'>;
 }
 
-export default function Breadcrumbs({ locale, items }: BreadcrumbsProps) {
+export default function Breadcrumbs({
+  locale,
+  items,
+  translations,
+}: BreadcrumbsProps) {
   return (
-    <nav className="flex mb-8" aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm font-medium text-gray-500">
+    <nav className="mb-8 flex" aria-label={translations.breadcrumb_label}>
+      <ol className="inline-flex flex-wrap items-center gap-1 text-sm text-muted md:gap-2">
         <li className="inline-flex items-center">
           <IntlLink
             locale={locale}
             href={{ pathname: '/home/' }}
-            className="inline-flex items-center hover:text-blue-600 transition-colors"
+            className="inline-flex min-h-11 items-center transition-colors duration-150 hover:text-ink"
           >
-            <Home className="w-4 h-4 mr-2" />
-            <span className="sr-only">Home</span>
+            <Home className="size-4" aria-hidden="true" />
+            <span className="sr-only">{translations.home}</span>
           </IntlLink>
         </li>
         {items.map((item, index) => (
           <li key={index} className="flex items-center">
-            <ChevronRight className="w-4 h-4 mx-1 text-gray-400" />
+            <ChevronRight
+              className="size-4 text-dash rtl:rotate-180"
+              aria-hidden="true"
+            />
             {item.href ? (
               <Link
                 href={item.href}
-                className="hover:text-blue-600 transition-colors"
+                className="inline-flex min-h-11 items-center transition-colors duration-150 hover:text-ink"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="text-gray-900 font-semibold truncate max-w-[150px] md:max-w-none">
+              <span
+                aria-current="page"
+                className="max-w-[150px] truncate font-semibold text-ink md:max-w-none"
+              >
                 {item.label}
               </span>
             )}

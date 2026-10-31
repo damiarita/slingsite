@@ -11,6 +11,8 @@ import Footer from '@/components/footer';
 import Body from '@/components/body';
 import '@/app/globals.css';
 
+// Pages lay out their own width (`page-container`), so sections can run
+// full-bleed.
 export default async function Layout({
   locale,
   children,
@@ -24,14 +26,16 @@ export default async function Layout({
   return (
     <NextIntlClientProvider locale={locale} messages={{}}>
       <Body locale={locale}>
-        <div className="bg-gray-50 min-h-screen font-sans">
+        <div className="flex min-h-screen flex-col">
           <NavBar locale={locale} translation={navBarTranslations} />
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main id="main" className="flex-1">
             {children}
           </main>
-          <footer className="bg-white border-t border-gray-200 mt-12">
-            <Footer translations={footerTranslations} locale={locale} />
-          </footer>
+          <Footer
+            translations={footerTranslations}
+            navTranslations={navBarTranslations}
+            locale={locale}
+          />
           <CookieConsent translations={cookieTransalations} locale={locale} />
         </div>
       </Body>

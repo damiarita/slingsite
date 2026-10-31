@@ -1,91 +1,110 @@
 {
   "metadata": {
-    "title": "SlingSite: ottimizza, ridimensiona e converti immagini e video gratis",
+    "title": "Ottimizzatore di immagini e video gratis 🚀 Senza upload | SlingSite",
     "description": "Comprimi, ridimensiona e converti immagini e video, o estrai la miniatura di un video, gratis nel tuo browser. I tuoi file non lasciano mai il tuo dispositivo. JPG, PNG, WebP, AVIF, MP4 e WebM."
   },
   "hero": {
-    "title": "Immagini e video pronti per il web, direttamente nel browser",
-    "subtitle": "Comprimi, ridimensiona e converti i tuoi file, o prendi la miniatura di un video, in pochi clic. Gratis, senza registrazione, e i tuoi file non lasciano mai il dispositivo.",
-    "ctaImages": "Ottimizza immagini",
-    "ctaVideos": "Ottimizza video",
-    "badges": [
-      "100% gratis",
-      "Senza registrazione",
-      "I file non lasciano il tuo dispositivo",
-      "Elaborazione in blocco"
+    "title": "Immagini e video pronti per il web, senza caricarli",
+    "subtitle": "Comprimi, converti e ridimensiona interi lotti nel browser, gratis.",
+    "checks": [
+      "Gratis, per sempre",
+      "Nessun caricamento",
+      "Interi lotti in una volta"
     ]
   },
-  "features": {
-    "heading": "Un'unica cassetta degli attrezzi per tutti i tuoi media",
-    "subheading": "Scegli lo strumento giusto. Ognuno elabora tutti i file che vuoi in una volta.",
-    "forImages": "Immagini",
-    "forVideos": "Video",
-    "optimize": {
-      "title": "Ottimizza per il web",
-      "description": "Ottieni tutte le dimensioni e i formati di nuova generazione di cui il tuo sito ha bisogno con un solo caricamento.",
-      "points": [
-        "Dimensioni per smartphone, tablet e desktop",
-        "Immagini in JPG, WebP e AVIF",
-        "Video in MP4 (H.264, H.265) e WebM, con immagine di copertina"
-      ]
+  "chooser": {
+    "label": "Strumenti",
+    "compressImages": {
+      "label": "Comprimi immagini",
+      "description": "Tre dimensioni di schermo in AVIF, WebP e JPG"
     },
-    "resize": {
-      "title": "Ridimensiona",
-      "description": "Riduci immagini e video in percentuale, larghezza o altezza. Le proporzioni restano sempre invariate.",
-      "points": [
-        "Più dimensioni in un colpo solo",
-        "Mantiene il formato di ogni file, o lo converte",
-        "Non ingrandisce mai, quindi niente risultati sfocati"
-      ]
+    "convertImages": {
+      "label": "Converti immagini",
+      "description": "JPG, PNG, WebP o AVIF, stessa dimensione"
     },
-    "convert": {
-      "title": "Converti formati",
-      "description": "Trasforma qualsiasi immagine o video nel formato che ti serve, alle dimensioni originali.",
-      "points": [
-        "Immagini in JPG, PNG, WebP o AVIF",
-        "Video in MP4 (H.264 o H.265) o WebM",
-        "Legge PNG, GIF, MOV, MKV e altro"
-      ]
+    "resizeImages": {
+      "label": "Ridimensiona immagini",
+      "description": "Per percentuale, larghezza o altezza"
     },
-    "thumbnail": {
-      "title": "Miniatura video",
-      "description": "Estrai il primo fotogramma di un video come immagine, pronta da usare come copertina o poster.",
-      "points": [
-        "Salvala in JPG, PNG, WebP o AVIF",
-        "A risoluzione piena o ridimensionata",
-        "Funziona con MP4, WebM, MOV e MKV"
-      ],
-      "cta": "Estrai una miniatura"
+    "compressVideos": {
+      "label": "Comprimi video",
+      "description": "MP4, HEVC e WebM, con un poster"
+    },
+    "convertVideos": {
+      "label": "Converti video",
+      "description": "In MP4, HEVC o WebM"
+    },
+    "resizeVideos": {
+      "label": "Ridimensiona video",
+      "description": "File più leggeri da incorporare"
+    },
+    "videoThumbnail": {
+      "label": "Miniatura video",
+      "description": "Il primo fotogramma come immagine"
     }
   },
-  "steps": {
-    "heading": "Come funziona",
+  "showcase": {
+    "title": "Entra una foto, escono nove file",
+    "lead": "Tre dimensioni di schermo, ognuna in AVIF, WebP e JPG, con nomi pronti per il tuo CMS.",
+    "screenshotAlt": "I risultati di cardamom-buns.jpg: righe Mobile, Tablet e Desktop, ognuna con il suo file AVIF, WebP e JPG, il peso e un pulsante per scaricarlo",
+    "caption": "Una foto da 1920 px con le impostazioni predefinite.",
+    "cmsLabel": "Per il CMS:",
+    "cms": "uno zip con tutti i file, o direttamente su Google Drive.",
+    "codeLabel": "Per il codice:",
+    "code": "il markup {picture} di ogni immagine, pronto da copiare."
+  },
+  "audiences": {
+    "title": "Dal CMS al codice",
     "items": [
       {
-        "title": "Aggiungi i tuoi file",
-        "description": "Trascina immagini o video sulla pagina, o sceglili dal tuo dispositivo."
+        "title": "Team di contenuti",
+        "description": "I PNG dell’agenzia resi abbastanza leggeri per WordPress, Shopify o Webflow."
       },
       {
-        "title": "Scegli le impostazioni",
-        "description": "Seleziona le dimensioni e i formati che vuoi. Valori predefiniti sensati sono già impostati."
+        "title": "Sviluppatori",
+        "description": "Ogni larghezza dello srcset in AVIF, WebP e JPG, con nomi coerenti."
       },
       {
-        "title": "Scarica",
-        "description": "Salva ogni file o tutti insieme, oppure inviali a Google Drive."
+        "title": "Lavori per clienti",
+        "description": "I file restano sul tuo portatile, quindi non ci sono terze parti da verificare."
       }
     ]
   },
-  "privacy": {
-    "heading": "I tuoi file restano sul tuo dispositivo",
-    "description": "SlingSite fa tutto il lavoro nel tuo browser, sul tuo computer o telefono. Non viene caricato nulla e nessun server vede i tuoi file, quindi è sicuro anche per contenuti privati e riservati.",
-    "points": [
-      "Nulla viene caricato su un server",
-      "Nessun account, nessuna filigrana",
-      "La velocità dipende dal tuo dispositivo, non dalla connessione",
-      "Gratis, senza limiti al numero di file"
+  "layouts": {
+    "title": "Indica dove va l’immagine",
+    "lead": "Scegli un layout e guarda ogni dimensione di schermo disegnata in scala.",
+    "tryIt": "Provalo con le tue immagini"
+  },
+  "needs": {
+    "title": "Cosa ti serve",
+    "rows": [
+      {
+        "label": "Soldi",
+        "value": "Nessuno. Niente account, niente abbonamenti, niente filigrana."
+      },
+      {
+        "label": "I tuoi file",
+        "value": "Aperti nel browser e mai inviati a un server."
+      },
+      {
+        "label": "Il tuo computer",
+        "value": "Fa lui la codifica, quindi i lotti grandi e i video lunghi richiedono un po’ di tempo.",
+        "cost": true
+      },
+      {
+        "label": "Il tuo browser",
+        "value": "Uno aggiornato, su computer o telefono. Il video HEVC dipende dal tuo hardware."
+      }
     ]
   },
   "popular": {
     "heading": "Strumenti popolari"
+  },
+  "band": {
+    "title": "Inizia con le tue immagini",
+    "lead": "Trascina un intero lotto e ricevi un solo zip. Funziona allo stesso modo sul telefono.",
+    "ctaImages": "Comprimi immagini",
+    "ctaVideos": "Comprimi video",
+    "phoneAlt": "Il compressore di immagini su un telefono: il titolo e sotto l’area di rilascio con il pulsante Sfoglia i file"
   }
 }

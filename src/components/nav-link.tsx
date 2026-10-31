@@ -10,36 +10,30 @@ export type AppHref = ComponentProps<typeof Link>['href'];
 export const hrefPathname = (href: AppHref) =>
   typeof href === 'string' ? href : href.pathname;
 
+// A menu entry (dropdown and mobile drawer).
 export default function NavLink({
   href,
   locale,
   children,
   onLinkClick,
-  mobile,
 }: {
   href: AppHref;
   locale: Locale;
   children: React.ReactNode;
   onLinkClick?: () => void;
-  mobile?: boolean;
 }) {
   const currentPath = usePathname();
   const isActive = currentPath === hrefPathname(href);
-  const baseClass = mobile
-    ? 'block w-full text-left px-4 py-2'
-    : 'inline-flex items-center px-2 py-1';
 
   return (
     <Link
       locale={locale}
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      aria-disabled={isActive ? 'true' : undefined}
-      tabIndex={isActive ? -1 : undefined}
-      className={`text-sm transition-colors ${baseClass} ${
+      className={`flex min-h-11 w-full items-center rounded-[4px] px-3 text-sm no-underline transition-colors duration-150 ${
         isActive
-          ? `text-blue-800 font-semibold pointer-events-none cursor-default ${mobile ? 'bg-gray-50' : ''}`
-          : `text-gray-700 hover:text-blue-800 ${mobile ? 'hover:bg-gray-50' : ''}`
+          ? 'bg-paper-2 font-semibold text-ink'
+          : 'text-ink-2 hover:bg-paper-2 hover:text-ink'
       }`}
       onClick={() => {
         if (onLinkClick) onLinkClick();

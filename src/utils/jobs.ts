@@ -1,7 +1,7 @@
 import type {
   DimensionsConfig,
   FormatConfig,
-  SizingConfigs,
+  SizingConfig,
 } from '@/types/config';
 import type { Job, JobIds, Task } from '@/types/job';
 import type { MediaDimensions } from '@/types/mediaDimensions';
@@ -16,6 +16,7 @@ import {
   getCompressedFileName,
   getFileNameWithExtensionAndSuffix,
   getToolFileName,
+  toFileSlug,
 } from '@/utils/compressor/all';
 import {
   getMediumSize,
@@ -23,21 +24,86 @@ import {
   scaleToWidth,
 } from '@/utils/mediaDimensions';
 
-const getEnabledConfigNames = (configs: SizingConfigs): string[] =>
-  Object.entries(configs)
-    .filter(([, config]) => config.enabled)
-    .map(([configName]) => configName);
+// What stops a Start click. The page turns it into a message and focuses the
+// field (`id` is the size's or version's), instead of disabling the button.
+export type SizesProblem =
+  | { kind: 'noSizes' }
+  | { kind: 'noName'; id: string }
+  | { kind: 'duplicateName'; id: string; name: string }
+  | { kind: 'duplicateFileName'; id: string; name: string; other: string }
+  | { kind: 'screenWidth'; id: string }
+  | { kind: 'exactSize'; id: string };
 
-export const dimensionsConfigIsValid = (config: DimensionsConfig): boolean =>
-  getEnabledConfigNames(config.sizes).length > 0;
+const isPositive = (value: number) => Number.isFinite(value) && value > 0;
 
-export const formatConfigIsValid = (config: FormatConfig): boolean =>
-  (config.formats.length > 0 || config.originalFormat) &&
-  (!config.resize ||
-    (config.versions.length > 0 &&
-      config.versions.every((version) => version.value[version.type] > 0)));
+// The ASCII slug that names a size's output files (see SizingConfig).
+export const getSizeFileKey = (size: SizingConfig) =>
+  (size.renamed && toFileSlug(size.name)) || size.id;
 
-// Used by the compress pages: one entry per enabled device, and the formats
+// Names key the results and file keys the output files, so both must be
+// unique (names ignoring case, as most file systems do).
+export function getSizesProblem(sizes: SizingConfig[]): SizesProblem | null {
+  if (sizes.length === 0) return { kind: 'noSizes' };
+  const seen = new Set<string>();
+  const fileKeys = new Map<string, string>();
+  for (const size of sizes) {
+    const name = size.name.trim();
+    if (!name) return { kind: 'noName', id: size.id };
+    if (seen.has(name.toLowerCase()))
+      return { kind: 'duplicateName', id: size.id, name };
+    seen.add(name.toLowerCase());
+    const other = fileKeys.get(getSizeFileKey(size));
+    if (other !== undefined)
+      return { kind: 'duplicateFileName', id: size.id, name, other };
+    fileKeys.set(getSizeFileKey(size), name);
+    if (!isPositive(size.screenWidth))
+      return { kind: 'screenWidth', id: size.id };
+    if (size.sizingType !== 'percentage' && !isPositive(size[size.sizingType]))
+      return { kind: 'exactSize', id: size.id };
+  }
+  return null;
+}
+
+export type FormatConfigProblem =
+  | { kind: 'noFormat' }
+  | { kind: 'sizeValue'; index: number };
+
+export function getFormatConfigProblem(
+  config: FormatConfig,
+): FormatConfigProblem | null {
+  if (config.formats.length === 0 && !config.originalFormat)
+    return { kind: 'noFormat' };
+  if (config.resize) {
+    const index = config.versions.findIndex(
+      (version) => !isPositive(version.value[version.type]),
+    );
+    if (index !== -1) return { kind: 'sizeValue', index };
+  }
+  return null;
+}
+
+// The `sizes` attribute of the <picture> snippet offered for each image:
+// smallest screen first, each size taking its share of the viewport (or its
+// exact width).
+export function getPictureSizes(
+  sizes: SizingConfig[],
+  requestedDimensions: Record<string, MediaDimensions>,
+) {
+  const sorted = [...sizes].sort((a, b) => a.screenWidth - b.screenWidth);
+  return sorted
+    .map((size, i) => {
+      const slot =
+        size.sizingType === 'percentage'
+          ? `${Math.round(size.percentage)}vw`
+          : `${requestedDimensions[size.name.trim()].width}px`;
+      return i < sorted.length - 1
+        ? `(max-width: ${size.screenWidth}px) ${slot}`
+        : slot;
+    })
+    .join(', ');
+}
+
+// Used by the compress pages: one entry per size, and the formats
 // are fixed by the file type (videos also get a poster in every web image
 // format).
 export const createDimensionsJob = (
@@ -46,13 +112,16 @@ export const createDimensionsJob = (
   ids: JobIds,
 ): Promise<Job> => {
   const isImage = file.type.startsWith('image/');
+  const fileKeys = Object.fromEntries(
+    config.sizes.map((size) => [size.name.trim(), getSizeFileKey(size)]),
+  );
   const getFileName = (configName: string, format: Format) =>
     isImage || !isImageFormat(format)
-      ? getCompressedFileName(file.name, configName, format)
+      ? getCompressedFileName(file.name, fileKeys[configName], format)
       : getFileNameWithExtensionAndSuffix(
           file.name,
           format,
-          `-thumbnail-compressed-${configName}`,
+          `-thumbnail-compressed-${fileKeys[configName]}`,
         );
   return createJob(
     file,
@@ -60,14 +129,13 @@ export const createDimensionsJob = (
     config.keepAudio,
     getFileName,
     (originalDimensions) => {
-      const configs = config.sizes;
       const requestedFormats: Format[] = isImage
         ? [...webImageFormats]
         : [...videoFormats, ...webImageFormats];
       const requestedDimensions: Record<string, MediaDimensions> = {};
       const formatsByConfig: Record<string, Format[]> = {};
-      getEnabledConfigNames(configs).forEach((configName) => {
-        const sizing = configs[configName];
+      config.sizes.forEach((sizing) => {
+        const configName = sizing.name.trim();
         if (sizing.sizingType === 'height') {
           requestedDimensions[configName] = scaleToHeight(
             originalDimensions,
@@ -86,20 +154,45 @@ export const createDimensionsJob = (
         }
         formatsByConfig[configName] = requestedFormats;
       });
-      return { requestedDimensions, requestedFormats: formatsByConfig };
+      return {
+        requestedDimensions,
+        requestedFormats: formatsByConfig,
+        pictureSizes: isImage
+          ? getPictureSizes(config.sizes, requestedDimensions)
+          : undefined,
+      };
     },
   );
 };
 
+// How the tool pages name their outputs. The results show the translated
+// names ("Redimensionado-2", from `version.name` plus a number); the files
+// use the English key with the same number (`photo-resized-2.jpg`), so they
+// are the same in every language.
+export type ToolOutputNames = {
+  unresized: { name: string; fileKey: string };
+  version: { name: string; fileKey: string };
+};
+
+const getVersionFileKey = (
+  name: string,
+  version: ToolOutputNames['version'],
+) => {
+  if (!name.startsWith(version.name))
+    return toFileSlug(name) || version.fileKey;
+  const number = toFileSlug(name.slice(version.name.length));
+  return number ? `${version.fileKey}-${number}` : version.fileKey;
+};
+
 // Used by the format, resize and thumbnail pages. Without resizing there is a
-// single output at the original size, named `unresizedName` (it shows in the
-// results and filenames).
+// single output at the original size, named `names.unresized`.
 export const createFormatJob = (
   file: File,
   config: FormatConfig,
-  unresizedName: string,
+  names: ToolOutputNames,
   ids: JobIds,
 ): Promise<Job> => {
+  const unresizedName = names.unresized.name;
   const formats = [
     ...new Set([
       ...(config.originalFormat ? [getOriginalOutputFormat(file)] : []),
@@ -107,7 +200,13 @@ export const createFormatJob = (
     ]),
   ];
   const getFileName = (configName: string, format: Format) =>
-    getToolFileName(file.name, configName, format);
+    getToolFileName(
+      file.name,
+      config.resize
+        ? getVersionFileKey(configName, names.version)
+        : names.unresized.fileKey,
+      format,
+    );
   return createJob(
     file,
     ids,
@@ -153,11 +252,13 @@ async function createJob(
   plan: (originalDimensions: MediaDimensions) => {
     requestedDimensions: Record<string, MediaDimensions>;
     requestedFormats: Record<string, Format[]>;
+    pictureSizes?: string;
   },
 ): Promise<Job> {
   try {
     const originalDimensions = await getMediumSize(file);
-    const { requestedDimensions, requestedFormats } = plan(originalDimensions);
+    const { requestedDimensions, requestedFormats, pictureSizes } =
+      plan(originalDimensions);
     const tasks: Record<string, Partial<Record<Format, Task>>> = {};
     const outputFileNames: Record<string, Partial<Record<Format, string>>> = {};
     const taskIds: Record<string, Partial<Record<Format, string>>> = {};
@@ -181,6 +282,7 @@ async function createJob(
       requestedFormats,
       keepAudio,
       outputFileNames,
+      pictureSizes,
       taskIds,
       tasks,
     };

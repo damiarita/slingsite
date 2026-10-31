@@ -2,16 +2,42 @@ import { getDevicesDictionary } from '@/i18n/requests';
 import { Locale } from '@/i18n/routing';
 import type { DimensionsConfig, FormatConfig } from '@/types/config';
 import type { Format } from '@/utils/formats';
+import { getPresetSizes } from '@/utils/size-presets';
 
+// Output file names end in an ASCII slug ("Hero móvil" → "hero-movil"), safe
+// in URLs and on every file system. Scripts without Latin letters (Arabic,
+// Chinese) give an empty slug, so callers keep a fallback.
+const lettersWithoutMarks: Record<string, string> = {
+  ß: 'ss',
+  æ: 'ae',
+  œ: 'oe',
+  ø: 'o',
+  đ: 'd',
+  ð: 'd',
+  ł: 'l',
+  þ: 'th',
+  ı: 'i',
+};
+export const toFileSlug = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[ßæœøđðłþı]/g, (letter) => lettersWithoutMarks[letter])
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+// Compress pages: `photo-compressed-mobile.webp`. `fileKey` is already a slug
+// (getSizeFileKey).
 export function getCompressedFileName(
   orginalName: string,
-  configName: string,
+  fileKey: string,
   format: string,
 ) {
   return getFileNameWithExtensionAndSuffix(
     orginalName,
     format,
-    `-compressed-${configName}`,
+    `-compressed-${fileKey}`,
   );
 }
 
@@ -19,14 +45,10 @@ export function getCompressedFileName(
 // `photo-resized-2.jpg`, `clip-thumbnail.png`.
 export function getToolFileName(
   originalName: string,
-  configName: string,
+  fileKey: string,
   format: string,
 ) {
-  return getFileNameWithExtensionAndSuffix(
-    originalName,
-    format,
-    '-' + configName.trim().toLowerCase().replace(/\s+/g, '-'),
-  );
+  return getFileNameWithExtensionAndSuffix(originalName, format, `-${fileKey}`);
 }
 
 export function getFileNameWithExtensionAndSuffix(
@@ -46,35 +68,7 @@ export async function getDefaultCompressionConfig(
 ): Promise<DimensionsConfig> {
   return getDevicesDictionary(locale).then((devicesTranslation) => ({
     keepAudio: false,
-    sizes: {
-      [devicesTranslation.mobile]: {
-        enabled: true,
-        screenWidth: 450,
-        sizingType: 'percentage',
-        percentage: 100,
-        width: 450,
-        height: 100,
-        iconType: 'mobile',
-      },
-      [devicesTranslation.tablet]: {
-        enabled: true,
-        screenWidth: 1050,
-        sizingType: 'percentage',
-        percentage: 50,
-        width: 525,
-        height: 100,
-        iconType: 'tablet',
-      },
-      [devicesTranslation.desktop]: {
-        enabled: true,
-        screenWidth: 1950,
-        sizingType: 'percentage',
-        percentage: 33.33,
-        width: 650,
-        height: 100,
-        iconType: 'desktop',
-      },
-    },
+    sizes: getPresetSizes('recommended', devicesTranslation),
   }));
 }
 

@@ -10,5 +10,20 @@
   "videoThumbnail": "Video-Vorschaubild",
   "menu": "Menü",
   "openMenu": "Menü öffnen",
-  "closeMenu": "Menü schließen"
+  "closeMenu": "Menü schließen",
+  "skipToContent": "Zum Inhalt springen",
+  "theme": {
+    "label": "Design",
+    "system": "Wie System",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
+  "tools": {
+    "imageTools": "Bildwerkzeuge",
+    "videoTools": "Videowerkzeuge",
+    "compress": "Komprimieren",
+    "convert": "Konvertieren",
+    "resize": "Größe ändern",
+    "thumbnail": "Vorschaubild"
+  }
 }
