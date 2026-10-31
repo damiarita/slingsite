@@ -13,7 +13,7 @@ type LinkProps = Omit<ComponentProps<(typeof navigation)['Link']>, 'locale'> & {
 
 export function Link(props: LinkProps) {
   // Render via createElement to avoid any JSX transform/type issues with the extracted value.
-  return React.createElement(BaseLink as any, props);
+  return React.createElement(BaseLink, props);
 }
 
 export { getPathname, usePathname, redirect };

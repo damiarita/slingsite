@@ -16,6 +16,15 @@ export function readThemeChoice(): ThemeChoice {
   return theme === 'light' || theme === 'dark' ? theme : 'system';
 }
 
+export function subscribeToTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
+  return () => observer.disconnect();
+}
+
 export function applyThemeChoice(choice: ThemeChoice) {
   const root = document.documentElement;
   if (choice === 'system') delete root.dataset.theme;

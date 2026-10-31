@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Locale, routing } from '@/i18n/routing';
 import { getPathname, usePathname } from '@/i18n/navigation';
 import { getFolderTranslations, getPost, getTranslations } from '@/content/lib';
@@ -121,10 +121,7 @@ export default function LanguageSelector({
     }
   }
 
-  const urls = useMemo(
-    () => getUrls(pathname, layoutSegments),
-    [pathname, layoutSegments, params],
-  );
+  const urls = getUrls(pathname, layoutSegments);
 
   return (
     <div className="relative inline-block" ref={ref}>

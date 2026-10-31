@@ -4,54 +4,75 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    # Packages that must move together get one PR, so they are never
-    # installed at mismatched versions (e.g. react-dom requires the exact
-    # same react version, and both are pinned). A package goes to the first
-    # group it matches. These groups shape version updates only; security
-    # updates keep the repo's own grouping.
+    # Every group needs `update-types`. Without it, a group using wildcards
+    # (e.g. '@next/*') loses its packages to the pattern-less `minor-and-patch`
+    # group, which rejects majors, so each major gets its own failing PR.
+    # All minors and patches share `minor-and-patch`, so pinned pairs
+    # (react + react-dom) stay in step there. Packages whose majors must move
+    # together (a package and its peers) share one of the groups below. These
+    # groups shape version updates only; security updates keep the repo's own
+    # grouping.
     groups:
-      next:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+      # next peers on react, and these others cap their next or react peer at
+      # the current major. eslint and typescript are capped by the plugins
+      # inside eslint-config-next (see `ignore`).
+      next-react-packages:
+        update-types:
+          - 'major'
         patterns:
           - 'next'
           - '@next/*'
           - 'eslint-config-next'
-      react:
-        patterns:
+          - 'eslint'
+          - 'typescript'
+          - 'next-intl'
           - 'react'
           - 'react-dom'
           - '@types/react'
           - '@types/react-dom'
-      contentlayer:
-        patterns:
+          - 'lucide-react'
           - 'contentlayer2'
           - 'next-contentlayer2'
-      mdx:
+      mdx-packages:
+        update-types:
+          - 'major'
         patterns:
           - 'next-mdx-remote'
           - 'remark'
           - 'remark-*'
           - 'rehype-*'
           - 'strip-markdown'
-      tailwind:
+      tailwind-packages:
+        update-types:
+          - 'major'
         patterns:
           - 'tailwindcss'
           - '@tailwindcss/*'
-      eslint:
-        patterns:
-          - 'eslint'
-          - '@eslint/*'
-      jsquash:
+      jsquash-packages:
+        update-types:
+          - 'major'
         patterns:
           - '@jsquash/*'
-      ffmpeg:
+      ffmpeg-packages:
+        update-types:
+          - 'major'
         patterns:
           - '@ffmpeg/*'
-      # Everything else: minor and patch bumps in a single PR. Majors of
-      # these stay one PR each, since they are the ones likely to break.
-      minor-and-patch:
-        update-types:
-          - 'minor'
-          - 'patch'
+    ignore:
+      # eslint-plugin-react, eslint-plugin-import and eslint-plugin-jsx-a11y
+      # (from eslint-config-next) don't support ESLint 10 yet: `eslint .`
+      # crashes. Remove once their peerDependencies allow eslint@10.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      # TypeScript 6 fails `next build` until `baseUrl` leaves tsconfig.json.
+      # TypeScript 7 also breaks loading next.config.ts, and typescript-eslint
+      # doesn't support it (max 6.0.x). Lower to '>=7' once baseUrl is gone.
+      - dependency-name: 'typescript'
+        versions: ['>=6']
     commit-message:
       prefix: 'deps'
 

@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import type { NavBarTranslations } from '@/i18n/type';
 import {
   type ThemeChoice,
   applyThemeChoice,
   readThemeChoice,
+  subscribeToTheme,
   themeChoices,
 } from '@/utils/theme';
 
@@ -21,15 +22,14 @@ export default function ThemeSwitcher({
   translation: NavBarTranslations['theme'];
   labelled?: boolean;
 }) {
-  // The server can't know the stored choice; the effect reads what the head
-  // script applied.
-  const [choice, setChoice] = useState<ThemeChoice>('system');
-  useEffect(() => setChoice(readThemeChoice()), []);
-
-  const select = (next: ThemeChoice) => {
-    applyThemeChoice(next);
-    setChoice(next);
-  };
+  // The server can't know the stored choice; the client reads what the head
+  // script applied. The nav bar and the drawer each have a switcher, and
+  // this keeps them in step.
+  const choice = useSyncExternalStore<ThemeChoice>(
+    subscribeToTheme,
+    readThemeChoice,
+    () => 'system',
+  );
 
   return (
     <div
@@ -52,7 +52,7 @@ export default function ThemeSwitcher({
             (themeChoices.indexOf(choice) + step + themeChoices.length) %
               themeChoices.length
           ];
-        select(next);
+        applyThemeChoice(next);
         e.currentTarget
           .querySelector<HTMLButtonElement>(`[data-choice="${next}"]`)
           ?.focus();
@@ -70,7 +70,7 @@ export default function ThemeSwitcher({
             title={labelled ? undefined : translation[option]}
             tabIndex={selected ? 0 : -1}
             data-choice={option}
-            onClick={() => select(option)}
+            onClick={() => applyThemeChoice(option)}
             className={`inline-flex min-h-9 min-w-9 items-center justify-center gap-2 rounded-[4px] text-sm transition-colors duration-150 ${labelled ? 'flex-1 px-3' : ''} ${
               selected
                 ? 'bg-ink text-paper'

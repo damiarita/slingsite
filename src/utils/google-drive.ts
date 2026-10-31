@@ -65,13 +65,18 @@ const initializeGoogleDriveAPI = async () => {
 const googleDriveIsAuthorized = (): boolean => {
   return !!gapiAccessToken;
 };
+type PickerResponse = {
+  action: string;
+  docs: { id: string; name: string }[];
+};
+
 const authorizeWithGoogleDriveAPI = async () => {
   return new Promise<void>((resolve, reject) => {
     try {
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: scopes,
-        callback: (tokenResponse: any) => {
+        callback: (tokenResponse: { access_token: string; error?: string }) => {
           if (tokenResponse.error !== undefined) {
             reject(new Error(tokenResponse.error));
             return;
@@ -112,7 +117,7 @@ const selectGoogleDriveFolder = async (lastFolderId?: string) => {
         .addView(view)
         .setOAuthToken(token)
         .setDeveloperKey(apiKey)
-        .setCallback((data: any) => {
+        .setCallback((data: PickerResponse) => {
           if (data.action === window.google.picker.Action.PICKED) {
             const folder = data.docs[0];
             const folderData = { id: folder.id, name: folder.name };

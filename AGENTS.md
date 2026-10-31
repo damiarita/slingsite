@@ -50,7 +50,7 @@ multilingual MDX content (comparison articles, legal pages) for SEO.
 | Serve build | `npm start`        | `serve out`                                                                                                                            |
 | Format      | `npm run format`   | Prettier. Runs on staged files via the husky pre-commit hook (`lint-staged`).                                                          |
 | Type-check  | `npx tsc --noEmit` | If it complains about missing files under `.next/types`, run `rm -rf .next` (stale build).                                             |
-| Lint        | `npm run lint`     | `eslint .` (flat config). Currently reports errors, see Known issues #1.                                                               |
+| Lint        | `npm run lint`     | `eslint .` (flat config). Clean: no errors or warnings.                                                                                |
 
 There are no tests. Verify changes with `npx tsc --noEmit` and
 `npm run build`, then check in `npm run dev`, in both themes (the theme
@@ -92,14 +92,17 @@ Env vars (in `.env.local`, git-ignored): `NEXT_PUBLIC_GOOGLE_CLIENT_ID`,
   `npm ci`, which fails on a lockfile/`package.json` mismatch or peer
   conflict instead of resolving around it.
 - Dependabot (`.github/dependabot.yml`) opens daily npm PRs and weekly
-  GitHub Actions PRs. Packages that must move together are grouped into one
-  PR (`next` + `eslint-config-next` + `@next/*`, `react` + `react-dom` +
-  their types, contentlayer, mdx/unified, tailwind, eslint, `@jsquash/*`,
-  `@ffmpeg/*`); every other minor/patch bump shares one PR, majors get
-  their own. When adding a dependency that must match another's version,
-  add it to that group. PRs opened before CI existed have no checks: comment
-  `@dependabot recreate` on them (or close them, the groups supersede
-  them).
+  GitHub Actions PRs. Every minor/patch bump shares one PR
+  (`minor-and-patch`). Majors that must move together share a group
+  (`next-react-packages`, the largest: next, react, their types and every
+  package that caps a peer at their major; then mdx/unified, tailwind,
+  `@jsquash/*`, `@ffmpeg/*`); other majors get their own PR. Each group
+  needs `update-types: major`, or `minor-and-patch` takes its packages and
+  majors end up alone. When adding a dependency that must match another's
+  major, add it to that group. The ESLint 10 and TypeScript 6+ majors are
+  ignored (the file says what lifts each). PRs opened before CI existed have
+  no checks: comment `@dependabot recreate` on them (or close them, the
+  groups supersede them).
 
 GitHub Pages implications: **`output: 'export'` (static only)**, no server
 code, no API routes, no middleware, no runtime redirects, no custom headers
@@ -559,7 +562,8 @@ see them.
   (`:root[data-theme='dark']` and the `prefers-color-scheme: dark` media
   query for `:root:not([data-theme='light'])`); change both together.
   Without a stored choice the OS decides; `ThemeSwitcher` stores
-  `light`/`dark` in localStorage (`theme`) and `getThemeBootstrap` (inline
+  `light`/`dark` in localStorage (`theme`), reads `data-theme` through
+  `useSyncExternalStore` (so every switcher on the page agrees) and `getThemeBootstrap` (inline
   in `<head>`) applies it before the first paint. Images with a light and a
   dark version use `theme-light-only`/`theme-dark-only`.
 - **Type**: IBM Plex Sans (400, 600) for everything, IBM Plex Mono only for
@@ -728,14 +732,6 @@ files with an empty MIME type as video.
 
 ## Known issues (found in the 2026-10-24 review, not fixed yet)
 
-1. **The CI `lint` job fails** (the `build` job is unaffected): 7 errors.
-   `inline-script-id` in `compressor-page.tsx` and `post-page.tsx`,
-   `no-explicit-any` in `i18n/navigation.ts` and `utils/google-drive.ts`
-   (×2), `react-hooks/set-state-in-effect` in `hooks/use-compressor.ts` and
-   `react-hooks/preserve-manual-memoization` in `language-selector.tsx`.
-2. `hooks/use-compressor.ts` `createWorker()` instantiates **both** workers
-   and uses only one. The other is never terminated (it leaks, and loads its
-   codecs for nothing).
 3. `components/results.tsx`: when Drive sign-in or folder picking fails or
    is cancelled, `persistTasks` counts the jobs as errored in
    `drive_upload_finished` but never updates them, so the persistence panel
@@ -929,3 +925,16 @@ Nothing scheduled.
 - 2026-10-31: Drive uploads that fail every retry now throw, so they show
   as errored and count as errored in `drive_upload_finished` (they showed
   as completed). The auth callback returns after `reject`.
+- 2026-10-31: Dependabot groups now set `update-types`: minors and patches
+  share `minor-and-patch`, and majors that depend on each other share a
+  group (`next-react-packages` joins the old next, react and contentlayer
+  groups with `next-intl`, `lucide-react`, `eslint` and `typescript`). ESLint
+  10 and TypeScript 6+ majors are ignored because they fail lint or the
+  build. Known issue #1 updated: 12 errors, not 7.
+- 2026-10-31: Lint is clean (was known issue #1). `FileThumb` sets the
+  object URL on the element from its effect, `AdvancedSettings` opens by
+  setting state during render, the sample files are state, and
+  `ThemeSwitcher` uses `useSyncExternalStore` (`subscribeToTheme`), which
+  also keeps the nav and drawer switchers in step. `createWorker` starts
+  only the worker it needs (was known issue #2). ESLint skips `.agents/`
+  and turns off `no-img-element` and `no-head-element`.

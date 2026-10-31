@@ -120,7 +120,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
           }));
         }
         default:
-          const _exhaustiveCheck: never = pathname;
+          pathname satisfies never;
           return [];
       }
     });

@@ -76,7 +76,9 @@ export default function CompressorIntro({
 
   return (
     <>
-      <Script type="application/ld+json">{JSON.stringify(schema)}</Script>
+      <Script id="tool-schema" type="application/ld+json">
+        {JSON.stringify(schema)}
+      </Script>
       <nav
         aria-label={
           type === 'image' ? translation.imageTools : translation.videoTools

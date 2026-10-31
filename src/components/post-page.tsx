@@ -61,7 +61,9 @@ export function PostPageContent({ post, locale, translations }: PostPageProps) {
 
   return (
     <>
-      <Script type="application/ld+json">{JSON.stringify(schema)}</Script>
+      <Script id="post-schema" type="application/ld+json">
+        {JSON.stringify(schema)}
+      </Script>
 
       <div className="page-container py-12 lg:py-16">
         <div className="mx-auto max-w-3xl">

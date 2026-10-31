@@ -7,10 +7,6 @@ import { buttonClass } from './buttons';
 export default async function NotFoundContent() {
   const locale = routing.defaultLocale;
 
-  const homeHref = getPathname({
-    href: { pathname: '/home/' },
-    locale,
-  });
   const imageHref = getPathname({
     href: { pathname: '/image/' },
     locale,

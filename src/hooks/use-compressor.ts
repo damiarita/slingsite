@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { isImageFormat } from '@/utils/formats';
 import type { Format } from '@/utils/formats';
 import type { MediaDimensions } from '@/types/mediaDimensions';
@@ -13,16 +13,16 @@ export default function useCompressor(type: CompressionInput) {
   >('loading');
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
 
-  function createWorker() {
+  const createWorker = useCallback(() => {
     if (window.Worker) {
-      setProcessorStatus('loading');
-      const imgW = new Worker(
-        new URL('../workers/image-compressor.ts', import.meta.url),
-      );
-      const vidW = new Worker(
-        new URL('../workers/video-compressor.ts', import.meta.url),
-      );
-      workerRef.current = type === 'image' ? imgW : vidW;
+      workerRef.current =
+        type === 'image'
+          ? new Worker(
+              new URL('../workers/image-compressor.ts', import.meta.url),
+            )
+          : new Worker(
+              new URL('../workers/video-compressor.ts', import.meta.url),
+            );
 
       workerRef.current.onmessage = (ev: MessageEvent<OutputMessage>) => {
         if (ev.data.type === 'status' && ev.data.content === 'ready') {
@@ -30,16 +30,17 @@ export default function useCompressor(type: CompressionInput) {
         }
       };
     }
-  }
+  }, [type]);
 
   useEffect(() => {
     createWorker();
     return () => {
+      setProcessorStatus('loading');
       if (workerRef.current) {
         workerRef.current.terminate();
       }
     };
-  }, [type]); // Empty dependency array ensures this runs once on mount and cleanup on unmount
+  }, [createWorker]);
   return {
     status: processorStatus,
     currentJobId,

@@ -81,26 +81,25 @@ function FileThumb({
   removeLabel: string;
   onRemove: () => void;
 }) {
-  const [url, setUrl] = useState<string>();
+  const mediaRef = useRef<HTMLImageElement & HTMLVideoElement>(null);
   useEffect(() => {
     const objectUrl = URL.createObjectURL(file);
-    setUrl(objectUrl);
+    if (mediaRef.current) mediaRef.current.src = objectUrl;
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
   const isVideo = file.type.startsWith('video/') || !file.type;
   return (
     <figure className="relative m-0 aspect-square overflow-hidden rounded-input bg-paper-3">
-      {url &&
-        (isVideo ? (
-          <video
-            src={url}
-            className="size-full object-cover"
-            disablePictureInPicture
-            muted
-          />
-        ) : (
-          <img src={url} alt="" className="size-full object-cover" />
-        ))}
+      {isVideo ? (
+        <video
+          ref={mediaRef}
+          className="size-full object-cover"
+          disablePictureInPicture
+          muted
+        />
+      ) : (
+        <img ref={mediaRef} alt="" className="size-full object-cover" />
+      )}
       <figcaption className="absolute inset-x-0 bottom-0 hidden truncate bg-linear-to-b from-transparent to-scrim px-2 pt-6 pb-1 text-xs text-paper sm:block">
         {file.name}
       </figcaption>
@@ -169,7 +168,7 @@ export default function CompressorApp<Config>({
   // Bumped on every refused Start, so the same problem refocuses its field.
   const [problemShown, setProblemShown] = useState(0);
   // The sample photos, so their credit shows while they are on the page.
-  const sampleFiles = useRef(new WeakSet<File>());
+  const [sampleFiles, setSampleFiles] = useState<File[]>([]);
   const inputId = useId();
 
   const uploadRef = useRef<HTMLDivElement>(null);
@@ -191,8 +190,7 @@ export default function CompressorApp<Config>({
     newFiles: File[],
     options?: { sample?: boolean },
   ) => {
-    if (options?.sample)
-      newFiles.forEach((file) => sampleFiles.current.add(file));
+    if (options?.sample) setSampleFiles((prev) => [...prev, ...newFiles]);
     const added = newFiles.map((file) => ({ id: crypto.randomUUID(), file }));
     setFiles((prev) => [...prev, ...added]);
     setFocus('settings');
@@ -372,8 +370,8 @@ export default function CompressorApp<Config>({
     files.map(({ file }) => file),
   );
   const showSampleCredit =
-    files.some(({ file }) => sampleFiles.current.has(file)) ||
-    jobs.some((job) => sampleFiles.current.has(job.originalFile));
+    files.some(({ file }) => sampleFiles.includes(file)) ||
+    jobs.some((job) => sampleFiles.includes(job.originalFile));
 
   return (
     <>
