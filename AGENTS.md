@@ -376,8 +376,12 @@ output file names use the file key instead (step 7).
 - Always use `Link` from `@/i18n/navigation`, which **requires** a `locale`
   prop: automatic locale detection does not work with static export.
 - `app/page.tsx` redirects on the client to the home page in the browser
-  locale (`Redirecter`): it waits 1 s, and `window.redirect` is exposed so
-  GTM can trigger it.
+  locale (`Redirecter`): it waits 1 s, on purpose, so GA4's `page_view` of
+  the redirect page goes out and the session starts with the original
+  referrer, and `window.redirect` is exposed so GTM can trigger it. It uses
+  `window.location.replace`, never next-intl's `redirect`: called outside of
+  a render, that one leaves the redirect page's tree in the router, and the
+  next link click bounces back.
 
 ### Content (contentlayer2)
 
@@ -768,6 +772,8 @@ files with an empty MIME type as video.
     older copy states unchecked facts (the `/image/` article's "Tablet
     (850px)", "Smart Analysis", browser-share percentages).
 
+16. A full load of `/subscribe/` logs a hydration error (React #418).
+
 ## Next steps (planned)
 
 Nothing scheduled.
@@ -910,6 +916,10 @@ Nothing scheduled.
   compress articles, the base format subtitles, which now list PNG too, and
   `llms.txt`). Icon-only buttons are named with hidden text; the post
   breadcrumbs' "Breadcrumb"/"Home" are translated (`blog` dictionary).
+- 2026-10-31: `Redirecter` does a full load (`window.location.replace`) and
+  cleans up its timer and `window.redirect`. With next-intl's `redirect`,
+  links on the page reached from `/` bounced back to it a second after each
+  click. The 1 s delay stays, for the GA4 referrer.
 - 2026-10-26: CI for every PR, Dependabot included. Lint works again
   (`eslint .` with `eslint-config-next`'s flat configs; dropped
   `@eslint/eslintrc`), and runs as its own job so it can't block the build.

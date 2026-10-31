@@ -8,7 +8,7 @@ declare module '*.css' {
 interface Window {
   dataLayer?: object[];
   // Exposed by Redirecter so GTM can call it.
-  redirect: () => void;
+  redirect?: () => void;
   // Google API and Google Identity Services scripts (utils/google-drive.ts).
   /* eslint-disable @typescript-eslint/no-explicit-any */
   gapi: any;

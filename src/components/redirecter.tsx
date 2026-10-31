@@ -3,7 +3,8 @@
 import { hasLocale } from 'next-intl';
 import { useEffect } from 'react';
 import { routing, Locale } from '@/i18n/routing';
-import { redirect } from '@/i18n/navigation';
+import { getPathname } from '@/i18n/navigation';
+import { withTrailingSlash } from '@/utils/seo';
 
 export const Redirecter = ({
   redirecting,
@@ -11,22 +12,28 @@ export const Redirecter = ({
   locale,
 }: {
   redirecting: string;
-  href: Parameters<typeof redirect>[0]['href'];
+  href: Parameters<typeof getPathname>[0]['href'];
   locale?: Locale;
 }) => {
   useEffect(() => {
     const redirectToPage = () => {
-      const loc = locale || getRedirectLocale();
-      redirect({
+      const pathname = getPathname({
         href: href,
-        locale: loc,
+        locale: locale || getRedirectLocale(),
       });
+      // A full load, not next-intl's redirect: outside of a render, that one
+      // keeps this page's tree in the router, so its effect runs again on the
+      // next client navigation and sends the visitor back here.
+      window.location.replace(withTrailingSlash(pathname));
     };
     //We make the redirect function available for GTM to call it, and we call it after 1s in case it fails
+    //The delay gives GTM time to send this page's page_view, so the session starts with the original referrer
     window.redirect = redirectToPage;
-    setTimeout(() => {
-      window.redirect();
-    }, 1000);
+    const timeout = setTimeout(redirectToPage, 1000);
+    return () => {
+      clearTimeout(timeout);
+      delete window.redirect;
+    };
   }, [locale, href]);
 
   return <div>{redirecting}...</div>;
