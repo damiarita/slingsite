@@ -736,10 +736,10 @@ files with an empty MIME type as video.
 2. `hooks/use-compressor.ts` `createWorker()` instantiates **both** workers
    and uses only one. The other is never terminated (it leaks, and loads its
    codecs for nothing).
-3. `utils/google-drive.ts`: `uploadSingleFileToGoogleDrive` returns `false`
-   after the last retry instead of throwing, so failed uploads are shown as
-   "completed" (and counted as completed in `drive_upload_finished`). The
-   auth callback also lacks a `return` after `reject`.
+3. `components/results.tsx`: when Drive sign-in or folder picking fails or
+   is cancelled, `persistTasks` counts the jobs as errored in
+   `drive_upload_finished` but never updates them, so the persistence panel
+   keeps showing them as waiting.
 4. `app/[locale]/[slug1]/page.tsx` `generateMetadata` builds post hreflang
    URLs with `slugs: [translation.slugPath]` (an array inside an array). It
    should be `slugs: translation.slugPath`.
@@ -926,3 +926,6 @@ Nothing scheduled.
   Both workflows use `npm ci` and Node 24 from `.nvmrc` (was Node 20, now
   EOL). Dependabot groups packages that must be updated together, and also
   updates GitHub Actions.
+- 2026-10-31: Drive uploads that fail every retry now throw, so they show
+  as errored and count as errored in `drive_upload_finished` (they showed
+  as completed). The auth callback returns after `reject`.

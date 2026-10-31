@@ -74,6 +74,7 @@ const authorizeWithGoogleDriveAPI = async () => {
         callback: (tokenResponse: any) => {
           if (tokenResponse.error !== undefined) {
             reject(new Error(tokenResponse.error));
+            return;
           }
           gapiAccessToken = tokenResponse.access_token;
           resolve();
@@ -134,7 +135,7 @@ const uploadSingleFileToGoogleDrive = async (
   file: File,
   folderId: string,
   onProgress?: (progress: number) => void,
-): Promise<boolean> => {
+): Promise<void> => {
   const MAX_RETRIES = 3;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -156,7 +157,7 @@ const uploadSingleFileToGoogleDrive = async (
 
       const xhr = new XMLHttpRequest();
 
-      return await new Promise((resolve, reject) => {
+      return await new Promise<void>((resolve, reject) => {
         xhr.upload.addEventListener('progress', (e) => {
           if (e.lengthComputable && onProgress) {
             const progress = Math.round((e.loaded / e.total) * 100);
@@ -166,7 +167,7 @@ const uploadSingleFileToGoogleDrive = async (
 
         xhr.addEventListener('load', () => {
           if (xhr.status === 200) {
-            resolve(true);
+            resolve();
           } else {
             reject(new Error(`Upload failed with status ${xhr.status}`));
           }
@@ -187,7 +188,7 @@ const uploadSingleFileToGoogleDrive = async (
       console.error(`Upload attempt ${attempt + 1} failed:`, error);
 
       if (attempt === MAX_RETRIES) {
-        return false;
+        throw error;
       }
 
       // Exponential backoff
@@ -196,8 +197,6 @@ const uploadSingleFileToGoogleDrive = async (
       );
     }
   }
-
-  return false;
 };
 
 export const uploadFilesToGoogleDrive = async (
