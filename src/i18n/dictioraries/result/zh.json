@@ -27,5 +27,20 @@
     "waiting": "等待开始",
     "completed": "已保存",
     "failed": "失败：{message}"
+  },
+  "ai": {
+    "previewBackground": "预览背景",
+    "backdrops": {
+      "checker": "棋盘格",
+      "light": "白色",
+      "dark": "黑色"
+    },
+    "altLabel": "alt text",
+    "altDraft": "英文草稿。使用前请检查。",
+    "altFailed": "无法生成 alt text(替代文本) 。你的图片文件不受影响。",
+    "removingBackground": "正在移除背景。可能需要一分钟或更久。",
+    "writingAlt": "正在生成 alt text(替代文本)。可能需要一分钟或更久。",
+    "noSubject": "未找到明确的主体,因此图片的大部分被移除。此功能最适合背景前的人物或物体。",
+    "downloadingModel": "正在下载模型:{percent}"
   }
 }

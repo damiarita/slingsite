@@ -41,6 +41,14 @@
     "videoThumbnail": {
       "label": "Miniatura video",
       "description": "Il primo fotogramma come immagine"
+    },
+    "removeBackground": {
+      "label": "Rimuovi sfondo",
+      "description": "Scontorna il soggetto di una foto"
+    },
+    "imageAlt": {
+      "label": "Alt text",
+      "description": "Una bozza di descrizione per ogni immagine"
     }
   },
   "showcase": {

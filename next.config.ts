@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
               from: 'node_modules/@ffmpeg/core/dist/umd',
               to: 'static/ffmpeg',
             },
+            {
+              from: 'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.{wasm,mjs}',
+              to: 'static/ort/[name][ext]',
+            },
           ],
         }),
       );
@@ -37,6 +41,22 @@ const nextConfig: NextConfig = {
       [require.resolve('@jsquash/avif/codec/enc/avif_enc_mt.js')]:
         require.resolve('@jsquash/avif/codec/enc/avif_enc.js'),
     };
+    // ONNX Runtime's bundle points at itself with new URL(…, import.meta.url)
+    // to start its proxy and pthread workers. In a worker chunk that URL
+    // becomes a module, and the bundle throws while loading, silently. We run
+    // single-threaded, so it never starts them: leave the URL alone. That
+    // also stops webpack emitting the runtime's files, hence the copy above
+    // (and `wasmPaths` in workers/ai.ts).
+    // Its Node.js branch uses `require` in a way webpack can't follow. That
+    // branch never runs in a browser.
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings ?? []),
+      { module: /onnxruntime-web/, message: /Critical dependency/ },
+    ];
+    config.module.rules.push({
+      test: /onnxruntime-web[\\/]dist[\\/].*\.mjs$/,
+      parser: { url: false },
+    });
     return config;
   },
 };

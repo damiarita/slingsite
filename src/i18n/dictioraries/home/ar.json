@@ -37,6 +37,14 @@
     "videoThumbnail": {
       "label": "صورة مصغّرة للفيديو",
       "description": "الإطار الأول كصورة"
+    },
+    "removeBackground": {
+      "label": "إزالة الخلفية",
+      "description": "اقتطع العنصر الرئيسي من الصورة"
+    },
+    "imageAlt": {
+      "label": "alt text",
+      "description": "مسودة وصف لكل صورة"
     }
   },
   "showcase": {

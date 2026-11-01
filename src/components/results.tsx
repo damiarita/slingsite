@@ -27,6 +27,7 @@ import { useState } from 'react';
 type Props = {
   jobs: Job[];
   handleRemoveJob: (index: number) => void;
+  onAltChange: (jobId: string, text: string) => void;
   translation: ResultsDictionary;
   counts: CompressorAppDictionary['counts'];
 };
@@ -78,6 +79,7 @@ function chagePersistanceJobStatus(
 export const Results = ({
   jobs,
   handleRemoveJob,
+  onAltChange,
   translation,
   counts,
 }: Props) => {
@@ -185,6 +187,8 @@ export const Results = ({
   const completed = getCompletedTasks(jobs);
   const anyDone = jobs.some((job) => jobProportionOfDoneTasks(job) > 0);
   const t = translation.upload;
+  // Alt text pages: the results are text, with no files to save.
+  const hasFiles = jobs.some((job) => jobTaskEntries(job).length > 0);
 
   return (
     <>
@@ -202,21 +206,23 @@ export const Results = ({
               ),
             })}
         </p>
-        <div className="flex flex-wrap gap-3 lg:ms-auto">
-          <PrimaryButton
-            size="sm"
-            onClick={() => persistTasks(completed, 'device', 'all')}
-            disabled={!anyDone}
-          >
-            <Package className="size-4" aria-hidden="true" />
-            {translation.downloadAll}
-          </PrimaryButton>
-          <GoogleDriveButton
-            onClick={() => persistTasks(completed, 'googleDrive', 'all')}
-            disabled={!anyDone}
-            label={translation.saveToDrive}
-          />
-        </div>
+        {hasFiles && (
+          <div className="flex flex-wrap gap-3 lg:ms-auto">
+            <PrimaryButton
+              size="sm"
+              onClick={() => persistTasks(completed, 'device', 'all')}
+              disabled={!anyDone}
+            >
+              <Package className="size-4" aria-hidden="true" />
+              {translation.downloadAll}
+            </PrimaryButton>
+            <GoogleDriveButton
+              onClick={() => persistTasks(completed, 'googleDrive', 'all')}
+              disabled={!anyDone}
+              label={translation.saveToDrive}
+            />
+          </div>
+        )}
       </div>
       {jobs.some(jobIsIncomplete) && (
         <p className="mb-6 flex items-center gap-2 rounded-input bg-warn-wash px-4 py-3 text-sm text-warn">
@@ -229,6 +235,7 @@ export const Results = ({
           <FileItem
             key={job.id}
             onRemove={() => handleRemoveJob(index)}
+            onAltChange={(text) => onAltChange(job.id, text)}
             onDownloadOne={(configName, format) =>
               persistTasks(
                 getCompletedTasks([job], { configName, format }),

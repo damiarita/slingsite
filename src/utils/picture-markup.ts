@@ -8,11 +8,19 @@ type Candidate = { fileName: string; width: number; height: number };
 const srcsetUrl = (fileName: string) =>
   fileName.replace(/[\s,]/g, (c) => encodeURIComponent(c));
 
+const escapeAttribute = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
 // The <picture> element for one image: an AVIF and a WebP <source>, then a
 // JPG <img> fallback, each listing every width it was made in.
 export function getPictureMarkup(
   sizes: string,
   candidates: Partial<Record<ImageFormat, Candidate[]>>,
+  alt = '',
 ) {
   const srcset = (list: Candidate[]) =>
     list
@@ -32,7 +40,7 @@ export function getPictureMarkup(
     srcset="${srcset(fallbackList)}"
     sizes="${sizes}"
     width="${fallback.width}" height="${fallback.height}"
-    alt="" loading="lazy">`
+    alt="${escapeAttribute(alt)}" loading="lazy">`
     : '';
   return ['<picture>', ...sources, img, '</picture>']
     .filter(Boolean)
@@ -59,5 +67,10 @@ export function getJobPictureMarkup(job: Job) {
     );
   }
   if (!Object.values(candidates).some((list) => list.length)) return undefined;
-  return getPictureMarkup(job.pictureSizes, candidates);
+  const altStep = job.alt?.step;
+  return getPictureMarkup(
+    job.pictureSizes,
+    candidates,
+    altStep?.status === 'completed' ? altStep.result.text : '',
+  );
 }

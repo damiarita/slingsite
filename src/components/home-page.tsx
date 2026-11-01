@@ -169,6 +169,11 @@ export default function HomePage({
         { ...chooser.compressImages, href: '/image/' as AppHref, lead: true },
         { ...chooser.convertImages, href: toolHref('format', 'image') },
         { ...chooser.resizeImages, href: toolHref('resize', 'image') },
+        {
+          ...chooser.removeBackground,
+          href: toolHref('remove-background', 'image'),
+        },
+        { ...chooser.imageAlt, href: toolHref('alt', 'image') },
       ],
     },
     {

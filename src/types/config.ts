@@ -1,3 +1,4 @@
+import type { AiModelId } from '@/utils/ai-models';
 import type { Format } from '@/utils/formats';
 
 export type ConfigMode = 'width' | 'height' | 'percentage';
@@ -25,17 +26,22 @@ export type SizingConfig = {
 export type DimensionsConfig = {
   sizes: SizingConfig[];
   keepAudio: boolean;
+  // Also write alt text with this model. Off without it.
+  altModelId?: AiModelId;
 };
 
 // Used by the format, resize and thumbnail pages. Unlike SizingConfig,
 // `percentage` here is a percentage of the original file, not of a screen
 // width. `originalFormat` adds each file's own format (or the closest one we
-// can write) to `formats`.
+// can write) to `formats`. `removeBackgroundModelId` makes the outputs
+// transparent; `altModelId` writes alt text (with no formats: only that).
 export type FormatConfig = {
   formats: Format[];
   originalFormat: boolean;
   keepAudio: boolean;
   resize: boolean;
+  removeBackgroundModelId?: AiModelId;
+  altModelId?: AiModelId;
   versions: Array<{
     name: string;
     type: ConfigMode;

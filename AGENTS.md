@@ -30,6 +30,9 @@ app:
   the sizes first (always on, 50% by default) and the format picker under
   "Advanced settings". By default each file keeps its own format
   ("Original format": GIF → WebP, MOV/MKV → MP4).
+- **AI pages** (`/image/remove-background/`, `/image/alt/`): an AI model on
+  the visitor's device cuts out the subject (PNG/WebP/AVIF) or writes an
+  English draft of alt text. `/image/` also offers alt text, off by default.
 - **Thumbnail pages** (`/video/thumbnail/`): save the first frame of each
   video as an image (JPG by default; JPG/WebP/AVIF/PNG), resizing under
   "Advanced settings", no audio switch.
@@ -344,6 +347,46 @@ no advanced section at all).
 ("Large screen"). The trimmed name keys `requestedDimensions`, `tasks` and
 the other per-config records of a job and is shown in the results; the
 output file names use the file key instead (step 7).
+
+### AI features
+
+Transformers.js 4.3 (ONNX Runtime Web) in its own worker, `workers/ai.ts`,
+through `hooks/use-ai-worker.ts`. It is created on first use, so nothing
+reaches Hugging Face before the visitor asks for a model, and it outlives
+`compressor.abort()`, because reloading a model takes many seconds. It holds
+one model at a time, tries WebGPU then WASM, and retries a failed inference
+on WASM.
+
+- **Catalog:** `utils/ai-models.ts` (typed). Each entry pins a `commit`, a
+  `dtype` and its exact `files`. Only the labels are in a dictionary
+  (`ai-models`). No model picker: each task has one model. The UI shows
+  download size, licence and English-only, and no time estimate: with no
+  choice of model it wouldn't help anyone decide. `detectAiDevice` runs in
+  the worker only, because asking for a GPU that isn't there makes Chrome
+  log "No available adapters". Nothing has been measured on a real GPU or
+  a phone.
+- **Jobs:** background removal is a pre-step of a normal `createFormatJob`
+  job (`Job.removeBackground`), so resizing, formats, results, downloads and
+  Drive all work unchanged. The mask goes to the image worker
+  (`InputMessage.mask`) and `compressImage` applies it per output with
+  `destination-in`. Alt text isn't a `Format` output: it lives in `Job.alt`.
+  Alt pages make jobs with no tasks, so `Results` hides the save buttons.
+  Both are `AiStep`s, which `jobIsIncomplete`, `jobProgress` and
+  `jobProportionOfDoneTasks` count. The order is the mask, the encoding, then
+  the alt text, which waits for **every** job's files (`getNextJob`,
+  `getPendingAiStep`), so `FileItem` offers a job's files as soon as they
+  are done (`filesDone`). A failed mask fails the job's tasks; a failed alt
+  never does. A mask under 0.5% opaque sets `empty` (a warning: landscapes
+  have no subject).
+- **HTML snippet:** `getJobPictureMarkup` reads `Job.alt`, so edits follow,
+  and `getPictureMarkup` escapes the alt.
+- **Wording:** "alt text" stays in English in every language: bare in headings, labels and buttons, with the local term once in brackets in running text ("alt text (texto alternativo)"). German uses its own "Alt-Text".
+- **Progress:** an AI step reports a percentage only while the model downloads. Then `FileItem` shows "working" and a pulsing bar, because a model reports nothing during inference.
+- **`/image/` option:** ticking calls `ai.preload`; unticking cancels the
+  download (`env.fetch` with an AbortSignal).
+- **Privacy:** the model download is a request to Hugging Face, which sees
+  the IP address. The privacy page says so; keep it true. Analytics never
+  carries the alt text.
 
 ### i18n
 
@@ -700,6 +743,27 @@ files with an empty MIME type as video.
 
 ## Gotchas
 
+- **Don't use `ModelRegistry.is_pipeline_cached`.** It calls Hugging Face
+  (breaking "nothing before opt-in") and throws offline.
+  `isAiModelDownloaded` reads the Cache API directly.
+- **Don't pass `revision` to Transformers.js.** In 4.3 it misses the cache,
+  refetches from `resolve/main` and fails offline. Pin with
+  `env.remotePathTemplate` (`getRemotePathTemplate`). The package is pinned
+  exactly: recheck both of these and the next one on every upgrade, by
+  running a model (CI only builds, so a green Dependabot PR proves nothing).
+- ONNX Runtime's bundle needs `parser: { url: false }` in `next.config.ts`.
+  Without it the worker dies while loading, **with no error on the page**:
+  the job just stays at 0%. That is also why its `.wasm` and `.mjs` are
+  copied to `static/ort/` and `wasmPaths` is set (the default is a CDN).
+- `workers/ai.ts` sends `ready` because it loads asynchronously: anything
+  posted earlier is lost. `useAiWorker` queues until then.
+- `.npmrc` skips `onnxruntime-node`'s install, a GPU runtime download the
+  site never uses. npm warns about the unknown key; if a future npm rejects
+  it, set `ONNXRUNTIME_NODE_INSTALL=skip` in the workflows instead.
+- Scripted model tests fill `/tmp` (a RAM tmpfs here): a browser profile
+  holds every model it downloads. Cache keys are per origin, so use a fixed
+  port.
+
 - The dictionary folder is spelled **`dictioraries`**. Don't "fix" it without
   updating every import.
 - `next.config.ts` aliases the multi-threaded AVIF encoder to the
@@ -769,6 +833,18 @@ files with an empty MIME type as video.
     (850px)", "Smart Analysis", browser-share percentages).
 
 16. A full load of `/subscribe/` logs a hydration error (React #418).
+17. The AI features have not run on a real GPU or a phone. WebGPU, its WASM
+    fallback are unverified; BiRefNet peaks
+    at about 2.5 GB on desktop WASM, so phones may kill the tab. A worker
+    that crashes while loading shows no error (the job stays at 0%).
+18. `analytics/` is empty in this checkout, so `sync-gtm-container.mjs` and
+    the container described above are missing. The new `ai_model_loaded`
+    and `ai_step_finished` events and the `model_id` parameter are pushed
+    but have no GTM tags or GA4 custom definitions yet.
+19. `studioludens/birefnet-lite-512` is a third-party repo. Confirm the terms
+    of the original weights and training data, and consider a mirror.
+20. Home captures (`public/screens/`) predate the two new tabs in
+    `CompressorIntro`.
 
 ## Next steps (planned)
 
@@ -938,3 +1014,16 @@ Nothing scheduled.
   also keeps the nav and drawer switchers in step. `createWorker` starts
   only the worker it needs (was known issue #2). ESLint skips `.agents/`
   and turns off `no-img-element` and `no-head-element`.
+- 2026-11-01: AI features. Background removal (`/image/remove-background/`)
+  and alt text (`/image/alt/`, plus an option on `/image/`), on the device
+  with Transformers.js in a new `workers/ai.ts`. Models chosen by measuring
+  them without COOP/COEP: BiRefNet Lite 512 and Florence-2. New `ai-models`
+  dictionary, tools in `tool-pages.ts`, 14 MDX pages, Hugging Face in the
+  privacy page (7 locales), and the `ai_model_loaded` and `ai_step_finished`
+  events. `getPictureMarkup` takes and escapes the alt.
+- 2026-11-01: AI feedback. "Alt text" is no longer translated. Florence-2's
+  size was wrong (216 MB, not 314), which froze the bar at 68%; the
+  percentage now covers only the download, then `FileItem` shows "working".
+  ONNX Runtime's `require` warning is ignored in `next.config.ts`.
+- 2026-11-01: Alt text now runs last, after every job's files, which can be
+  saved while it runs. Removed the speed labels from the AI model panel.

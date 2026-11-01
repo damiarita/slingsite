@@ -27,5 +27,20 @@
     "waiting": "En attente",
     "completed": "Enregistré",
     "failed": "Échec : {message}"
+  },
+  "ai": {
+    "previewBackground": "Aperçu sur",
+    "backdrops": {
+      "checker": "Damier",
+      "light": "Blanc",
+      "dark": "Noir"
+    },
+    "altLabel": "Alt text",
+    "altDraft": "Brouillon en anglais. Relisez-le avant de l’utiliser.",
+    "altFailed": "L’alt text (texte alternatif) n’a pas pu être écrit. Vos fichiers image ne sont pas concernés.",
+    "removingBackground": "Suppression du fond. Cela peut prendre une minute ou plus.",
+    "writingAlt": "Écriture de l’alt text (texte alternatif). Cela peut prendre une minute ou plus.",
+    "noSubject": "Aucun sujet clair n’a été trouvé : la majeure partie de l’image a été supprimée. Cela fonctionne mieux avec une personne ou un objet devant un fond.",
+    "downloadingModel": "Téléchargement du modèle : {percent}"
   }
 }

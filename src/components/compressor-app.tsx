@@ -15,15 +15,21 @@ import { Results } from '@/components/results';
 import { PrimaryButton } from '@/components/buttons';
 import { SettingsSection, StepHeading } from '@/components/settings-section';
 import { SampleCredit } from '@/components/sample-credit';
+import useAiWorker, { type AiWorker } from '@/hooks/use-ai-worker';
 import useCompressor from '@/hooks/use-compressor';
 import useJobTracking from '@/hooks/use-job-tracking';
 import type { Format } from '@/utils/formats';
 import type { Job, JobIds, PendingFile, Task } from '@/types/job';
-import { jobIsIncomplete } from '@/utils/jobs';
+import { getNextJob, getPendingAiStep, jobTaskEntries } from '@/utils/jobs';
 import type { CompressionInput } from '@/types/compressor';
-import type { AnalyticsEventParams, TaskErrorKind } from '@/types/analytics';
+import type { AiAltResult, AiMaskResult, AiStep } from '@/types/ai';
+import type {
+  AnalyticsEventParams,
+  TaskErrorKind,
+  TaskOutcome,
+} from '@/types/analytics';
 import { getMediumSize } from '@/utils/mediaDimensions';
-import { fileEntry, sumBy, trackEvent } from '@/utils/analytics';
+import { fileEntry, jobContext, sumBy, trackEvent } from '@/utils/analytics';
 import { fill, formatCount } from '@/utils/i18n-format';
 import type {
   CompressorAppDictionary,
@@ -53,6 +59,12 @@ function getJobWithUpdatedTask(
   });
 }
 
+type AiStepUpdate = AiStep<AiMaskResult | AiAltResult>;
+
+function updateJob(jobs: Job[], jobId: string, update: (job: Job) => Job) {
+  return jobs.map((job) => (job.id === jobId ? update(job) : job));
+}
+
 type Focus = 'initial' | 'upload' | 'settings' | 'results';
 
 // What is wrong with the settings, found on Start: the message shows next to
@@ -63,12 +75,13 @@ export type SettingsComponentProps<Config> = {
   config: Config;
   setConfig: (newConfig: Config) => void;
   invalidFieldId?: string;
+  ai: AiWorker;
 };
 
 // The settings of a Start click that the analytics can't read from the jobs.
 export type ConversionSettings = Pick<
   AnalyticsEventParams['conversion_started'],
-  'resize' | 'keep_audio' | 'original_format'
+  'resize' | 'keep_audio' | 'original_format' | 'model_id'
 >;
 
 // A picked file's preview. The object URL lives as long as the thumbnail.
@@ -176,6 +189,7 @@ export default function CompressorApp<Config>({
   const resultsRef = useRef<HTMLElement>(null);
 
   const compressor = useCompressor(compressorType);
+  const ai = useAiWorker();
   const tracking = useJobTracking(jobs);
 
   const counts = translation.counts;
@@ -270,6 +284,7 @@ export default function CompressorApp<Config>({
   };
 
   const handleRemoveJob = (index: number) => {
+    ai.forget(jobs[index].id);
     setJobs((prev) => {
       const newJobs = [...prev];
       newJobs.splice(index, 1);
@@ -277,12 +292,26 @@ export default function CompressorApp<Config>({
     });
   };
 
+  const handleAltChange = (jobId: string, text: string) =>
+    setJobs((prev) =>
+      updateJob(prev, jobId, (job) =>
+        job.alt
+          ? {
+              ...job,
+              alt: {
+                ...job.alt,
+                step: { status: 'completed', result: { text } },
+              },
+            }
+          : job,
+      ),
+    );
+
   useEffect(() => {
     if (compressor.status == 'loading') return; //compressor is not ready
 
-    const jobToRunIndex = jobs.findIndex((job) => jobIsIncomplete(job));
-    if (jobToRunIndex === -1) return;
-    const jobToRun = jobs[jobToRunIndex];
+    const jobToRun = getNextJob(jobs);
+    if (!jobToRun) return;
 
     if (compressor.status === 'working') {
       if (jobToRun.id !== compressor.currentJobId) {
@@ -292,7 +321,73 @@ export default function CompressorApp<Config>({
       }
     }
 
+    const aiStep = getPendingAiStep(jobToRun);
+    if (aiStep) {
+      if (ai.isBusy()) return; // Its turn comes when the current one ends.
+      tracking.jobStarted(jobToRun);
+      const { modelId } = jobToRun[aiStep]!;
+      const start = performance.now();
+      const setStep = (step: AiStepUpdate) =>
+        setJobs((prev) =>
+          updateJob(prev, jobToRun.id, (job) => ({
+            ...job,
+            [aiStep]: { modelId, step },
+          })),
+        );
+      const trackStep = (status: TaskOutcome, errorKind?: TaskErrorKind) =>
+        trackEvent({
+          event: 'ai_step_finished',
+          ...jobContext(jobToRun),
+          ai_step: aiStep === 'alt' ? 'alt' : 'remove_background',
+          model_id: modelId,
+          status,
+          error_kind: errorKind,
+          elapsed_ms: Math.round(performance.now() - start),
+        });
+      setStep({ status: 'running' });
+      ai.run(jobToRun.id, modelId, jobToRun.originalFile, {
+        onProgress: (percentage) => setStep({ status: 'running', percentage }),
+        onModelReady: () => setStep({ status: 'running' }),
+        onMask: (result) => {
+          setStep({ status: 'completed', result });
+          trackStep('completed');
+        },
+        onAlt: (text) => {
+          setStep({ status: 'completed', result: { text } });
+          trackStep('completed');
+        },
+        onError: (errorMessage, errorKind) => {
+          console.error('AI step failed:', errorMessage);
+          setStep({ status: 'errored', errorMessage, errorKind });
+          trackStep('errored', errorKind);
+          // Without alt text the outputs are still good. Without a mask they
+          // would keep the background, so they can't be made.
+          if (aiStep !== 'removeBackground') return;
+          setJobs((prev) =>
+            jobTaskEntries(jobToRun).reduce(
+              (current, { configName, format }) =>
+                getJobWithUpdatedTask(
+                  current,
+                  jobToRun.id,
+                  configName,
+                  format,
+                  {
+                    status: 'errored',
+                    errorMessage,
+                    errorKind,
+                  },
+                ),
+              prev,
+            ),
+          );
+        },
+      });
+      return;
+    }
+
+    if (ai.isBusy()) return; // One job at a time, even across workers.
     tracking.jobStarted(jobToRun);
+    const maskStep = jobToRun.removeBackground?.step;
     compressor.compress(
       jobToRun.id,
       jobToRun.originalFile,
@@ -337,8 +432,9 @@ export default function CompressorApp<Config>({
           });
         });
       },
+      maskStep?.status === 'completed' ? maskStep.result.mask : undefined,
     );
-  }, [jobs, compressor, tracking]);
+  }, [jobs, compressor, tracking, ai]);
 
   useEffect(() => {
     const refToScroll: Record<
@@ -442,6 +538,7 @@ export default function CompressorApp<Config>({
                 config,
                 setConfig: updateConfig,
                 invalidFieldId: problem?.fieldId,
+                ai,
               })}
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-rule pt-10">
                 <p className="min-w-0 flex-1 basis-80">{summary}</p>
@@ -471,6 +568,7 @@ export default function CompressorApp<Config>({
               <Results
                 jobs={jobs}
                 handleRemoveJob={handleRemoveJob}
+                onAltChange={handleAltChange}
                 translation={resultTranslation}
                 counts={counts}
               />

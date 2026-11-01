@@ -27,5 +27,20 @@
     "waiting": "Wartet auf den Start",
     "completed": "Gespeichert",
     "failed": "Fehlgeschlagen: {message}"
+  },
+  "ai": {
+    "previewBackground": "Vorschau auf",
+    "backdrops": {
+      "checker": "Schachbrett",
+      "light": "Weiß",
+      "dark": "Schwarz"
+    },
+    "altLabel": "Alt-Text",
+    "altDraft": "Entwurf auf Englisch. Prüfe ihn vor der Verwendung.",
+    "altFailed": "Der Alt-Text konnte nicht geschrieben werden. Deine Bilddateien sind davon nicht betroffen.",
+    "removingBackground": "Hintergrund wird entfernt. Das kann eine Minute oder länger dauern.",
+    "writingAlt": "Alt-Text wird geschrieben. Das kann eine Minute oder länger dauern.",
+    "noSubject": "Es wurde kein klares Motiv gefunden, daher wurde fast das ganze Bild entfernt. Am besten klappt es mit einer Person oder einem Objekt vor einem Hintergrund.",
+    "downloadingModel": "Modell wird heruntergeladen: {percent}"
   }
 }

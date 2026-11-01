@@ -5,6 +5,7 @@ import ToolPageLinks from '@/components/tool-page-links';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
+  getAiModelsDictionary,
   getAudioSettingsDictionary,
   getCompressorAppDictionary,
   getFormatLinksDictionary,
@@ -23,6 +24,7 @@ import { withDefault } from '@/utils/seo';
 import type { Metadata } from 'next';
 import { getPathname } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { defaultAiModels } from '@/utils/ai-models';
 import { getDefaultFormatConfig } from '@/utils/compressor/all';
 import type { CompressionInput } from '@/types/compressor';
 import type { FormatConfig } from '@/types/config';
@@ -185,6 +187,22 @@ function getInitialConfig(
         formats: destination ?? ['jpg'],
         versionName: translation.thumbnail,
       });
+    case 'remove-background':
+      return {
+        ...getDefaultFormatConfig({
+          formats: ['png'],
+          versionName: translation.resized,
+        }),
+        removeBackgroundModelId: defaultAiModels['remove-background'],
+      };
+    case 'alt':
+      return {
+        ...getDefaultFormatConfig({
+          formats: [],
+          versionName: translation.resized,
+        }),
+        altModelId: defaultAiModels.alt,
+      };
     default: {
       const _exhaustiveCheck: never = tool;
       return _exhaustiveCheck;
@@ -236,9 +254,10 @@ export default async function ToolRoute({
         formatsTranslation={await getFormatsDictionary(locale)}
         resultTranslation={await getResultDictionary(locale)}
         audioTranslation={audioTranslation}
+        aiTranslation={await getAiModelsDictionary(locale)}
       />
       {/* Only the base page links to the children */}
-      {!page.slug && (
+      {!page.slug && tool !== 'remove-background' && tool !== 'alt' && (
         <ToolPageLinks
           tool={tool}
           type={type}

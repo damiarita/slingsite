@@ -3,6 +3,7 @@ import CompressorIntro from '@/components/compressor-intro';
 import PageContent from '@/components/page-content';
 import { Locale, routing } from '@/i18n/routing';
 import {
+  getAiModelsDictionary,
   getImagePageMetadataDictionary,
   getImagePageSeoDictionary,
   getCompressorAppDictionary,
@@ -94,6 +95,7 @@ export default async function App({ params }: Props) {
         uploadTranslation={await getUploadDictionary(locale)}
         settingTranslation={settingTranslation}
         resultTranslation={await getResultDictionary(locale)}
+        aiTranslation={await getAiModelsDictionary(locale)}
       />
       <PageContent locale={locale} slug="image" />
       <BaseDatalayer locale={locale} pageType="image" pageSubtype="optimize" />

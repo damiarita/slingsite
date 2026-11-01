@@ -1,9 +1,16 @@
 import type { CompressionInput } from '@/types/compressor';
 import { type Format, imageFormats, videoFormats } from '@/utils/formats';
 
-// Pages built on the format app (FormatConfig): convert, resize and extract
-// a video's first frame (thumbnail). Each has a base page and children.
-export const tools = ['format', 'resize', 'thumbnail'] as const;
+// Pages built on the format app (FormatConfig): convert, resize, extract a
+// video's first frame (thumbnail), remove an image's background and write its
+// alt text. The first three have a base page and children.
+export const tools = [
+  'format',
+  'resize',
+  'thumbnail',
+  'remove-background',
+  'alt',
+] as const;
 export type Tool = (typeof tools)[number];
 
 export const toolPathnames = {
@@ -17,6 +24,12 @@ export const toolPathnames = {
   },
   thumbnail: {
     video: '/video/thumbnail/[[...slugs]]',
+  },
+  'remove-background': {
+    image: '/image/remove-background/[[...slugs]]',
+  },
+  alt: {
+    image: '/image/alt/[[...slugs]]',
   },
 } as const satisfies Record<Tool, Partial<Record<CompressionInput, string>>>;
 
@@ -53,10 +66,14 @@ export const findTool = (
 export const toolOutputFormats = (
   tool: Tool,
   type: CompressionInput,
-): Format[] =>
-  tool === 'thumbnail' || type === 'image'
+): Format[] => {
+  // Without an alpha channel, the background couldn't go.
+  if (tool === 'remove-background') return ['png', 'webp', 'avif'];
+  if (tool === 'alt') return [];
+  return tool === 'thumbnail' || type === 'image'
     ? [...imageFormats]
     : [...videoFormats];
+};
 
 // Input formats we advertise (upload box) and build "<source>-…" pages for.
 // Anything the browser can decode works, these are just the ones we name.
@@ -129,6 +146,7 @@ const sourceToPages = (
 // - format: base, "to-<output>", "<source>-to-<output>".
 // - resize: base, "<output>" (resize a JPG into a JPG…).
 // - thumbnail: base, "<source>", "to-<output>", "<source>-to-<output>".
+// - remove-background, alt: base only.
 export function getToolPages(tool: Tool, type: CompressionInput): ToolPage[] {
   const outputs = toolOutputFormats(tool, type);
   switch (tool) {
@@ -153,6 +171,9 @@ export function getToolPages(tool: Tool, type: CompressionInput): ToolPage[] {
         ...toPages(outputs),
         ...sourceToPages(inputFormats[type], outputs),
       ];
+    case 'remove-background':
+    case 'alt':
+      return [{}];
     default: {
       const _exhaustiveCheck: never = tool;
       return _exhaustiveCheck;

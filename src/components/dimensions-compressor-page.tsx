@@ -4,7 +4,10 @@ import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import CompressorApp, { type ConfigProblem } from './compressor-app';
 import { DimensionsSettings } from './dimension-settings';
+import { AltTextOption } from './ai-model-panel';
+import { SettingsSection } from './settings-section';
 import type {
+  AiModelsDictionary,
   AudioSettingsDictionary,
   CompressorAppDictionary,
   ResultsDictionary,
@@ -13,6 +16,7 @@ import type {
 } from '@/i18n/type';
 import type { CompressionInput } from '@/types/compressor';
 import type { DimensionsConfig } from '@/types/config';
+import { defaultAiModels } from '@/utils/ai-models';
 import { createDimensionsJob, getSizesProblem } from '@/utils/jobs';
 import { formatNames, videoFormats, webImageFormats } from '@/utils/formats';
 import type { DeviceNames } from '@/utils/size-presets';
@@ -29,6 +33,7 @@ export default function DimensionsCompressorPage({
   settingTranslation,
   resultTranslation,
   audioTranslation,
+  aiTranslation,
 }: {
   compressorType: CompressionInput;
   initialConfig: DimensionsConfig;
@@ -40,6 +45,8 @@ export default function DimensionsCompressorPage({
   resultTranslation: ResultsDictionary;
   // Videos only: shows the audio toggle.
   audioTranslation?: AudioSettingsDictionary;
+  // Images only: offers alt text.
+  aiTranslation?: AiModelsDictionary;
 }) {
   const locale = useLocale();
   const t = settingTranslation;
@@ -128,18 +135,37 @@ export default function DimensionsCompressorPage({
       translation={appTranslation}
       uploadTranslation={uploadTranslation}
       resultTranslation={resultTranslation}
-      renderSettings={(props) => (
-        <DimensionsSettings
-          {...props}
-          deviceNames={deviceNames}
-          translation={t}
-          audio={
-            audioTranslation && {
-              defaultKeepAudio: initialConfig.keepAudio,
-              translation: audioTranslation,
+      renderSettings={({ ai, ...props }) => (
+        <>
+          <DimensionsSettings
+            {...props}
+            deviceNames={deviceNames}
+            translation={t}
+            audio={
+              audioTranslation && {
+                defaultKeepAudio: initialConfig.keepAudio,
+                translation: audioTranslation,
+              }
             }
-          }
-        />
+          />
+          {aiTranslation && (
+            <SettingsSection
+              title={aiTranslation.altTitle}
+              note={aiTranslation.altNote}
+            >
+              <AltTextOption
+                modelId={props.config.altModelId}
+                enabled={Boolean(props.config.altModelId)}
+                onChange={(altModelId) =>
+                  props.setConfig({ ...props.config, altModelId })
+                }
+                ai={ai}
+                translation={aiTranslation}
+                defaultModelId={defaultAiModels.alt}
+              />
+            </SettingsSection>
+          )}
+        </>
       )}
       getConfigProblem={getConfigProblem}
       describe={describe}
@@ -148,6 +174,7 @@ export default function DimensionsCompressorPage({
         resize: true,
         keep_audio: compressorType === 'video' ? config.keepAudio : undefined,
         original_format: false,
+        model_id: config.altModelId,
       })}
     />
   );

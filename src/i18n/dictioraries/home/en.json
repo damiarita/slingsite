@@ -37,6 +37,14 @@
     "videoThumbnail": {
       "label": "Video thumbnail",
       "description": "The first frame as an image"
+    },
+    "removeBackground": {
+      "label": "Remove background",
+      "description": "Cut the subject out of a photo"
+    },
+    "imageAlt": {
+      "label": "Alt text",
+      "description": "A draft description of each image"
     }
   },
   "showcase": {

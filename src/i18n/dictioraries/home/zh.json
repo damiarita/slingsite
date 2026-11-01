@@ -37,6 +37,14 @@
     "videoThumbnail": {
       "label": "视频缩略图",
       "description": "将第一帧保存为图片"
+    },
+    "removeBackground": {
+      "label": "移除背景",
+      "description": "从照片中抠出主体"
+    },
+    "imageAlt": {
+      "label": "alt text",
+      "description": "为每张图片生成描述草稿"
     }
   },
   "showcase": {

@@ -3,7 +3,9 @@ import type {
   FormatConfig,
   SizingConfig,
 } from '@/types/config';
+import type { AiStep } from '@/types/ai';
 import type { Job, JobIds, Task } from '@/types/job';
+import type { AiModelId } from '@/utils/ai-models';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import {
   type Format,
@@ -71,7 +73,11 @@ export type FormatConfigProblem =
 export function getFormatConfigProblem(
   config: FormatConfig,
 ): FormatConfigProblem | null {
-  if (config.formats.length === 0 && !config.originalFormat)
+  if (
+    config.formats.length === 0 &&
+    !config.originalFormat &&
+    !config.altModelId
+  )
     return { kind: 'noFormat' };
   if (config.resize) {
     const index = config.versions.findIndex(
@@ -127,6 +133,7 @@ export const createDimensionsJob = (
     file,
     ids,
     config.keepAudio,
+    { alt: isImage ? config.altModelId : undefined },
     getFileName,
     (originalDimensions) => {
       const requestedFormats: Format[] = isImage
@@ -211,6 +218,10 @@ export const createFormatJob = (
     file,
     ids,
     config.keepAudio,
+    {
+      removeBackground: config.removeBackgroundModelId,
+      alt: config.altModelId,
+    },
     getFileName,
     (originalDimensions) => {
       const requestedDimensions: Record<string, MediaDimensions> = {};
@@ -248,6 +259,7 @@ async function createJob(
   file: File,
   ids: JobIds,
   keepAudio: boolean,
+  ai: { removeBackground?: AiModelId; alt?: AiModelId },
   getFileName: (configName: string, format: Format) => string,
   plan: (originalDimensions: MediaDimensions) => {
     requestedDimensions: Record<string, MediaDimensions>;
@@ -285,6 +297,11 @@ async function createJob(
       pictureSizes,
       taskIds,
       tasks,
+      removeBackground: ai.removeBackground && {
+        modelId: ai.removeBackground,
+        step: { status: 'waiting' },
+      },
+      alt: ai.alt && { modelId: ai.alt, step: { status: 'waiting' } },
     };
   } catch (error) {
     const errorMessage =
@@ -297,10 +314,33 @@ async function createJob(
   }
 }
 
-export const jobIsIncomplete = (job: Job): boolean => {
-  return jobTasksAsArray(job).some(
-    (task) => task.status === 'running' || task.status === 'waiting',
-  );
+const jobAiSteps = (job: Job): AiStep<unknown>[] =>
+  [job.removeBackground, job.alt].flatMap((ai) => (ai ? [ai.step] : []));
+
+const isUnfinished = ({ status }: { status: Task['status'] }) =>
+  status === 'running' || status === 'waiting';
+
+export const jobIsIncomplete = (job: Job): boolean =>
+  [...jobTasksAsArray(job), ...jobAiSteps(job)].some(isUnfinished);
+
+const needsMask = ({ removeBackground }: Job) =>
+  removeBackground !== undefined && isUnfinished(removeBackground.step);
+
+const needsEncoding = (job: Job) =>
+  needsMask(job) || jobTasksAsArray(job).some(isUnfinished);
+
+// Files come first: alt text is slow and optional, so the visitor shouldn't
+// wait for it to get any image, on this job or the next ones.
+export const getNextJob = (jobs: Job[]) =>
+  jobs.find(needsEncoding) ?? jobs.find(jobIsIncomplete);
+
+// The AI worker's step for this job, if it is its turn: the mask goes before
+// the encoding (the outputs need it), the alt text after it.
+export const getPendingAiStep = (job: Job) => {
+  if (needsMask(job)) return 'removeBackground';
+  if (needsEncoding(job)) return undefined;
+  if (job.alt && isUnfinished(job.alt.step)) return 'alt';
+  return undefined;
 };
 
 const jobTasksAsArray = (job: Job): Task[] => {
@@ -308,6 +348,9 @@ const jobTasksAsArray = (job: Job): Task[] => {
     Object.values(deviceTasks),
   );
 };
+
+// Tasks and AI steps, which count the same towards the job's progress.
+const jobSteps = (job: Job) => [...jobTasksAsArray(job), ...jobAiSteps(job)];
 
 export const jobTaskEntries = (
   job: Job,
@@ -321,31 +364,31 @@ export const jobTaskEntries = (
   );
 
 export const jobIsRunning = (job: Job): boolean => {
-  return jobTasksAsArray(job).some((task) => task.status === 'running');
+  return jobSteps(job).some((step) => step.status === 'running');
 };
 
 export const jobProportionOfDoneTasks = (job: Job): number => {
-  const tasksAsArray = jobTasksAsArray(job);
-  const total = tasksAsArray.length;
+  const steps = jobSteps(job);
+  const total = steps.length;
   if (total === 0) return 1;
-  const done = tasksAsArray.filter(
-    (task) => task.status === 'completed' || task.status === 'errored',
+  const done = steps.filter(
+    (step) => step.status === 'completed' || step.status === 'errored',
   ).length;
   if (done >= total) return 1;
   return done / total;
 };
 
-// Like jobProportionOfDoneTasks, but running tasks count by their reported
-// percentage. Videos report it per output; images don't, so they count as 0
-// until done.
+// Like jobProportionOfDoneTasks, but running steps count by their reported
+// percentage. Videos report it per output and AI steps while the model
+// downloads; images don't, so they count as 0 until done.
 export const jobProgress = (job: Job): number => {
-  const tasksAsArray = jobTasksAsArray(job);
-  if (tasksAsArray.length === 0) return 1;
-  const progress = tasksAsArray.reduce((sum, task) => {
-    if (task.status === 'completed' || task.status === 'errored')
+  const steps = jobSteps(job);
+  if (steps.length === 0) return 1;
+  const progress = steps.reduce((sum, step) => {
+    if (step.status === 'completed' || step.status === 'errored')
       return sum + 1;
-    if (task.status === 'running') return sum + (task.percentage ?? 0) / 100;
+    if (step.status === 'running') return sum + (step.percentage ?? 0) / 100;
     return sum;
   }, 0);
-  return Math.min(progress / tasksAsArray.length, 1);
+  return Math.min(progress / steps.length, 1);
 };

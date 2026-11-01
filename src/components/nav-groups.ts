@@ -25,6 +25,17 @@ export const getNavGroups = (translation: NavBarTranslations): NavGroup[] => [
         href: { pathname: '/image/resize/[[...slugs]]', params: { slugs: [] } },
         label: translation.imageResizer,
       },
+      {
+        href: {
+          pathname: '/image/remove-background/[[...slugs]]',
+          params: { slugs: [] },
+        },
+        label: translation.imageRemoveBackground,
+      },
+      {
+        href: { pathname: '/image/alt/[[...slugs]]', params: { slugs: [] } },
+        label: translation.imageAlt,
+      },
     ],
   },
   {

@@ -3,6 +3,7 @@ import { isImageFormat } from '@/utils/formats';
 import type { Format } from '@/utils/formats';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import type { InputMessage, OutputMessage } from '@/types/workers';
+import type { AiMask } from '@/types/ai';
 import type { CompressionInput } from '@/types/compressor';
 import type { TaskErrorKind } from '@/types/analytics';
 
@@ -77,6 +78,7 @@ export default function useCompressor(type: CompressionInput) {
         message: string,
         kind: TaskErrorKind,
       ) => void,
+      mask?: AiMask,
     ): void {
       if (!workerRef.current) {
         throw new Error(
@@ -125,6 +127,7 @@ export default function useCompressor(type: CompressionInput) {
         mediaSizes,
         keepAudio,
         fileNames,
+        mask,
       };
       worker.postMessage(message);
     },

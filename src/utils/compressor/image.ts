@@ -1,3 +1,4 @@
+import type { AiMask } from '@/types/ai';
 import type { TaskErrorKind } from '@/types/analytics';
 import type { MediaDimensions } from '@/types/mediaDimensions';
 import { imageFormats } from '@/utils/formats';
@@ -38,6 +39,7 @@ export async function compressImage(
     errorKind: TaskErrorKind,
   ) => void,
   onBegin: (configName: string, format: ImageFormat) => void,
+  mask?: AiMask,
 ): Promise<void> {
   const nativelySupportedEncoders = await nativelySupportedEncodersPromise;
   let imageBitmap: ImageBitmap;
@@ -58,6 +60,7 @@ export async function compressImage(
     return;
   }
 
+  const maskCanvas = mask && getMaskCanvas(mask);
   for (const [configName, mediaSize] of Object.entries(mediaSizes)) {
     const formats = formatsByConfig[configName] || [];
     if (formats.length === 0) continue; // Nothing requested for this config.
@@ -85,6 +88,12 @@ export async function compressImage(
 
     // Draw resized image
     ctx.drawImage(imageBitmap, 0, 0, mediaSize.width, mediaSize.height);
+    if (maskCanvas) {
+      // Keeps the image where the (scaled) mask is opaque.
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(maskCanvas, 0, 0, mediaSize.width, mediaSize.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
     // JPG has no alpha channel: encoders turn transparent pixels black, so
     // flatten onto white first (PNG/GIF/WEBP/AVIF sources can be transparent).
     let flattenedCanvas: OffscreenCanvas | undefined;
@@ -141,6 +150,16 @@ export async function compressImage(
       }
     }
   }
+}
+
+function getMaskCanvas({ data, width, height }: AiMask) {
+  const canvas = new OffscreenCanvas(width, height);
+  const pixels = new ImageData(width, height);
+  data.forEach((alpha, i) => {
+    pixels.data[i * 4 + 3] = alpha;
+  });
+  canvas.getContext('2d')!.putImageData(pixels, 0, 0);
+  return canvas;
 }
 
 const getErrorMessage = (error: unknown) =>

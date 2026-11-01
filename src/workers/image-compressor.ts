@@ -12,7 +12,7 @@ import type { InputMessage } from '@/types/workers';
 import type { TaskErrorKind } from '@/types/analytics';
 
 self.onmessage = async (ev) => {
-  const { jobId, file, formats, mediaSizes, fileNames } =
+  const { jobId, file, formats, mediaSizes, fileNames, mask } =
     ev.data as InputMessage;
 
   const imageFormatsByConfig: Record<string, ImageFormat[]> = {};
@@ -47,6 +47,7 @@ self.onmessage = async (ev) => {
     (configName: string, format: ImageFormat) => {
       sendProgressMessage(jobId, configName, format);
     },
+    mask,
   );
 
   sendReadyMessage();

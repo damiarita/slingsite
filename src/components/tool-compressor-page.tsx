@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import CompressorApp, { type ConfigProblem } from './compressor-app';
+import { AiModelPanel } from './ai-model-panel';
+import { SettingsSection } from './settings-section';
 import {
   FormatSettings,
   getFormatPickerFieldId,
@@ -12,6 +14,7 @@ import type {
   AudioSettingsDictionary,
   CompressorAppDictionary,
   FormatSettingsDictionary,
+  AiModelsDictionary,
   ResultsDictionary,
   UploadDictionary,
 } from '@/i18n/type';
@@ -45,6 +48,7 @@ export default function ToolCompressorPage({
   formatsTranslation,
   resultTranslation,
   audioTranslation,
+  aiTranslation,
 }: {
   tool: Tool;
   compressorType: CompressionInput;
@@ -59,6 +63,7 @@ export default function ToolCompressorPage({
   resultTranslation: ResultsDictionary;
   // Videos only (not thumbnails): shows the audio toggle.
   audioTranslation?: AudioSettingsDictionary;
+  aiTranslation: AiModelsDictionary;
 }) {
   const locale = useLocale();
   const t = formatSettingTranslation;
@@ -93,6 +98,25 @@ export default function ToolCompressorPage({
         version: { name: t.thumbnail, fileKey: 'thumbnail' },
       },
     },
+    'remove-background': {
+      stepTitle: aiTranslation.stepBackground,
+      start: aiTranslation.startBackground,
+      names: {
+        unresized: {
+          name: aiTranslation.backgroundName,
+          fileKey: 'no-background',
+        },
+        version: { name: t.resized, fileKey: 'no-background-resized' },
+      },
+    },
+    alt: {
+      stepTitle: aiTranslation.stepAlt,
+      start: aiTranslation.startAlt,
+      names: {
+        unresized: { name: t.converted, fileKey: 'alt' },
+        version: { name: t.converted, fileKey: 'alt' },
+      },
+    },
   };
   const { stepTitle, start, names } = shell[tool];
 
@@ -121,6 +145,12 @@ export default function ToolCompressorPage({
       files.length,
       compressorType === 'video' ? counts.video : counts.image,
     );
+    if (tool === 'alt') {
+      return {
+        summary: fill(aiTranslation.summaryAlt, { files: mediaCount }),
+        start: fill(start, { files: mediaCount }),
+      };
+    }
     const versions = config.resize ? config.versions.length : 1;
     const total = files.reduce(
       (sum, file) =>
@@ -161,23 +191,50 @@ export default function ToolCompressorPage({
       translation={appTranslation}
       uploadTranslation={uploadTranslation}
       resultTranslation={resultTranslation}
-      renderSettings={(props) => (
-        <FormatSettings
-          {...props}
-          primary={tool === 'resize' ? 'resize' : 'formats'}
-          initialConfig={initialConfig}
-          versionName={names.version.name}
-          availableFormats={availableFormats}
-          showOriginalFormat={showOriginalFormat}
-          translation={t}
-          formatsTranslation={formatsTranslation}
-          audio={
-            audioTranslation && {
-              defaultKeepAudio: initialConfig.keepAudio,
-              translation: audioTranslation,
-            }
-          }
-        />
+      renderSettings={({ ai, ...props }) => (
+        <>
+          {tool === 'remove-background' && (
+            <SettingsSection
+              title={aiTranslation.backgroundTitle}
+              note={aiTranslation.backgroundNote}
+            >
+              <AiModelPanel
+                modelId={props.config.removeBackgroundModelId!}
+                ai={ai}
+                translation={aiTranslation}
+              />
+            </SettingsSection>
+          )}
+          {tool === 'alt' ? (
+            <SettingsSection
+              title={aiTranslation.altTitle}
+              note={aiTranslation.altNote}
+            >
+              <AiModelPanel
+                modelId={props.config.altModelId!}
+                ai={ai}
+                translation={aiTranslation}
+              />
+            </SettingsSection>
+          ) : (
+            <FormatSettings
+              {...props}
+              primary={tool === 'resize' ? 'resize' : 'formats'}
+              initialConfig={initialConfig}
+              versionName={names.version.name}
+              availableFormats={availableFormats}
+              showOriginalFormat={showOriginalFormat}
+              translation={t}
+              formatsTranslation={formatsTranslation}
+              audio={
+                audioTranslation && {
+                  defaultKeepAudio: initialConfig.keepAudio,
+                  translation: audioTranslation,
+                }
+              }
+            />
+          )}
+        </>
       )}
       getConfigProblem={getConfigProblem}
       describe={describe}
@@ -189,6 +246,7 @@ export default function ToolCompressorPage({
         // Thumbnails have no audio, and images ignore it.
         keep_audio: audioTranslation ? config.keepAudio : undefined,
         original_format: config.originalFormat,
+        model_id: config.removeBackgroundModelId ?? config.altModelId,
       })}
     />
   );

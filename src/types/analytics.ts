@@ -26,6 +26,9 @@ export type TaskErrorKind =
   | 'decode_failed'
   | 'frame_extraction_failed'
   | 'encode_failed'
+  | 'model_download_failed'
+  | 'model_load_failed'
+  | 'inference_failed'
   | 'unknown';
 
 export type TaskOutcome = 'completed' | 'errored';
@@ -101,6 +104,7 @@ export type AnalyticsEventParams = {
     resize: boolean;
     keep_audio: boolean | undefined;
     original_format: boolean;
+    model_id: string | undefined;
   };
   // Once every job of the conversion has finished or been removed.
   conversion_finished: {
@@ -134,6 +138,22 @@ export type AnalyticsEventParams = {
     status: TaskOutcome;
     error_kind: TaskErrorKind | undefined;
     output_size_bytes: number | undefined;
+    elapsed_ms: number;
+  };
+  // A model is ready in the visitor's browser, or failed to be.
+  ai_model_loaded: {
+    model_id: string;
+    ai_device: 'webgpu' | 'wasm' | undefined;
+    status: TaskOutcome;
+    error_kind: TaskErrorKind | undefined;
+    elapsed_ms: number | undefined;
+  };
+  // Never carries the alt text: it describes the visitor's image.
+  ai_step_finished: JobContext & {
+    ai_step: 'remove_background' | 'alt';
+    model_id: string;
+    status: TaskOutcome;
+    error_kind: TaskErrorKind | undefined;
     elapsed_ms: number;
   };
   files_downloaded: {

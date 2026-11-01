@@ -60,6 +60,26 @@ export default function CompressorIntro({
         params: { slugs: [] },
       },
     },
+    ...(type === 'image'
+      ? [
+          {
+            tool: 'remove-background' as const,
+            label: translation.removeBackground,
+            href: {
+              pathname: getToolPathname('remove-background', type),
+              params: { slugs: [] },
+            },
+          },
+          {
+            tool: 'alt' as const,
+            label: translation.alt,
+            href: {
+              pathname: getToolPathname('alt', type),
+              params: { slugs: [] },
+            },
+          },
+        ]
+      : []),
     ...(type === 'video'
       ? [
           {

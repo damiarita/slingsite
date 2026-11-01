@@ -24,6 +24,10 @@
     "compress": "Comprimi",
     "convert": "Converti",
     "resize": "Ridimensiona",
-    "thumbnail": "Miniatura"
-  }
+    "thumbnail": "Miniatura",
+    "removeBackground": "Rimuovi sfondo",
+    "alt": "Alt text"
+  },
+  "imageRemoveBackground": "Rimuovi sfondo",
+  "imageAlt": "Generatore di alt text"
 }

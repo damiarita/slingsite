@@ -9,6 +9,7 @@ import {
   RedirectingTranslations,
   NavBarTranslations,
   FooterTranslations,
+  AiModelsDictionary,
   UploadDictionary,
   CompressorAppDictionary,
   SettingsDictionary,
@@ -263,6 +264,17 @@ export const getFormatLinksDictionary =
     zh: () => import('./dictioraries/format-links/zh.json'),
     en: () => import('./dictioraries/format-links/en.json'),
   });
+export const getAiModelsDictionary = createDictionaryGetter<AiModelsDictionary>(
+  {
+    ar: () => import('./dictioraries/ai-models/ar.json'),
+    de: () => import('./dictioraries/ai-models/de.json'),
+    es: () => import('./dictioraries/ai-models/es.json'),
+    fr: () => import('./dictioraries/ai-models/fr.json'),
+    it: () => import('./dictioraries/ai-models/it.json'),
+    zh: () => import('./dictioraries/ai-models/zh.json'),
+    en: () => import('./dictioraries/ai-models/en.json'),
+  },
+);
 export const getResultDictionary = createDictionaryGetter<ResultsDictionary>({
   ar: () => import('./dictioraries/result/ar.json'),
   de: () => import('./dictioraries/result/de.json'),

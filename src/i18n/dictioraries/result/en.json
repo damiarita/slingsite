@@ -27,5 +27,20 @@
     "waiting": "Waiting to start",
     "completed": "Saved",
     "failed": "Failed: {message}"
+  },
+  "ai": {
+    "previewBackground": "Preview on",
+    "backdrops": {
+      "checker": "Checkerboard",
+      "light": "White",
+      "dark": "Black"
+    },
+    "altLabel": "Alt text",
+    "altDraft": "Draft in English. Check it before you use it.",
+    "altFailed": "The alt text could not be written. Your image files are not affected.",
+    "removingBackground": "Removing the background. This can take a minute or more.",
+    "writingAlt": "Writing the alt text. This can take a minute or more.",
+    "noSubject": "No clear subject was found, so most of this image was removed. This works best on a person or object against a background.",
+    "downloadingModel": "Downloading the model: {percent}"
   }
 }

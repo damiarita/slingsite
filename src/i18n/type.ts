@@ -43,6 +43,8 @@ export interface NavBarTranslations {
   imageResizer: string;
   videoResizer: string;
   videoThumbnail: string;
+  imageRemoveBackground: string;
+  imageAlt: string;
   menu: string;
   openMenu: string;
   closeMenu: string;
@@ -56,6 +58,8 @@ export interface NavBarTranslations {
     convert: string;
     resize: string;
     thumbnail: string;
+    removeBackground: string;
+    alt: string;
   };
 }
 
@@ -206,6 +210,31 @@ export interface FormatLinksDictionary {
   thumbnailFromTo: string; // {from}, {to}
 }
 
+export interface AiModelsDictionary {
+  modelLine: string; // {model}, {license}
+  downloadLine: string; // {size}
+  downloaded: string;
+  downloading: string; // {percent}
+  loading: string;
+  cancel: string;
+  failed: string;
+  retry: string;
+  onDevice: string;
+  englishOnly: string;
+  altToggle: string;
+  altToggleNote: string;
+  backgroundTitle: string;
+  backgroundNote: string;
+  altTitle: string;
+  altNote: string;
+  stepBackground: string;
+  stepAlt: string;
+  startBackground: string; // {files}
+  startAlt: string; // {files}
+  summaryAlt: string; // {files}
+  backgroundName: string;
+}
+
 export interface ResultsDictionary {
   title: string;
   downloadAll: string;
@@ -228,6 +257,17 @@ export interface ResultsDictionary {
   download: string;
   downloadFile: string; // {name}
   removeFile: string; // {name}
+  ai: {
+    previewBackground: string;
+    backdrops: { checker: string; light: string; dark: string };
+    altLabel: string;
+    altDraft: string;
+    altFailed: string;
+    downloadingModel: string; // {percent}
+    removingBackground: string;
+    writingAlt: string;
+    noSubject: string;
+  };
   upload: {
     title: string;
     close: string;
@@ -248,6 +288,8 @@ export interface HomeDictionary {
     compressImages: HomeTool;
     convertImages: HomeTool;
     resizeImages: HomeTool;
+    removeBackground: HomeTool;
+    imageAlt: HomeTool;
     compressVideos: HomeTool;
     convertVideos: HomeTool;
     resizeVideos: HomeTool;

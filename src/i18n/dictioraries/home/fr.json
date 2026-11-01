@@ -41,6 +41,14 @@
     "videoThumbnail": {
       "label": "Miniature vidéo",
       "description": "La première image, en fichier image"
+    },
+    "removeBackground": {
+      "label": "Supprimer le fond",
+      "description": "Détourez le sujet d’une photo"
+    },
+    "imageAlt": {
+      "label": "Alt text",
+      "description": "Un brouillon de description pour chaque image"
     }
   },
   "showcase": {

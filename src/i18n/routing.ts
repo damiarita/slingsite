@@ -18,6 +18,9 @@ export const routing = defineRouting({
     '/image/': '/image/',
     '/image/format/[[...slugs]]': '/image/format/[[...slugs]]',
     '/image/resize/[[...slugs]]': '/image/resize/[[...slugs]]',
+    '/image/remove-background/[[...slugs]]':
+      '/image/remove-background/[[...slugs]]',
+    '/image/alt/[[...slugs]]': '/image/alt/[[...slugs]]',
     '/video/': '/video/',
     '/video/format/[[...slugs]]': '/video/format/[[...slugs]]',
     '/video/resize/[[...slugs]]': '/video/resize/[[...slugs]]',

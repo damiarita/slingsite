@@ -24,6 +24,10 @@
     "compress": "ضغط",
     "convert": "تحويل",
     "resize": "تغيير الحجم",
-    "thumbnail": "صورة مصغّرة"
-  }
+    "thumbnail": "صورة مصغّرة",
+    "removeBackground": "إزالة الخلفية",
+    "alt": "alt text"
+  },
+  "imageRemoveBackground": "إزالة الخلفية",
+  "imageAlt": "مولّد alt text"
 }

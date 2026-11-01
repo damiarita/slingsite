@@ -24,6 +24,10 @@
     "compress": "Komprimieren",
     "convert": "Konvertieren",
     "resize": "Größe ändern",
-    "thumbnail": "Vorschaubild"
-  }
+    "thumbnail": "Vorschaubild",
+    "removeBackground": "Hintergrund entfernen",
+    "alt": "Alt-Text"
+  },
+  "imageRemoveBackground": "Hintergrund entfernen",
+  "imageAlt": "Alt-Text-Generator"
 }

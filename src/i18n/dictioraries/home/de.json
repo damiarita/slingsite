@@ -37,6 +37,14 @@
     "videoThumbnail": {
       "label": "Video-Vorschaubild",
       "description": "Das erste Bild als Bilddatei"
+    },
+    "removeBackground": {
+      "label": "Hintergrund entfernen",
+      "description": "Das Motiv aus einem Foto freistellen"
+    },
+    "imageAlt": {
+      "label": "Alt-Text",
+      "description": "Ein Beschreibungsentwurf für jedes Bild"
     }
   },
   "showcase": {

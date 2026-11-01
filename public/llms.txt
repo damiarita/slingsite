@@ -14,6 +14,21 @@ Learn more about image compression at [/en/image/](/en/image/)
 - Generate multiple optimized formats for each original image: JPG, WEBP, and AVIF
 - Download individual generated files or download all files in batch
 
+## Background Removal
+
+Learn more at [/en/image/remove-background/](/en/image/remove-background/)
+
+- Cut the main subject out of an image, as PNG, WebP or AVIF with transparency
+- An AI model runs on the visitor's device. It is downloaded from Hugging Face the first time; images are never uploaded
+
+## Alt Text Generator
+
+Learn more at [/en/image/alt/](/en/image/alt/)
+
+- Writes a draft description of each image, in English only, to review and edit
+- An AI model runs on the visitor's device. It is downloaded from Hugging Face the first time; images are never uploaded
+- Also available as an option of the image compressor, which adds the text to the HTML snippet
+
 ## Video Compression
 
 Learn more about video compression at [/en/video/](/en/video/)

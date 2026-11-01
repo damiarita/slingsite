@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { Code, Download, Info, Package, X } from 'lucide-react';
+import { Check, Code, Copy, Download, Info, Package, X } from 'lucide-react';
 import { type Format, formatNames } from '@/utils/formats';
 import type { Job, Task } from '@/types/job';
 import {
@@ -24,6 +24,7 @@ import {
 
 type FileItemProps = {
   onRemove: () => void;
+  onAltChange: (text: string) => void;
   onDownloadAll: (type: persistenceType) => void;
   onDownloadOne: (configName: string, format: Format) => void;
   job: Job;
@@ -102,8 +103,114 @@ function TaskCell({
   }
 }
 
+const backdrops = {
+  checker:
+    'bg-[repeating-conic-gradient(var(--color-paper-3)_0_25%,var(--color-paper)_0_50%)] bg-size-[1.5rem_1.5rem]',
+  light: 'bg-white',
+  dark: 'bg-black',
+} as const;
+
+// A finished cutout, over a checkerboard or a plain colour to judge the edges.
+function CutoutPreview({
+  file,
+  translation,
+}: {
+  file: File;
+  translation: ResultsDictionary;
+}) {
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [backdrop, setBackdrop] = useState<keyof typeof backdrops>('checker');
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    if (imageRef.current) imageRef.current.src = objectUrl;
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+  return (
+    <div className="border-t border-rule px-4 py-3">
+      <div className={`overflow-hidden rounded-input ${backdrops[backdrop]}`}>
+        <img
+          ref={imageRef}
+          alt=""
+          className="mx-auto max-h-96 object-contain"
+        />
+      </div>
+      <div
+        role="group"
+        aria-label={translation.ai.previewBackground}
+        className="mt-2 flex flex-wrap gap-2"
+      >
+        {(Object.keys(backdrops) as (keyof typeof backdrops)[]).map((key) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={backdrop === key}
+            onClick={() => setBackdrop(key)}
+            className="min-h-11 rounded-input border border-rule bg-paper px-3 text-sm text-ink transition-colors duration-150 hover:bg-paper-2 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+          >
+            {translation.ai.backdrops[key]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// The draft: the visitor can edit it, and the HTML snippet follows.
+function AltField({
+  jobId,
+  text,
+  onChange,
+  translation,
+}: {
+  jobId: string;
+  text: string;
+  onChange: (text: string) => void;
+  translation: ResultsDictionary;
+}) {
+  const [copied, setCopied] = useState(false);
+  const fieldId = `alt-${jobId}`;
+  return (
+    <div className="border-t border-rule px-4 py-3">
+      <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-4">
+        <label htmlFor={fieldId} className="font-semibold">
+          {translation.ai.altLabel}
+        </label>
+        <small className="text-sm text-muted">{translation.ai.altDraft}</small>
+      </div>
+      <textarea
+        id={fieldId}
+        dir="ltr"
+        lang="en"
+        rows={2}
+        value={text}
+        onChange={(event) => {
+          setCopied(false);
+          onChange(event.target.value);
+        }}
+        className="w-full rounded-input border border-muted bg-paper px-3 py-2 text-base text-ink"
+      />
+      <div className="mt-2">
+        <SecondaryButton
+          size="sm"
+          onClick={() =>
+            navigator.clipboard.writeText(text).then(() => setCopied(true))
+          }
+        >
+          {copied ? (
+            <Check className="size-4" aria-hidden="true" />
+          ) : (
+            <Copy className="size-4" aria-hidden="true" />
+          )}
+          {copied ? translation.copied : translation.copy}
+        </SecondaryButton>
+      </div>
+    </div>
+  );
+}
+
 export const FileItem = ({
   onRemove,
+  onAltChange,
   onDownloadAll,
   onDownloadOne,
   job,
@@ -115,13 +222,50 @@ export const FileItem = ({
   const { originalFile, originalFileObjectURL, tasks } = job;
   const entries = jobTaskEntries(job);
   const done = jobProportionOfDoneTasks(job) === 1;
-  const started = entries.some(({ task }) => task.status !== 'waiting');
-  const failed = entries.some(({ task }) => task.status === 'errored');
+  const maskStep = job.removeBackground?.step;
+  const altStep = job.alt?.step;
+  const started =
+    entries.some(({ task }) => task.status !== 'waiting') ||
+    maskStep?.status === 'running' ||
+    altStep?.status === 'running';
+  const failed =
+    entries.some(({ task }) => task.status === 'errored') ||
+    altStep?.status === 'errored';
+  const runningAiStep = [maskStep, altStep].find(
+    (step) => step?.status === 'running',
+  );
+  const aiPercentage =
+    runningAiStep?.status === 'running' ? runningAiStep.percentage : undefined;
+  // The model reports nothing while it works, so there is no percentage.
+  const aiWorking = Boolean(runningAiStep) && aiPercentage === undefined;
+  const aiStatus = !runningAiStep
+    ? undefined
+    : aiPercentage !== undefined
+      ? fill(translation.ai.downloadingModel, {
+          percent: formatNumber(locale, aiPercentage / 100, {
+            style: 'percent',
+            maximumFractionDigits: 0,
+          }),
+        })
+      : maskStep?.status === 'running'
+        ? translation.ai.removingBackground
+        : translation.ai.writingAlt;
+  const maskIsEmpty = maskStep?.status === 'completed' && maskStep.result.empty;
+  const cutout =
+    job.removeBackground &&
+    entries.find(({ task }) => task.status === 'completed')?.task;
   const progress = jobProgress(job);
   const formats = [
     ...new Set(Object.values(tasks).flatMap((t) => Object.keys(t))),
   ] as Format[];
-  const markup = done ? getJobPictureMarkup(job) : undefined;
+  // Files are ready before the alt text, which comes last, so they can be
+  // saved meanwhile. The snippet picks up the alt text when it arrives.
+  const filesDone =
+    entries.length > 0 &&
+    entries.every(
+      ({ task }) => task.status === 'completed' || task.status === 'errored',
+    );
+  const markup = filesDone ? getJobPictureMarkup(job) : undefined;
   const completedCount = entries.filter(
     ({ task }) => task.status === 'completed',
   ).length;
@@ -167,6 +311,10 @@ export const FileItem = ({
               {translation.done}
             </span>
           )
+        ) : aiWorking ? (
+          <span className={`${pillClass} bg-warn-wash text-warn`}>
+            {translation.working}
+          </span>
         ) : started ? (
           <span className={`${pillClass} bg-warn-wash text-warn`}>
             {formatNumber(locale, progress, {
@@ -188,72 +336,107 @@ export const FileItem = ({
       </div>
       <div className="h-[3px] bg-paper-2" aria-hidden="true">
         <i
-          className="block h-full origin-left bg-accent transition-transform duration-200 ease-linear rtl:origin-right"
-          style={{ transform: `scaleX(${progress})` }}
+          className={`block h-full origin-left bg-accent transition-transform duration-200 ease-linear rtl:origin-right ${aiWorking ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+          style={{ transform: `scaleX(${aiWorking ? 1 : progress})` }}
         />
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm tabular-nums">
-          <thead>
-            <tr className="text-muted">
-              <th scope="col" className="px-4 py-2 text-start font-normal">
-                {translation.sizeColumn}
-              </th>
-              {formats.map((format) => (
-                <th
-                  key={format}
-                  scope="col"
-                  className="px-4 py-2 text-start font-normal whitespace-nowrap"
-                >
-                  {formatNames[format]}
+      {aiStatus && (
+        <p role="status" className="px-4 py-3 text-sm text-warn">
+          {aiStatus}
+        </p>
+      )}
+      {maskStep?.status === 'completed' && maskStep.result.empty && (
+        <p className="flex items-center gap-2 border-t border-rule bg-warn-wash px-4 py-3 text-sm text-warn">
+          <Info className="size-4 shrink-0" aria-hidden="true" />
+          {translation.ai.noSubject}
+        </p>
+      )}
+      {altStep?.status === 'errored' && (
+        <p className="flex items-center gap-2 border-t border-rule bg-error-wash px-4 py-3 text-sm text-error">
+          <Info className="size-4 shrink-0" aria-hidden="true" />
+          {translation.ai.altFailed}
+        </p>
+      )}
+      {altStep?.status === 'completed' && (
+        <AltField
+          jobId={job.id}
+          text={altStep.result.text}
+          onChange={onAltChange}
+          translation={translation}
+        />
+      )}
+      {cutout?.status === 'completed' && !maskIsEmpty && (
+        <CutoutPreview file={cutout.result} translation={translation} />
+      )}
+      {entries.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm tabular-nums">
+            <thead>
+              <tr className="text-muted">
+                <th scope="col" className="px-4 py-2 text-start font-normal">
+                  {translation.sizeColumn}
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(tasks).map(([configName, configTasks]) => {
-              const dimensions = job.requestedDimensions[configName];
-              return (
-                <tr key={configName} className="border-t border-rule">
+                {formats.map((format) => (
                   <th
-                    scope="row"
+                    key={format}
+                    scope="col"
                     className="px-4 py-2 text-start font-normal whitespace-nowrap"
                   >
-                    <b className="me-2 font-semibold">{configName}</b>
-                    {dimensions && (
-                      <small className="text-muted">
-                        {formatNumber(locale, dimensions.width)}
-                        {' × '}
-                        {formatNumber(locale, dimensions.height)}
-                      </small>
-                    )}
+                    {formatNames[format]}
                   </th>
-                  {formats.map((format) => {
-                    const task = configTasks[format];
-                    return (
-                      <td key={format} className="px-4 py-2 whitespace-nowrap">
-                        {task && (
-                          <TaskCell
-                            task={task}
-                            fileName={
-                              job.outputFileNames[configName]?.[format] ??
-                              format
-                            }
-                            originalSize={originalFile.size}
-                            onDownload={() => onDownloadOne(configName, format)}
-                            translation={translation}
-                          />
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {done && completedCount > 0 && (
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(tasks).map(([configName, configTasks]) => {
+                const dimensions = job.requestedDimensions[configName];
+                return (
+                  <tr key={configName} className="border-t border-rule">
+                    <th
+                      scope="row"
+                      className="px-4 py-2 text-start font-normal whitespace-nowrap"
+                    >
+                      <b className="me-2 font-semibold">{configName}</b>
+                      {dimensions && (
+                        <small className="text-muted">
+                          {formatNumber(locale, dimensions.width)}
+                          {' × '}
+                          {formatNumber(locale, dimensions.height)}
+                        </small>
+                      )}
+                    </th>
+                    {formats.map((format) => {
+                      const task = configTasks[format];
+                      return (
+                        <td
+                          key={format}
+                          className="px-4 py-2 whitespace-nowrap"
+                        >
+                          {task && (
+                            <TaskCell
+                              task={task}
+                              fileName={
+                                job.outputFileNames[configName]?.[format] ??
+                                format
+                              }
+                              originalSize={originalFile.size}
+                              onDownload={() =>
+                                onDownloadOne(configName, format)
+                              }
+                              translation={translation}
+                            />
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {filesDone && completedCount > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-t border-rule bg-paper-2 px-4 py-3">
           <span className="me-auto text-sm text-muted">
             {fill(translation.filesReady, {

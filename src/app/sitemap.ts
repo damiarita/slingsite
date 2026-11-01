@@ -101,6 +101,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         }
         case '/image/format/[[...slugs]]':
         case '/image/resize/[[...slugs]]':
+        case '/image/remove-background/[[...slugs]]':
+        case '/image/alt/[[...slugs]]':
         case '/video/format/[[...slugs]]':
         case '/video/resize/[[...slugs]]':
         case '/video/thumbnail/[[...slugs]]': {

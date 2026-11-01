@@ -24,6 +24,10 @@
     "compress": "压缩",
     "convert": "转换",
     "resize": "调整尺寸",
-    "thumbnail": "缩略图"
-  }
+    "thumbnail": "缩略图",
+    "removeBackground": "移除背景",
+    "alt": "alt text"
+  },
+  "imageRemoveBackground": "移除背景",
+  "imageAlt": "alt text 生成器"
 }

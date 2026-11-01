@@ -1,4 +1,6 @@
+import type { AiModelId } from '../utils/ai-models';
 import type { Format } from '../utils/formats';
+import type { AiAltResult, AiMaskResult, AiStep } from './ai';
 import type { TaskErrorKind } from './analytics';
 import type { MediaDimensions } from './mediaDimensions';
 
@@ -29,6 +31,10 @@ export type Job = JobIds & {
   // Image compress jobs only: the `sizes` attribute of the <picture> snippet
   // shown once the job is done.
   pictureSizes?: string;
+  // Run before the outputs are encoded. Without a mask, the tasks can't run;
+  // without alt text, they can.
+  removeBackground?: { modelId: AiModelId; step: AiStep<AiMaskResult> };
+  alt?: { modelId: AiModelId; step: AiStep<AiAltResult> };
 };
 
 // A file picked but not started yet. The id follows it into its job.

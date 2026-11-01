@@ -27,5 +27,20 @@
     "waiting": "In attesa",
     "completed": "Salvato",
     "failed": "Non riuscito: {message}"
+  },
+  "ai": {
+    "previewBackground": "Anteprima su",
+    "backdrops": {
+      "checker": "Scacchiera",
+      "light": "Bianco",
+      "dark": "Nero"
+    },
+    "altLabel": "Alt text",
+    "altDraft": "Bozza in inglese. Controllala prima di usarla.",
+    "altFailed": "Non è stato possibile scrivere l’alt text (testo alternativo). I tuoi file immagine non sono interessati.",
+    "removingBackground": "Rimozione dello sfondo. Può richiedere un minuto o più.",
+    "writingAlt": "Scrittura dell’alt text (testo alternativo). Può richiedere un minuto o più.",
+    "noSubject": "Non è stato trovato un soggetto chiaro, quindi quasi tutta l’immagine è stata rimossa. Funziona meglio con una persona o un oggetto su uno sfondo.",
+    "downloadingModel": "Download del modello: {percent}"
   }
 }

@@ -27,5 +27,20 @@
     "waiting": "Esperando",
     "completed": "Guardado",
     "failed": "Error: {message}"
+  },
+  "ai": {
+    "previewBackground": "Ver sobre",
+    "backdrops": {
+      "checker": "Cuadrícula",
+      "light": "Blanco",
+      "dark": "Negro"
+    },
+    "altLabel": "Alt text",
+    "altDraft": "Borrador en inglés. Revísalo antes de usarlo.",
+    "altFailed": "No se ha podido escribir el alt text (texto alternativo). Tus archivos de imagen no se ven afectados.",
+    "removingBackground": "Quitando el fondo. Puede tardar un minuto o más.",
+    "writingAlt": "Escribiendo el alt text (texto alternativo). Puede tardar un minuto o más.",
+    "noSubject": "No se ha encontrado un sujeto claro y se ha eliminado casi toda la imagen. Funciona mejor con una persona o un objeto sobre un fondo.",
+    "downloadingModel": "Descargando el modelo: {percent}"
   }
 }

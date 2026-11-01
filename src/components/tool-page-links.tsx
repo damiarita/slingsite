@@ -24,7 +24,7 @@ export default function ToolPageLinks({
   locale,
   translation,
 }: {
-  tool: Tool;
+  tool: Exclude<Tool, 'remove-background' | 'alt'>;
   type: CompressionInput;
   locale: Locale;
   translation: FormatLinksDictionary;
