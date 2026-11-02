@@ -23,7 +23,7 @@
     "@tailwindcss/typography": "^0.5.20",
     "contentlayer2": "^0.5.8",
     "lucide-react": "^0.562.0",
-    "mediabunny": "^1.63.0",
+    "mediabunny": "^1.64.0",
     "next": "^16.4.3",
     "next-contentlayer2": "^0.5.8",
     "next-intl": "^4.14.9",
