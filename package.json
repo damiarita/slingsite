@@ -23,8 +23,8 @@
     "@tailwindcss/typography": "^0.5.20",
     "contentlayer2": "^0.5.8",
     "lucide-react": "^0.562.0",
-    "mediabunny": "^1.63.0",
-    "next": "^16.4.3",
+    "mediabunny": "^1.65.0",
+    "next": "^16.4.4",
     "next-contentlayer2": "^0.5.8",
     "next-intl": "^4.14.9",
     "next-mdx-remote": "^6.0.0",
@@ -36,7 +36,7 @@
     "remark-gfm": "^4.0.1",
     "strip-markdown": "^6.0.0",
     "url-slug": "^5.2.0",
-    "vanilla-cookieconsent": "^3.1.0"
+    "vanilla-cookieconsent": "^3.2.1"
   },
   "devDependencies": {
     "@ffmpeg/types": "^0.12.4",
@@ -47,7 +47,7 @@
     "baseline-browser-mapping": "^2.9.14",
     "copy-webpack-plugin": "^13.0.1",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.4",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
